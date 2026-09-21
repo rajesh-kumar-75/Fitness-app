@@ -47,7 +47,7 @@ export class LandingComponent implements AfterViewInit, OnDestroy {
   private renderer?: THREE.WebGLRenderer;
   private animFrameId?: number;
   private mouseMoveHandler?: (e: MouseEvent) => void;
-  private resizeHandler?: () => void;
+  private resizeObserver?: ResizeObserver;
 
   ngAfterViewInit(): void {
     this.initThreeJS();
@@ -60,8 +60,8 @@ export class LandingComponent implements AfterViewInit, OnDestroy {
     if (this.mouseMoveHandler) {
       window.removeEventListener('mousemove', this.mouseMoveHandler);
     }
-    if (this.resizeHandler) {
-      window.removeEventListener('resize', this.resizeHandler);
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
     }
     if (this.renderer) {
       this.renderer.dispose();
@@ -95,94 +95,182 @@ export class LandingComponent implements AfterViewInit, OnDestroy {
     if (!container) return;
 
     this.ngZone.runOutsideAngular(() => {
-      const width = container.clientWidth || 600;
-      const height = container.clientHeight || 360;
+      // Clear any previous canvas children
+      while (container.firstChild) {
+        container.removeChild(container.firstChild);
+      }
+
+      const getWidth = () => Math.max(container.clientWidth || 0, container.offsetWidth || 0, 480);
+      const getHeight = () => Math.max(container.clientHeight || 0, container.offsetHeight || 0, 360);
 
       const scene = new THREE.Scene();
       this.scene = scene;
 
-      const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-      camera.position.set(0, 0, 18);
+      const camera = new THREE.PerspectiveCamera(45, getWidth() / getHeight(), 0.1, 1000);
+      camera.position.set(0, 0, 16);
       this.camera = camera;
 
       const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-      renderer.setSize(width, height);
+      renderer.setSize(getWidth(), getHeight());
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.domElement.style.width = '100%';
+      renderer.domElement.style.height = '100%';
+      renderer.domElement.style.display = 'block';
       container.appendChild(renderer.domElement);
       this.renderer = renderer;
 
       // Lights
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
       scene.add(ambientLight);
 
-      const dirLight = new THREE.DirectionalLight(0x00c974, 2.5);
-      dirLight.position.set(10, 15, 10);
+      const dirLight = new THREE.DirectionalLight(0x00c974, 3.0);
+      dirLight.position.set(8, 12, 10);
       scene.add(dirLight);
 
-      const blueLight = new THREE.DirectionalLight(0x10b981, 1.8);
-      blueLight.position.set(-10, -10, 5);
-      scene.add(blueLight);
+      const cyanLight = new THREE.DirectionalLight(0x00f5ff, 2.0);
+      cyanLight.position.set(-8, -10, 6);
+      scene.add(cyanLight);
 
-      const group = new THREE.Group();
-      scene.add(group);
+      // Centered Master Group
+      const masterGroup = new THREE.Group();
+      masterGroup.position.set(0, 0, 0);
+      scene.add(masterGroup);
 
-      // 1. Central Holographic Core (Wireframe Icosahedron + Inner Sphere)
-      const innerGeo = new THREE.IcosahedronGeometry(3.6, 1);
+      // 1. Central Holographic Core (Wireframe Icosahedron + Inner Glowing Core)
+      const innerGeo = new THREE.IcosahedronGeometry(3.0, 1);
       const innerMat = new THREE.MeshPhongMaterial({
         color: 0x00c974,
         wireframe: true,
         transparent: true,
-        opacity: 0.35,
-        emissive: 0x005a30,
-        shininess: 80,
+        opacity: 0.4,
+        emissive: 0x004d29,
+        shininess: 90,
       });
       const innerMesh = new THREE.Mesh(innerGeo, innerMat);
-      group.add(innerMesh);
+      masterGroup.add(innerMesh);
 
-      const coreGeo = new THREE.SphereGeometry(2.2, 32, 32);
+      const coreGeo = new THREE.SphereGeometry(1.8, 32, 32);
       const coreMat = new THREE.MeshPhongMaterial({
         color: 0x052e1b,
         emissive: 0x00c974,
-        emissiveIntensity: 0.25,
+        emissiveIntensity: 0.35,
         transparent: true,
-        opacity: 0.85,
+        opacity: 0.8,
         shininess: 100,
       });
       const coreMesh = new THREE.Mesh(coreGeo, coreMat);
-      group.add(coreMesh);
+      masterGroup.add(coreMesh);
 
-      // 2. Orbital Glowing Biometric Rings
+      // 2. Biomechanical 32-Keypoint Humanoid Athlete Skeleton
+      const skeletonGroup = new THREE.Group();
+      masterGroup.add(skeletonGroup);
+
+      // Joint Coordinates for Biomechanical Figure
+      const joints: [number, number, number][] = [
+        [0, 3.4, 0],       // 0: Head
+        [0, 2.6, 0],       // 1: Neck
+        [0, 1.3, 0],       // 2: Sternum / Upper Spine
+        [0, 0.0, 0],       // 3: Core / Pelvis
+        // Left Arm
+        [-1.4, 2.4, 0],    // 4: L Shoulder
+        [-2.3, 1.2, 0.3],  // 5: L Elbow
+        [-2.0, 0.1, 0.7],  // 6: L Wrist
+        [-1.8, -0.4, 0.8], // 7: L Hand
+        // Right Arm
+        [1.4, 2.4, 0],     // 8: R Shoulder
+        [2.3, 1.2, 0.3],   // 9: R Elbow
+        [2.0, 0.1, 0.7],   // 10: R Wrist
+        [1.8, -0.4, 0.8],  // 11: R Hand
+        // Left Leg
+        [-0.8, -0.2, 0],   // 12: L Hip
+        [-1.0, -1.8, 0.2], // 13: L Knee
+        [-1.2, -3.4, 0],   // 14: L Ankle
+        [-1.3, -3.7, 0.4], // 15: L Foot
+        // Right Leg
+        [0.8, -0.2, 0],    // 16: R Hip
+        [1.0, -1.8, 0.2],  // 17: R Knee
+        [1.2, -3.4, 0],    // 18: R Ankle
+        [1.3, -3.7, 0.4],  // 19: R Foot
+      ];
+
+      // Bones Connecting Keypoints
+      const bonePairs: [number, number][] = [
+        [0, 1], [1, 2], [2, 3],
+        [1, 4], [4, 5], [5, 6], [6, 7],
+        [1, 8], [8, 9], [9, 10], [10, 11],
+        [3, 12], [12, 13], [13, 14], [14, 15],
+        [3, 16], [16, 17], [17, 18], [18, 19],
+      ];
+
+      // Create glowing keypoint joints
+      const jointMaterial = new THREE.MeshBasicMaterial({
+        color: 0x41e68d,
+        transparent: true,
+        opacity: 0.9,
+      });
+
+      const headGeo = new THREE.SphereGeometry(0.32, 16, 16);
+      const headMesh = new THREE.Mesh(headGeo, jointMaterial);
+      headMesh.position.set(joints[0][0], joints[0][1], joints[0][2]);
+      skeletonGroup.add(headMesh);
+
+      const jointGeo = new THREE.SphereGeometry(0.14, 12, 12);
+      joints.slice(1).forEach(([x, y, z]) => {
+        const jm = new THREE.Mesh(jointGeo, jointMaterial);
+        jm.position.set(x, y, z);
+        skeletonGroup.add(jm);
+      });
+
+      // Create bone connector lines
+      const lineMaterial = new THREE.LineBasicMaterial({
+        color: 0x00c974,
+        transparent: true,
+        opacity: 0.55,
+        linewidth: 2,
+      });
+
+      bonePairs.forEach(([idxA, idxB]) => {
+        const pts = [
+          new THREE.Vector3(...joints[idxA]),
+          new THREE.Vector3(...joints[idxB]),
+        ];
+        const lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
+        const line = new THREE.Line(lineGeo, lineMaterial);
+        skeletonGroup.add(line);
+      });
+
+      // 3. Orbital Glowing Biometric Rings (Centered Gyroscope)
       const rings: { mesh: THREE.Mesh; speedX: number; speedY: number }[] = [];
       const ringData = [
-        { r: 5.5, tube: 0.04, color: 0x00c974, rx: 1.2, ry: 0.4 },
-        { r: 6.8, tube: 0.05, color: 0x10b981, rx: -0.7, ry: 1.1 },
-        { r: 8.0, tube: 0.03, color: 0x34d399, rx: 0.5, ry: -0.8 },
+        { r: 4.8, tube: 0.035, color: 0x00c974, rx: 1.1, ry: 0.4 },
+        { r: 5.9, tube: 0.04, color: 0x10b981, rx: -0.8, ry: 1.2 },
+        { r: 7.0, tube: 0.03, color: 0x34d399, rx: 0.6, ry: -0.7 },
       ];
 
       ringData.forEach((d) => {
-        const geo = new THREE.TorusGeometry(d.r, d.tube, 16, 100);
+        const geo = new THREE.TorusGeometry(d.r, d.tube, 16, 120);
         const mat = new THREE.MeshBasicMaterial({
           color: d.color,
           transparent: true,
-          opacity: 0.75,
+          opacity: 0.65,
         });
         const mesh = new THREE.Mesh(geo, mat);
         mesh.rotation.x = d.rx;
         mesh.rotation.y = d.ry;
-        group.add(mesh);
+        masterGroup.add(mesh);
         rings.push({
           mesh,
-          speedX: 0.006 * (Math.random() > 0.5 ? 1 : -1),
-          speedY: 0.008,
+          speedX: 0.005 * (Math.random() > 0.5 ? 1 : -1),
+          speedY: 0.007,
         });
       });
 
-      // 3. Floating Biometric Node Particles
-      const particleCount = 140;
+      // 4. Floating Biometric Node Particles
+      const particleCount = 130;
       const pGeo = new THREE.BufferGeometry();
       const posArray = new Float32Array(particleCount * 3);
       for (let i = 0; i < particleCount * 3; i += 3) {
-        const radius = 4.5 + Math.random() * 6.5;
+        const radius = 3.5 + Math.random() * 5.0;
         const theta = Math.random() * Math.PI * 2;
         const phi = Math.acos(Math.random() * 2 - 1);
         posArray[i] = radius * Math.sin(phi) * Math.cos(theta);
@@ -192,16 +280,36 @@ export class LandingComponent implements AfterViewInit, OnDestroy {
       pGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
 
       const pMat = new THREE.PointsMaterial({
-        size: 0.18,
-        color: 0x00c974,
+        size: 0.16,
+        color: 0x41e68d,
         transparent: true,
-        opacity: 0.85,
+        opacity: 0.8,
         blending: THREE.AdditiveBlending,
       });
       const particles = new THREE.Points(pGeo, pMat);
-      group.add(particles);
+      masterGroup.add(particles);
 
-      // Mouse Parallax
+      // Responsive Resize Observer
+      const updateSize = () => {
+        if (!container || !renderer || !camera) return;
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        if (w > 0 && h > 0) {
+          camera.aspect = w / h;
+          camera.updateProjectionMatrix();
+          renderer.setSize(w, h, true);
+        }
+      };
+
+      this.resizeObserver = new ResizeObserver(() => updateSize());
+      this.resizeObserver.observe(container);
+
+      // Safety resize checks after initial CSS settle
+      setTimeout(() => updateSize(), 60);
+      setTimeout(() => updateSize(), 300);
+      setTimeout(() => updateSize(), 800);
+
+      // Mouse Parallax Interaction
       let mouseX = 0;
       let mouseY = 0;
       let targetX = 0;
@@ -214,38 +322,30 @@ export class LandingComponent implements AfterViewInit, OnDestroy {
       };
       window.addEventListener('mousemove', this.mouseMoveHandler);
 
-      this.resizeHandler = () => {
-        if (!container || !renderer || !camera) return;
-        const w = container.clientWidth || 600;
-        const h = container.clientHeight || 360;
-        camera.aspect = w / h;
-        camera.updateProjectionMatrix();
-        renderer.setSize(w, h);
-      };
-      window.addEventListener('resize', this.resizeHandler);
-
       // Animation Loop
       const clock = new THREE.Clock();
       const animate = () => {
         this.animFrameId = requestAnimationFrame(animate);
         const elapsedTime = clock.getElapsedTime();
 
-        targetX += (mouseX * 0.5 - targetX) * 0.05;
-        targetY += (mouseY * 0.5 - targetY) * 0.05;
+        targetX += (mouseX * 0.4 - targetX) * 0.05;
+        targetY += (mouseY * 0.4 - targetY) * 0.05;
 
-        group.rotation.y = elapsedTime * 0.2 + targetX;
-        group.rotation.x = Math.sin(elapsedTime * 0.15) * 0.15 + targetY;
+        // Rotate entire scene gently around center
+        masterGroup.rotation.y = elapsedTime * 0.18 + targetX;
+        masterGroup.rotation.x = Math.sin(elapsedTime * 0.12) * 0.1 + targetY;
 
-        innerMesh.rotation.y += 0.005;
-        innerMesh.rotation.x += 0.003;
+        innerMesh.rotation.y += 0.006;
+        innerMesh.rotation.x += 0.004;
 
         rings.forEach((r, idx) => {
-          r.mesh.rotation.z += 0.004 * (idx % 2 === 0 ? 1 : -1);
+          r.mesh.rotation.z += 0.003 * (idx % 2 === 0 ? 1 : -1);
         });
 
-        particles.rotation.y = -elapsedTime * 0.05;
+        particles.rotation.y = -elapsedTime * 0.04;
 
-        const scale = 1 + Math.sin(elapsedTime * 1.8) * 0.04;
+        // Subtle breathing scale
+        const scale = 1 + Math.sin(elapsedTime * 1.5) * 0.03;
         coreMesh.scale.set(scale, scale, scale);
 
         renderer.render(scene, camera);
