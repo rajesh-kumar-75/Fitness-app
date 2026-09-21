@@ -31,7 +31,11 @@ export class AuthService {
   readonly isAuthenticated = computed(() => !!this.token());
   readonly userRole = computed<UserRole | null>(() => {
     const role = this.currentUser()?.role;
-    return role ? (role.toUpperCase() as UserRole) : null;
+    if (!role) return null;
+    const upper = (role as string).toUpperCase();
+    if (upper === 'TRAINER') return 'TRAINER';
+    if (upper === 'ADMIN') return 'ADMIN';
+    return 'USER';
   });
   readonly isTrainer = computed(() => this.userRole() === 'TRAINER');
   readonly isAdmin = computed(() => this.userRole() === 'ADMIN');

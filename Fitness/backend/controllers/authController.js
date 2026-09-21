@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Member = require('../models/Member');
@@ -17,6 +18,13 @@ const generateToken = (id) => {
  */
 const registerUser = async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database is temporarily unavailable. Please check database connection.',
+      });
+    }
+
     const { name, email, password, phone, role, profileImage } = req.body;
 
     if (!name || !email || !password) {
@@ -80,11 +88,13 @@ const registerUser = async (req, res) => {
         token,
         user: {
           id: user._id,
+          _id: user._id,
           name: user.name,
           email: user.email,
-          role: user.role,
+          role: normalizedRole === 'trainer' ? 'TRAINER' : (normalizedRole === 'admin' ? 'ADMIN' : 'USER'),
           phone: user.phone,
           profileImage: user.profileImage,
+          isActive: user.isActive !== false,
           createdAt: user.createdAt,
         },
       },
@@ -104,6 +114,13 @@ const registerUser = async (req, res) => {
  */
 const loginUser = async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database is temporarily unavailable. Please check database connection.',
+      });
+    }
+
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -138,11 +155,13 @@ const loginUser = async (req, res) => {
         token,
         user: {
           id: user._id,
+          _id: user._id,
           name: user.name,
           email: user.email,
           role: (user.role || 'member').toUpperCase() === 'TRAINER' ? 'TRAINER' : ((user.role || '').toUpperCase() === 'ADMIN' ? 'ADMIN' : 'USER'),
           phone: user.phone,
           profileImage: user.profileImage,
+          isActive: user.isActive !== false,
           createdAt: user.createdAt,
         },
       },
@@ -174,11 +193,13 @@ const getCurrentUser = async (req, res) => {
       data: {
         user: {
           id: req.user._id,
+          _id: req.user._id,
           name: req.user.name,
           email: req.user.email,
           role: (req.user.role || 'member').toUpperCase() === 'TRAINER' ? 'TRAINER' : ((req.user.role || '').toUpperCase() === 'ADMIN' ? 'ADMIN' : 'USER'),
           phone: req.user.phone,
           profileImage: req.user.profileImage,
+          isActive: req.user.isActive !== false,
           createdAt: req.user.createdAt,
           profile,
         },
