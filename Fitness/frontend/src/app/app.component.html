@@ -10,7 +10,7 @@
   </div>
 
   <!-- Top Navigation Header -->
-  <header class="app-nav" *ngIf="!isLandingPage()">
+  <header class="app-nav" *ngIf="!isAuthOrLanding()">
     <div class="nav-container">
       <!-- Brand Logo -->
       <a routerLink="/" class="brand">
@@ -168,7 +168,7 @@
   </main>
 
   <!-- Global Footer -->
-  <footer class="app-footer" *ngIf="!isLandingPage()">
+  <footer class="app-footer" *ngIf="!isAuthOrLanding()">
     <div class="footer-container">
       <span class="holo-footer-brand">HOLOGRAPHIC &amp; ANTIGRAVITY INTERFACE v2.1</span>
       <div class="footer-tech-stack">

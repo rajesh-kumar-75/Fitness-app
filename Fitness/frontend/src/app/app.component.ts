@@ -23,13 +23,17 @@ export class AppComponent {
   readonly userRole = this.authService.userRole;
   readonly unreadMessagesCount = this.chatService.unreadTotal;
   readonly isLandingPage = signal<boolean>(false);
+  readonly isAuthOrLanding = signal<boolean>(false);
 
   constructor() {
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe((event) => {
         const url = event.urlAfterRedirects.split('?')[0].split('#')[0];
-        this.isLandingPage.set(url === '/' || url === '');
+        const isLanding = url === '/' || url === '';
+        const isAuth = url === '/login' || url === '/register';
+        this.isLandingPage.set(isLanding);
+        this.isAuthOrLanding.set(isLanding || isAuth);
       });
   }
 
