@@ -17,6 +17,7 @@ import { TrainerDirectoryComponent } from './features/trainer/trainer-directory.
 import { ChatComponent } from './features/chat/chat.component';
 import { AiCoachComponent } from './features/ai-coach/ai-coach.component';
 import { AdminDashboardComponent } from './features/admin/admin-dashboard.component';
+import { LandingComponent } from './features/landing/landing.component';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { roleGuard } from './core/guards/role.guard';
@@ -25,7 +26,8 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'dashboard',
+    component: LandingComponent,
+    title: 'FitPlatform - Workout & Health Ecosystem',
   },
   {
     path: 'dashboard',

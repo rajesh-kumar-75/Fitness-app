@@ -1,0 +1,797 @@
+<div class="landing-wrapper bg-surface font-body-md text-on-surface antialiased min-h-screen selection:bg-primary selection:text-on-primary">
+  <!-- Sticky Header Navbar -->
+  <header class="fixed top-0 left-0 right-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-surface-container-highest/40 shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+    <div class="h-20 w-full px-gutter max-w-7xl mx-auto flex items-center justify-between gap-space-md">
+      <!-- Brand Logo -->
+      <a class="flex items-center gap-space-sm group text-left" routerLink="/">
+        <div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center shadow-[0_0_16px_rgba(0,201,116,0.25)] group-hover:shadow-[0_0_24px_rgba(0,201,116,0.4)] transition-all">
+          <span class="material-symbols-outlined text-on-primary-container text-[22px]">exercise</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-title-md text-title-md text-on-surface tracking-tight leading-none group-hover:text-primary transition-colors font-bold">FitPlatform</span>
+          <span class="font-label-sm text-[9px] text-primary tracking-[0.2em] uppercase leading-none mt-space-xs font-semibold">WORKOUT &amp; HEALTH</span>
+        </div>
+      </a>
+
+      <!-- Center Nav Links -->
+      <nav class="hidden lg:flex items-center gap-space-lg">
+        <a class="font-title-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" href="#hero">Overview</a>
+        <a class="font-title-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" href="#features">Features</a>
+        <a class="font-title-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" href="#pricing">Pricing</a>
+        <a class="font-title-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" routerLink="/workouts">Workouts</a>
+        <a class="font-title-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" routerLink="/trainers">Trainers</a>
+      </nav>
+
+      <!-- Right Action Buttons -->
+      <div class="flex items-center gap-space-md">
+        <ng-container *ngIf="isAuthenticated(); else guestNav">
+          <a
+            routerLink="/dashboard"
+            class="inline-flex items-center gap-2 font-title-md text-body-md font-bold px-5 py-2.5 rounded-xl bg-primary-container text-on-primary-container hover:bg-primary shadow-[0_0_20px_rgba(0,201,116,0.35)] hover:shadow-[0_0_28px_rgba(0,201,116,0.55)] transition-all"
+          >
+            <span>Open Dashboard</span>
+            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+          </a>
+        </ng-container>
+        <ng-template #guestNav>
+          <a
+            routerLink="/login"
+            class="font-title-md text-body-md text-on-surface-variant hover:text-on-surface px-space-sm py-space-xs transition-colors"
+          >
+            Log In
+          </a>
+          <a
+            routerLink="/register"
+            class="hidden sm:inline-flex items-center justify-center font-title-md text-body-md font-semibold px-space-md py-space-sm rounded-xl bg-primary-container text-on-primary-container hover:bg-primary shadow-[0_0_20px_rgba(0,201,116,0.35)] hover:shadow-[0_0_28px_rgba(0,201,116,0.55)] transition-all"
+          >
+            Join FitPlatform
+          </a>
+          <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-on-primary text-[18px]">person</span>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="w-full pt-20 bg-surface min-h-screen">
+    <div class="flex flex-col w-full">
+      <!-- Top Ambient Glow Field -->
+      <div class="relative w-full overflow-hidden" id="hero">
+        <div class="absolute -top-36 left-1/2 -translate-x-1/2 w-[700px] h-[360px] bg-primary/10 blur-[130px] rounded-full pointer-events-none"></div>
+        <div class="absolute top-48 -left-32 w-80 h-80 bg-tertiary-container/10 blur-[100px] rounded-full pointer-events-none"></div>
+
+        <!-- 1. Hero Section -->
+        <section class="relative w-full max-w-7xl mx-auto px-gutter pt-8 pb-16 lg:pb-24">
+          <!-- Tagline Pill & HUD Meta -->
+          <div class="flex flex-wrap items-center justify-between gap-space-sm mb-6">
+            <div class="inline-flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-surface-container-high/80 backdrop-blur-md shadow-sm border border-surface-container-highest/60">
+              <span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+              <span class="font-label-sm text-label-sm text-primary uppercase tracking-widest font-semibold">Biomechanical Engine 4.2 Active</span>
+            </div>
+            <div class="hidden sm:flex items-center gap-space-md text-on-surface-variant font-label-sm text-label-sm">
+              <span class="flex items-center gap-1"><span class="material-symbols-outlined text-primary text-[14px]">sensors</span> 60FPS KINEMATIC STREAM</span>
+              <span class="flex items-center gap-1"><span class="material-symbols-outlined text-secondary text-[14px]">bolt</span> SUB-10MS LATENCY</span>
+            </div>
+          </div>
+
+          <!-- Main Headline & Subtitle -->
+          <div class="max-w-4xl mb-10">
+            <h1 class="font-display-lg text-display-lg tracking-tight text-on-surface mb-4">
+              Elevate Your Strength. <span class="bg-gradient-to-r from-primary via-primary-fixed to-secondary-container bg-clip-text text-transparent">Master Your Health.</span>
+            </h1>
+            <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl leading-relaxed">
+              The all-in-one workout and health management ecosystem. Track routines with precision, optimize daily nutrition, and accelerate results with intelligent 24/7 AI coaching.
+            </p>
+
+            <!-- Action Row -->
+            <div class="flex flex-wrap items-center gap-space-md pt-6">
+              <a
+                routerLink="/register"
+                class="inline-flex items-center justify-center gap-space-xs font-title-md text-title-md font-bold px-8 py-3.5 rounded-xl bg-gradient-to-r from-primary to-primary-container text-on-primary-container shadow-[0_0_28px_rgba(0,201,116,0.45)] hover:shadow-[0_0_36px_rgba(0,201,116,0.65)] hover:scale-[1.01] transition-all"
+              >
+                <span>Start Free Today</span>
+                <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+              </a>
+              <a
+                href="#features"
+                class="inline-flex items-center justify-center gap-space-xs font-title-md text-title-md font-semibold px-7 py-3.5 rounded-xl bg-surface-container/70 text-on-surface hover:text-primary hover:bg-surface-container-high border border-surface-container-highest/60 transition-all"
+              >
+                <span class="material-symbols-outlined text-[20px] text-primary">play_circle</span>
+                <span>Explore Features</span>
+              </a>
+              <div class="flex items-center gap-2 pl-2">
+                <div class="flex -space-x-2">
+                  <span class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-primary text-[11px] font-bold border border-surface">JD</span>
+                  <span class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-secondary text-[11px] font-bold border border-surface">AK</span>
+                  <span class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface text-[11px] font-bold border border-surface">MR</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-on-surface-variant">120k+ athletes joined</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Split Stage: 3D Biometrics Hologram HUD & Live Glass Telemetry Card -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-stretch">
+            <!-- Left 7-Col: 3D Holographic Kinetic Canvas -->
+            <div class="lg:col-span-7 relative rounded-2xl bg-surface-container-lowest/90 overflow-hidden shadow-xl min-h-[440px] flex flex-col justify-between p-space-md sm:p-space-lg border border-surface-container-highest/50">
+              <!-- Tactical HUD Frame Overlay Lines (SVG) -->
+              <div class="absolute inset-0 pointer-events-none opacity-40">
+                <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <pattern height="28" id="grid-dots" patternunits="userSpaceOnUse" width="28">
+                      <circle cx="2" cy="2" fill="#41e68d" fill-opacity="0.15" r="1"></circle>
+                    </pattern>
+                  </defs>
+                  <rect fill="url(#grid-dots)" height="100%" width="100%"></rect>
+                </svg>
+              </div>
+
+              <!-- Top HUD Header Tags -->
+              <div class="relative z-20 flex items-center justify-between gap-space-sm">
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container/90 backdrop-blur-md border border-surface-container-highest/60">
+                  <span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
+                  <span class="font-label-sm text-label-sm tracking-wider text-primary uppercase font-bold">3D BIOMECHANICS ENGINE</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="px-2.5 py-1 rounded-md bg-surface-container-high/90 text-on-surface font-label-sm text-label-sm font-bold border border-surface-container-highest/40">
+                    99.4% FORM ACCURACY
+                  </span>
+                  <span class="px-2 py-1 rounded-md bg-primary-container/20 text-primary font-label-sm text-label-sm font-semibold">
+                    LIVE FEED
+                  </span>
+                </div>
+              </div>
+
+              <!-- Three.js Canvas Container -->
+              <div class="relative w-full my-auto flex items-center justify-center py-2">
+                <div #threejsContainer class="w-full h-[360px] rounded-xl bg-transparent relative z-10"></div>
+                <!-- Radial Kinetic Ring Overlay -->
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div class="w-72 h-72 rounded-full bg-primary/5 blur-2xl"></div>
+                  <div class="w-64 h-64 rounded-full bg-gradient-to-tr from-primary/20 via-transparent to-tertiary-container/10"></div>
+                </div>
+              </div>
+
+              <!-- Bottom HUD Exercise Selector Chips -->
+              <div class="relative z-20 flex flex-wrap items-center justify-between gap-space-sm pt-2">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <button
+                    (click)="selectExercise('Bicep Curls')"
+                    [ngClass]="activeExercise() === 'Bicep Curls' ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant hover:text-on-surface'"
+                    class="px-3 py-1 rounded-full font-label-sm text-label-sm font-semibold flex items-center gap-1 transition-all"
+                  >
+                    <span class="material-symbols-outlined text-[14px]">fitness_center</span> Bicep Curls
+                  </button>
+                  <button
+                    (click)="selectExercise('Squats')"
+                    [ngClass]="activeExercise() === 'Squats' ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant hover:text-on-surface'"
+                    class="px-3 py-1 rounded-full font-label-sm text-label-sm font-semibold flex items-center gap-1 transition-all"
+                  >
+                    <span class="material-symbols-outlined text-[14px]">sports_martial_arts</span> Squats
+                  </button>
+                  <button
+                    (click)="selectExercise('Bench Press')"
+                    [ngClass]="activeExercise() === 'Bench Press' ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant hover:text-on-surface'"
+                    class="px-3 py-1 rounded-full font-label-sm text-label-sm font-semibold flex items-center gap-1 transition-all"
+                  >
+                    <span class="material-symbols-outlined text-[14px]">electric_bolt</span> Bench Press
+                  </button>
+                  <button
+                    (click)="selectExercise('Deadlifts')"
+                    [ngClass]="activeExercise() === 'Deadlifts' ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant hover:text-on-surface'"
+                    class="px-3 py-1 rounded-full font-label-sm text-label-sm font-semibold flex items-center gap-1 transition-all"
+                  >
+                    <span class="material-symbols-outlined text-[14px]">altitude</span> Deadlifts
+                  </button>
+                </div>
+                <div class="text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1">
+                  <span class="material-symbols-outlined text-primary text-[16px]">view_in_ar</span>
+                  <span>Joint Track: 32 Keypoints</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right 5-Col: Live Telemetry Glass Card -->
+            <div class="lg:col-span-5 flex flex-col justify-between gap-space-md p-space-lg rounded-2xl bg-surface-container/85 backdrop-blur-xl shadow-xl border border-surface-container-highest/60">
+              <!-- Card Header & Live Status -->
+              <div class="flex items-center justify-between border-b pb-space-sm border-surface-container-highest/60">
+                <div>
+                  <span class="font-label-sm text-label-sm text-primary uppercase tracking-wider block font-bold">Session Telemetry</span>
+                  <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Chest &amp; Triceps Hypertrophy</h3>
+                </div>
+                <div class="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <span class="material-symbols-outlined text-primary text-[20px]">monitor_heart</span>
+                </div>
+              </div>
+
+              <!-- Pulsing Heart Rate & Zone -->
+              <div class="p-space-md rounded-xl bg-surface-container-lowest/80 flex flex-col gap-space-xs border border-surface-container-highest/40">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-baseline gap-2">
+                    <span class="font-display-lg text-headline-lg font-extrabold text-on-surface">142</span>
+                    <span class="font-label-sm text-label-sm text-primary uppercase font-bold">BPM</span>
+                  </div>
+                  <span class="px-2.5 py-1 rounded-full bg-primary/15 text-primary font-label-sm text-label-sm font-semibold">Fat Burn Zone (Z3)</span>
+                </div>
+                <!-- SVG Real-Time Polyline Wave -->
+                <div class="w-full h-12 pt-1">
+                  <svg class="w-full h-full overflow-visible" fill="none" viewBox="0 0 320 48">
+                    <path class="animate-pulse" d="M0,28 L35,28 L45,10 L55,42 L65,18 L75,28 L110,28 L120,6 L130,44 L140,20 L150,28 L190,28 L200,8 L210,40 L220,16 L230,28 L270,28 L280,12 L290,38 L300,22 L320,28" stroke="#41e68d" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Set Progress & Accuracy Breakdown -->
+              <div class="grid grid-cols-2 gap-space-sm">
+                <div class="p-space-sm rounded-xl bg-surface-container-high/60 border border-surface-container-highest/40">
+                  <div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm mb-1">
+                    <span>SETS COMPLETED</span>
+                    <span class="text-primary font-bold">75%</span>
+                  </div>
+                  <div class="flex items-center gap-1 mb-2">
+                    <span class="w-full h-1.5 rounded-full bg-primary"></span>
+                    <span class="w-full h-1.5 rounded-full bg-primary"></span>
+                    <span class="w-full h-1.5 rounded-full bg-primary"></span>
+                    <span class="w-full h-1.5 rounded-full bg-surface-variant"></span>
+                  </div>
+                  <span class="font-title-md text-title-md font-bold text-on-surface">3 of 4 Sets</span>
+                </div>
+                <div class="p-space-sm rounded-xl bg-surface-container-high/60 border border-surface-container-highest/40">
+                  <div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm mb-1">
+                    <span>KINETIC SYMMETRY</span>
+                    <span class="text-secondary font-bold">96%</span>
+                  </div>
+                  <div class="w-full h-1.5 rounded-full bg-surface-variant mb-2 overflow-hidden">
+                    <div class="w-[96%] h-full bg-gradient-to-r from-secondary to-primary rounded-full"></div>
+                  </div>
+                  <span class="font-title-md text-title-md font-bold text-on-surface">Optimal Alignment</span>
+                </div>
+              </div>
+
+              <!-- Macro Rings & Calorie Burn -->
+              <div class="p-space-md rounded-xl bg-surface-container-high/40 flex items-center justify-between gap-space-md border border-surface-container-highest/40">
+                <!-- Inline SVG Macro Progress Rings -->
+                <div class="relative w-24 h-24 flex-shrink-0">
+                  <svg class="w-full h-full -rotate-90" viewBox="0 0 80 80">
+                    <circle cx="40" cy="40" fill="none" r="32" stroke="#31353a" stroke-width="6"></circle>
+                    <circle cx="40" cy="40" fill="none" r="32" stroke="#41e68d" stroke-dasharray="201" stroke-dashoffset="30" stroke-linecap="round" stroke-width="6"></circle>
+                    <circle cx="40" cy="40" fill="none" r="23" stroke="#88d4ff" stroke-dasharray="144" stroke-dashoffset="25" stroke-linecap="round" stroke-width="5"></circle>
+                    <circle cx="40" cy="40" fill="none" r="15" stroke="#4edea3" stroke-dasharray="94" stroke-dashoffset="18" stroke-linecap="round" stroke-width="4"></circle>
+                  </svg>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span class="font-label-sm text-[10px] text-on-surface-variant leading-none">BURNED</span>
+                    <span class="font-title-md text-title-md font-bold text-primary leading-tight">2,150</span>
+                    <span class="font-label-sm text-[9px] text-on-surface-variant leading-none">KCAL</span>
+                  </div>
+                </div>
+                <div class="flex-1 flex flex-col gap-1.5 text-on-surface">
+                  <div class="flex items-center justify-between text-body-sm font-body-sm">
+                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-primary"></span>Protein</span>
+                    <span class="font-semibold text-on-surface">165g / 180g</span>
+                  </div>
+                  <div class="flex items-center justify-between text-body-sm font-body-sm">
+                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-tertiary"></span>Carbs</span>
+                    <span class="font-semibold text-on-surface">210g / 240g</span>
+                  </div>
+                  <div class="flex items-center justify-between text-body-sm font-body-sm">
+                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-secondary"></span>Fats</span>
+                    <span class="font-semibold text-on-surface">55g / 65g</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Real-time Coach Snippet -->
+              <div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container-lowest border border-surface-container-highest/30">
+                <span class="material-symbols-outlined text-primary text-[22px]">smart_toy</span>
+                <div class="flex-1 min-w-0">
+                  <p class="font-body-sm text-body-sm text-on-surface truncate"><strong class="text-primary font-semibold">AI Coach:</strong> "Elbow flaring reduced 14%. Keep scapula locked on final rep."</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Stat Counter Bar -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-space-md mt-space-lg">
+            <div class="flex items-center gap-space-md p-space-md rounded-xl bg-surface-container/70 shadow-sm border border-surface-container-highest/50">
+              <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined text-[26px]">fitness_center</span>
+              </div>
+              <div>
+                <div class="font-headline-md text-headline-md font-bold text-on-surface leading-tight">500+ Exercises</div>
+                <div class="font-body-sm text-body-sm text-on-surface-variant">Biomechanically mapped library</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-space-md p-space-md rounded-xl bg-surface-container/70 shadow-sm border border-surface-container-highest/50">
+              <div class="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary">
+                <span class="material-symbols-outlined text-[26px]">verified</span>
+              </div>
+              <div>
+                <div class="font-headline-md text-headline-md font-bold text-on-surface leading-tight">99.4% Success</div>
+                <div class="font-body-sm text-body-sm text-on-surface-variant">Validated target attainment rate</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-space-md p-space-md rounded-xl bg-surface-container/70 shadow-sm border border-surface-container-highest/50">
+              <div class="w-12 h-12 rounded-xl bg-tertiary-container/20 flex items-center justify-center text-tertiary">
+                <span class="material-symbols-outlined text-[26px]">psychology</span>
+              </div>
+              <div>
+                <div class="font-headline-md text-headline-md font-bold text-on-surface leading-tight">24/7 AI Coach</div>
+                <div class="font-body-sm text-body-sm text-on-surface-variant">Continuous biometric adaptivity</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- 2. Core Feature Pillars Section -->
+      <section class="relative w-full py-space-xl bg-surface-container-lowest border-t border-b border-surface-container-highest/40" id="features">
+        <div class="max-w-7xl mx-auto px-gutter">
+          <!-- Section Header -->
+          <div class="flex flex-col md:flex-row md:items-end justify-between mb-space-xl gap-space-md">
+            <div>
+              <span class="font-label-sm text-label-sm text-primary uppercase tracking-widest font-bold block mb-1">Architecture</span>
+              <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">Engineered for Peak Human Output</h2>
+            </div>
+            <p class="font-body-md text-body-md text-on-surface-variant max-w-md">
+              Four integrated telemetric pillars working in real-time synergy to calibrate your resistance, intake, and recovery.
+            </p>
+          </div>
+
+          <!-- 4 Grid Bento Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-space-lg">
+            <!-- Pillar 1: Dynamic Workout Tracker -->
+            <div class="group relative rounded-2xl bg-surface-container/80 p-space-lg shadow-md flex flex-col justify-between hover:bg-surface-container border border-surface-container-highest/50 transition-all">
+              <div>
+                <div class="w-12 h-12 rounded-xl bg-primary-container/20 text-primary flex items-center justify-center mb-space-md">
+                  <span class="material-symbols-outlined text-[28px]">timer</span>
+                </div>
+                <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mb-2">Dynamic Workout Tracker</h3>
+                <p class="font-body-md text-body-md text-on-surface-variant mb-space-lg">
+                  Capture volume load, rep velocity, and rest tempos with millisecond accuracy. Guided by real-time joint-angle tracking.
+                </p>
+                <!-- Interactive Set Logger Widget -->
+                <div class="p-space-md rounded-xl bg-surface-container-lowest/90 mb-space-md border border-surface-container-highest/40">
+                  <div class="flex items-center justify-between mb-3 text-label-sm font-label-sm">
+                    <span class="text-on-surface-variant uppercase font-semibold">Interactive Set Logger</span>
+                    <span class="text-primary font-semibold">Barbell Incline Press</span>
+                  </div>
+                  <div class="space-y-2 text-body-sm font-body-sm">
+                    <div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-high/70">
+                      <span class="font-bold text-primary">Set 1</span>
+                      <span class="text-on-surface">205 lbs × 8 reps</span>
+                      <span class="px-2 py-0.5 rounded bg-primary/20 text-primary text-label-sm font-label-sm font-semibold">Done</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-high/70">
+                      <span class="font-bold text-primary">Set 2</span>
+                      <span class="text-on-surface">215 lbs × 8 reps</span>
+                      <span class="px-2 py-0.5 rounded bg-primary/20 text-primary text-label-sm font-label-sm font-semibold">Done</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-highest/60">
+                      <span class="font-bold text-on-surface-variant">Set 3 (Active)</span>
+                      <span class="text-on-surface font-semibold" *ngIf="!set3Logged()">225 lbs × --</span>
+                      <span class="text-primary font-semibold" *ngIf="set3Logged()">225 lbs × 8 reps</span>
+                      <button
+                        (click)="logSet()"
+                        [disabled]="set3Logged()"
+                        [ngClass]="set3Logged() ? 'bg-primary/20 text-primary cursor-default' : 'bg-primary text-on-primary hover:bg-primary-fixed'"
+                        class="px-2.5 py-1 rounded font-label-sm text-label-sm font-bold transition-colors"
+                      >
+                        {{ set3Logged() ? 'Done' : 'Log Set' }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <a routerLink="/workouts" class="flex items-center justify-between pt-space-xs text-primary font-title-md text-title-md font-semibold hover:underline">
+                <span>Explore Kinematics</span>
+                <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+              </a>
+            </div>
+
+            <!-- Pillar 2: Comprehensive Nutrition & Macros -->
+            <div class="group relative rounded-2xl bg-surface-container/80 p-space-lg shadow-md flex flex-col justify-between hover:bg-surface-container border border-surface-container-highest/50 transition-all">
+              <div>
+                <div class="w-12 h-12 rounded-xl bg-tertiary-container/20 text-tertiary flex items-center justify-center mb-space-md">
+                  <span class="material-symbols-outlined text-[28px]">nutrition</span>
+                </div>
+                <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mb-2">Biometric Nutrition &amp; Macros</h3>
+                <p class="font-body-md text-body-md text-on-surface-variant mb-space-lg">
+                  Dynamic caloric rebalancing that recalculates based on live energy expenditure, sleep quality, and active heart rate zones.
+                </p>
+                <!-- Macro Telemetry Bars -->
+                <div class="p-space-md rounded-xl bg-surface-container-lowest/90 mb-space-md space-y-3 border border-surface-container-highest/40">
+                  <div>
+                    <div class="flex justify-between font-label-sm text-label-sm mb-1">
+                      <span class="text-on-surface">Protein Synthesis Window</span>
+                      <span class="text-primary font-bold">165g / 180g (92%)</span>
+                    </div>
+                    <div class="w-full h-2 rounded-full bg-surface-variant overflow-hidden">
+                      <div class="w-[92%] h-full bg-primary rounded-full"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between font-label-sm text-label-sm mb-1">
+                      <span class="text-on-surface">Glycogen Replenishment</span>
+                      <span class="text-tertiary font-bold">210g / 240g (87%)</span>
+                    </div>
+                    <div class="w-full h-2 rounded-full bg-surface-variant overflow-hidden">
+                      <div class="w-[87%] h-full bg-tertiary-container rounded-full"></div>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between pt-1 text-on-surface-variant font-label-sm text-label-sm">
+                    <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px] text-secondary">barcode_scanner</span> Smart Barcode Scanner Ready</span>
+                    <span class="text-on-surface font-semibold">2,850 kcal target</span>
+                  </div>
+                </div>
+              </div>
+              <a routerLink="/nutrition" class="flex items-center justify-between pt-space-xs text-tertiary font-title-md text-title-md font-semibold hover:underline">
+                <span>View Nutrition Protocols</span>
+                <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+              </a>
+            </div>
+
+            <!-- Pillar 3: Intelligent AI Health Coach -->
+            <div class="group relative rounded-2xl bg-surface-container/80 p-space-lg shadow-md flex flex-col justify-between hover:bg-surface-container border border-surface-container-highest/50 transition-all">
+              <div>
+                <div class="w-12 h-12 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center mb-space-md">
+                  <span class="material-symbols-outlined text-[28px]">neurology</span>
+                </div>
+                <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mb-2">24/7 AI Health &amp; Form Coach</h3>
+                <p class="font-body-md text-body-md text-on-surface-variant mb-space-lg">
+                  Autonomous neural analysis diagnosing eccentric fatigue, joint over-extension, and micro-tears before injuries manifest.
+                </p>
+                <!-- Holographic Coach Feed Visualizer -->
+                <div class="p-space-md rounded-xl bg-surface-container-lowest/90 mb-space-md flex flex-col gap-2 border border-surface-container-highest/40">
+                  <div class="flex items-center gap-2 text-label-sm font-label-sm text-primary font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+                    <span>NEURAL TELEMETRY STREAM</span>
+                  </div>
+                  <div class="p-2.5 rounded-lg bg-surface-container-high/60 font-body-sm text-body-sm text-on-surface border border-surface-container-highest/30">
+                    "Spinal lumbar curve is within 2° tolerance. Good. Increase bench incline to 30° on next cycle for upper clavicular emphasis."
+                  </div>
+                  <div class="flex items-center justify-between text-on-surface-variant font-label-sm text-[11px] pt-1">
+                    <span>Confidence: 99.8%</span>
+                    <span>Inference: 4.2ms</span>
+                  </div>
+                </div>
+              </div>
+              <a routerLink="/ai-coach" class="flex items-center justify-between pt-space-xs text-secondary font-title-md text-title-md font-semibold hover:underline">
+                <span>Launch AI Engine</span>
+                <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+              </a>
+            </div>
+
+            <!-- Pillar 4: Certified Personal Trainers -->
+            <div class="group relative rounded-2xl bg-surface-container/80 p-space-lg shadow-md flex flex-col justify-between hover:bg-surface-container border border-surface-container-highest/50 transition-all">
+              <div>
+                <div class="w-12 h-12 rounded-xl bg-surface-container-high text-on-surface flex items-center justify-center mb-space-md border border-surface-container-highest/50">
+                  <span class="material-symbols-outlined text-[28px]">sports</span>
+                </div>
+                <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mb-2">Certified Personal Trainers</h3>
+                <p class="font-body-md text-body-md text-on-surface-variant mb-space-lg">
+                  Direct access to CSCS-credentialed human coaches who review your biometric logs, prescribe macro cycles, and conduct 1-on-1 check-ins.
+                </p>
+                <!-- Coach Card Snippet -->
+                <div class="p-space-md rounded-xl bg-surface-container-lowest/90 mb-space-md flex items-center gap-space-md border border-surface-container-highest/40">
+                  <div class="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-surface-variant flex items-center justify-center text-primary font-bold">
+                    <img
+                      class="w-full h-full object-cover"
+                      alt="Coach Marcus Vance"
+                      src="https://images.unsplash.com/photo-1567013127542-490d757e51fc?w=300&auto=format&fit=crop&q=80"
+                    />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between">
+                      <h4 class="font-title-md text-title-md font-bold text-on-surface truncate">Coach Marcus Vance</h4>
+                      <span class="font-label-sm text-[11px] text-primary bg-primary/10 px-2 py-0.5 rounded font-bold">CSCS</span>
+                    </div>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant truncate">Olympic Weightlifting &amp; Kinematics</p>
+                    <div class="flex items-center gap-1 text-primary text-label-sm font-label-sm mt-1">
+                      <span class="material-symbols-outlined text-[14px]">star</span>
+                      <span>4.99 (480 reviews)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <a routerLink="/trainers" class="flex items-center justify-between pt-space-xs text-on-surface font-title-md text-title-md font-semibold hover:underline">
+                <span>Find Your Trainer</span>
+                <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Interactive Membership Plans -->
+      <section class="relative w-full py-space-xl max-w-7xl mx-auto px-gutter" id="pricing">
+        <div class="text-center max-w-3xl mx-auto mb-space-xl">
+          <span class="font-label-sm text-label-sm text-primary uppercase tracking-widest font-bold block mb-1">Pricing Architecture</span>
+          <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface mb-4">Invest in Biomechanical Superiority</h2>
+          <p class="font-body-md text-body-md text-on-surface-variant">
+            Scalable tiers built for independent athletes, competitive lifters, and individuals demanding elite-level health supervision.
+          </p>
+
+          <!-- Billing Frequency Toggle -->
+          <div class="inline-flex items-center p-1 rounded-xl bg-surface-container-high mt-space-md border border-surface-container-highest/60">
+            <button
+              (click)="setBilling('monthly')"
+              [ngClass]="billingCycle() === 'monthly' ? 'bg-surface-container text-on-surface shadow-sm' : 'text-on-surface-variant hover:text-on-surface'"
+              class="px-5 py-2 rounded-lg font-label-md text-label-md font-bold transition-all"
+            >
+              Monthly
+            </button>
+            <button
+              (click)="setBilling('yearly')"
+              [ngClass]="billingCycle() === 'yearly' ? 'bg-surface-container text-on-surface shadow-sm' : 'text-on-surface-variant hover:text-on-surface'"
+              class="px-5 py-2 rounded-lg font-label-md text-label-md font-medium transition-all flex items-center gap-1.5"
+            >
+              <span>Annual</span>
+              <span class="px-1.5 py-0.5 rounded-full bg-primary text-on-primary text-[10px] font-bold">SAVE 20%</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3-Column Plan Comparison Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-space-lg items-stretch">
+          <!-- Tier 1: Starter -->
+          <div class="flex flex-col justify-between p-space-lg rounded-2xl bg-surface-container/70 shadow-md border border-surface-container-highest/50">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Starter Tier</span>
+                <span class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface">
+                  <span class="material-symbols-outlined text-[18px]">bolt</span>
+                </span>
+              </div>
+              <h3 class="font-headline-md text-headline-md font-bold text-on-surface">Essential Training</h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mt-1 mb-6">Fundamental tracking for independent lifters.</p>
+              <div class="flex items-baseline gap-1 mb-6">
+                <span class="font-display-lg text-display-lg font-bold text-on-surface">$0</span>
+                <span class="font-body-sm text-body-sm text-on-surface-variant">/ month</span>
+              </div>
+              <div class="space-y-3 border-t border-surface-container-highest/60 pt-6 mb-8 text-body-sm font-body-sm">
+                <div class="flex items-center gap-2.5 text-on-surface">
+                  <span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+                  <span>500+ biomechanical exercise database</span>
+                </div>
+                <div class="flex items-center gap-2.5 text-on-surface">
+                  <span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+                  <span>Basic workout set &amp; rep logger</span>
+                </div>
+                <div class="flex items-center gap-2.5 text-on-surface">
+                  <span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+                  <span>Global community leaderboards</span>
+                </div>
+                <div class="flex items-center gap-2.5 text-on-surface-variant/60">
+                  <span class="material-symbols-outlined text-[18px]">cancel</span>
+                  <span>Real-time AI form correction</span>
+                </div>
+                <div class="flex items-center gap-2.5 text-on-surface-variant/60">
+                  <span class="material-symbols-outlined text-[18px]">cancel</span>
+                  <span>Dedicated trainer video review</span>
+                </div>
+              </div>
+            </div>
+            <a routerLink="/register" class="w-full py-3 rounded-xl bg-surface-container-high text-on-surface hover:bg-surface-bright font-title-md text-title-md font-semibold text-center border border-surface-container-highest/60 transition-all">
+              Get Started Free
+            </a>
+          </div>
+
+          <!-- Tier 2: Pro Health (Featured) -->
+          <div class="relative flex flex-col justify-between p-space-lg rounded-2xl bg-surface-container-high shadow-xl border-2 border-primary/50 -mt-0 lg:-mt-4 lg:mb-[-16px]">
+            <!-- Popular Badge -->
+            <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-primary text-on-primary font-label-sm text-label-sm font-bold shadow-[0_0_16px_rgba(0,201,116,0.6)] uppercase tracking-wider">
+              Most Popular Choice
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-4 pt-2">
+                <span class="font-label-sm text-label-sm text-primary uppercase tracking-wider font-bold">Autonomous Pro</span>
+                <span class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
+                  <span class="material-symbols-outlined text-[20px]">smart_toy</span>
+                </span>
+              </div>
+              <h3 class="font-headline-md text-headline-md font-bold text-on-surface">Pro Health</h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mt-1 mb-6">Complete telemetry, macros &amp; 24/7 AI coaching.</p>
+              <div class="flex items-baseline gap-1 mb-6">
+                <span class="font-display-lg text-display-lg font-bold text-on-surface">{{ billingCycle() === 'yearly' ? '$15' : '$19' }}</span>
+                <span class="font-body-sm text-body-sm text-on-surface-variant">/ month</span>
+              </div>
+              <div class="space-y-3 border-t border-surface-container-highest/60 pt-6 mb-8 text-body-sm font-body-sm">
+                <div class="flex items-center gap-2.5 text-on-surface">
+                  <span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+                  <span class="font-semibold text-on-surface">Everything in Free Starter</span>
+                </div>
+                <div class="flex items-center gap-2.5 text-on-surface">
+                  <span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+                  <span>Unlimited 24/7 AI kinematic form checks</span>
+                </div>
+                <div class="flex items-center gap-2.5 text-on-surface">
+                  <span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+                  <span>Dynamic caloric &amp; macro auto-sync</span>
+                </div>
+                <div class="flex items-center gap-2.5 text-on-surface">
+                  <span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+                  <span>Wearables integration (HRV, Sleep, VO2)</span>
+                </div>
+                <div class="flex items-center gap-2.5 text-on-surface">
+                  <span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+                  <span>Custom periodization routine generator</span>
+                </div>
+              </div>
+            </div>
+            <a routerLink="/register" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary to-primary-container text-on-primary font-title-md text-title-md font-bold text-center shadow-[0_0_24px_rgba(0,201,116,0.35)] hover:shadow-[0_0_32px_rgba(0,201,116,0.55)] transition-all">
+              Upgrade to Pro
+            </a>
+          </div>
+
+          <!-- Tier 3: Elite Coaching -->
+          <div class="flex flex-col justify-between p-space-lg rounded-2xl bg-surface-container/70 shadow-md border border-surface-container-highest/50">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="font-label-sm text-label-sm text-tertiary uppercase tracking-wider font-semibold">Human Mentorship</span>
+                <span class="w-8 h-8 rounded-lg bg-tertiary-container/20 flex items-center justify-center text-tertiary">
+                  <span class="material-symbols-outlined text-[18px]">workspace_premium</span>
+                </span>
+              </div>
+              <h3 class="font-headline-md text-headline-md font-bold text-on-surface">Elite Coaching</h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mt-1 mb-6">Direct human CSCS oversight paired with AI telemetry.</p>
+              <div class="flex items-baseline gap-1 mb-6">
+                <span class="font-display-lg text-display-lg font-bold text-on-surface">{{ billingCycle() === 'yearly' ? '$39' : '$49' }}</span>
+                <span class="font-body-sm text-body-sm text-on-surface-variant">/ month</span>
+              </div>
+              <div class="space-y-3 border-t border-surface-container-highest/60 pt-6 mb-8 text-body-sm font-body-sm">
+                <div class="flex items-center gap-2.5 text-on-surface">
+                  <span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+                  <span class="font-semibold text-on-surface">Everything in Pro Health</span>
+                </div>
+                <div class="flex items-center gap-2.5 text-on-surface">
+                  <span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+                  <span>1-on-1 Dedicated Certified Coach chat</span>
+                </div>
+                <div class="flex items-center gap-2.5 text-on-surface">
+                  <span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+                  <span>Weekly video biomechanics form audit</span>
+                </div>
+                <div class="flex items-center gap-2.5 text-on-surface">
+                  <span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+                  <span>Bespoke metabolic bloodwork guidance</span>
+                </div>
+                <div class="flex items-center gap-2.5 text-on-surface">
+                  <span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+                  <span>VIP Priority Telemetry Bandwidth</span>
+                </div>
+              </div>
+            </div>
+            <a routerLink="/register" class="w-full py-3 rounded-xl bg-surface-container-high text-on-surface hover:text-primary hover:bg-surface-bright font-title-md text-title-md font-semibold text-center border border-surface-container-highest/60 transition-all">
+              Join Elite Coaching
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Bottom Call To Action Banner -->
+      <section class="relative w-full max-w-7xl mx-auto px-gutter py-space-xl">
+        <div class="relative rounded-3xl bg-gradient-to-b from-surface-container to-surface-container-lowest p-space-xl overflow-hidden shadow-2xl border border-surface-container-highest/60">
+          <div class="absolute -bottom-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-primary/20 blur-3xl rounded-full pointer-events-none"></div>
+          <div class="relative z-10 max-w-3xl mx-auto text-center flex flex-col items-center">
+            <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-space-md shadow-[0_0_20px_rgba(0,201,116,0.25)]">
+              <span class="material-symbols-outlined text-[28px]">rocket_launch</span>
+            </div>
+            <h2 class="font-display-lg text-headline-lg font-bold text-on-surface mb-3 tracking-tight">
+              Ready to take control of your fitness journey?
+            </h2>
+            <p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl mb-space-lg">
+              Join over 120,000+ athletes, lifters, and health enthusiasts transforming their bodies with FitPlatform today.
+            </p>
+
+            <!-- Quick 1-Click Signup Form -->
+            <div class="w-full max-w-md mb-space-md">
+              <div *ngIf="!ctaSubmitted()" class="flex flex-col sm:flex-row items-center gap-space-xs p-1.5 rounded-2xl bg-surface-container-high/90 shadow-inner border border-surface-container-highest/60">
+                <div class="relative w-full flex items-center">
+                  <span class="material-symbols-outlined text-on-surface-variant text-[20px] absolute left-3">mail</span>
+                  <input
+                    #emailField
+                    class="w-full bg-transparent pl-10 pr-3 py-3 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none"
+                    placeholder="Enter your email address"
+                    type="email"
+                  />
+                </div>
+                <button
+                  (click)="onCtaSubmit(emailField)"
+                  class="w-full sm:w-auto flex-shrink-0 font-title-md text-title-md font-bold px-6 py-3 rounded-xl bg-primary text-on-primary hover:bg-primary-fixed shadow-[0_0_20px_rgba(0,201,116,0.4)] transition-all whitespace-nowrap cursor-pointer"
+                >
+                  Get Instant Access
+                </button>
+              </div>
+              <div *ngIf="ctaSubmitted()" class="p-4 rounded-xl bg-primary/15 border border-primary/40 text-primary font-title-md text-title-md font-bold text-center">
+                Telemetry invitation dispatched to {{ ctaEmail() }}! Redirecting to setup...
+              </div>
+            </div>
+
+            <!-- Social Proof Badges -->
+            <div class="flex flex-wrap items-center justify-center gap-space-lg text-on-surface-variant font-label-sm text-label-sm">
+              <div class="flex items-center gap-1.5">
+                <div class="flex text-primary">
+                  <span class="material-symbols-outlined text-[16px]">star</span>
+                  <span class="material-symbols-outlined text-[16px]">star</span>
+                  <span class="material-symbols-outlined text-[16px]">star</span>
+                  <span class="material-symbols-outlined text-[16px]">star</span>
+                  <span class="material-symbols-outlined text-[16px]">star</span>
+                </div>
+                <span class="text-on-surface font-bold">4.9/5 Rating</span>
+                <span>(18,000+ reviews)</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-primary text-[18px]">verified_user</span>
+                <span>No credit card required for 14-day trial</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- High-Tech Biomechanical Footer -->
+  <footer class="relative w-full bg-surface-container-lowest py-space-xl overflow-hidden border-t border-surface-container-highest/40 shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-48 bg-primary/5 blur-3xl pointer-events-none rounded-full"></div>
+    <div class="relative w-full px-gutter max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-space-xl mb-space-xl">
+        <div class="md:col-span-5 flex flex-col items-start gap-space-md">
+          <a class="flex items-center gap-space-sm group" routerLink="/">
+            <div class="w-9 h-9 rounded-xl bg-primary-container flex items-center justify-center shadow-[0_0_16px_rgba(0,201,116,0.2)]">
+              <span class="material-symbols-outlined text-on-primary-container text-[20px]">exercise</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="font-title-md text-title-md text-on-surface tracking-tight leading-none font-bold">FitPlatform</span>
+              <span class="font-label-sm text-[9px] text-primary tracking-[0.2em] uppercase leading-none mt-space-xs font-semibold">WORKOUT &amp; HEALTH</span>
+            </div>
+          </a>
+          <p class="font-body-md text-body-md text-on-surface-variant max-w-sm">
+            High-performance kinematic telemetry, AI-driven exercise corrections, and tailored biometric conditioning for athletes demanding biomechanical mastery.
+          </p>
+          <div class="flex items-center gap-space-sm pt-space-xs">
+            <a aria-label="Community Hub" class="w-9 h-9 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-high border border-surface-container-highest/40 transition-all" routerLink="/workouts">
+              <span class="material-symbols-outlined text-[18px]">groups</span>
+            </a>
+            <a aria-label="Workouts" class="w-9 h-9 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-high border border-surface-container-highest/40 transition-all" routerLink="/workouts">
+              <span class="material-symbols-outlined text-[18px]">play_circle</span>
+            </a>
+            <a aria-label="Nutrition" class="w-9 h-9 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-high border border-surface-container-highest/40 transition-all" routerLink="/nutrition">
+              <span class="material-symbols-outlined text-[18px]">rss_feed</span>
+            </a>
+            <a aria-label="Chat" class="w-9 h-9 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-high border border-surface-container-highest/40 transition-all" routerLink="/chat">
+              <span class="material-symbols-outlined text-[18px]">forum</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="md:col-span-3 flex flex-col gap-space-sm">
+          <span class="font-label-md text-label-md text-on-surface uppercase tracking-wider font-bold mb-space-xs">Platform Systems</span>
+          <a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" routerLink="/workouts">Workouts</a>
+          <a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" routerLink="/ai-coach">AI Coaching</a>
+          <a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" routerLink="/nutrition">Nutrition Plans</a>
+          <a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" routerLink="/trainers">Certified Trainers</a>
+        </div>
+
+        <div class="md:col-span-4 flex flex-col gap-space-sm">
+          <span class="font-label-md text-label-md text-on-surface uppercase tracking-wider font-bold mb-space-xs">Intelligence &amp; Trust</span>
+          <span class="font-body-md text-body-md text-on-surface-variant">Biometric Data Security Policy</span>
+          <span class="font-body-md text-body-md text-on-surface-variant">Kinematic Service Terms</span>
+          <a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors flex items-center gap-space-xs" routerLink="/health">
+            <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+            Telemetry Status: Operational
+          </a>
+        </div>
+      </div>
+
+      <div class="pt-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-md border-t border-surface-container-highest/40">
+        <span class="font-body-sm text-body-sm text-on-surface-variant">© 2025 FitPlatform Core Inc. Biomechanical Telemetry Systems. All rights reserved.</span>
+        <div class="flex items-center gap-space-sm">
+          <span class="font-label-sm text-label-sm text-primary bg-surface-container px-space-sm py-space-xs rounded-lg border border-primary/20">HUD v4.2 ACTIVE</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>

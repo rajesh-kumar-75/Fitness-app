@@ -1,6 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { AuthService } from './core/services/auth.service';
 import { ChatService } from './core/services/chat.service';
 import { AiAssistantWidgetComponent } from './components/ai-assistant-widget/ai-assistant-widget.component';
@@ -13,6 +14,7 @@ import { AiAssistantWidgetComponent } from './components/ai-assistant-widget/ai-
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
+  private readonly router = inject(Router);
   readonly authService = inject(AuthService);
   readonly chatService = inject(ChatService);
 
@@ -20,6 +22,16 @@ export class AppComponent {
   readonly currentUser = this.authService.currentUser;
   readonly userRole = this.authService.userRole;
   readonly unreadMessagesCount = this.chatService.unreadTotal;
+  readonly isLandingPage = signal<boolean>(false);
+
+  constructor() {
+    this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event) => {
+        const url = event.urlAfterRedirects.split('?')[0].split('#')[0];
+        this.isLandingPage.set(url === '/' || url === '');
+      });
+  }
 
   onLogout(): void {
     this.chatService.disconnectSocket();

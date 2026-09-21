@@ -1,0 +1,35 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.landing-wrapper {
+  background-color: #101418;
+  color: #e0e3e8;
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: hidden;
+}
+
+// Ensure fonts
+h1, h2, h3, h4, .font-title-md, .font-headline-lg, .font-headline-md, .font-headline-sm, .font-label-sm, .font-label-md, .font-display-lg {
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+// Custom animations
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 16px rgba(0, 201, 116, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(0, 201, 116, 0.65);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2.5s infinite ease-in-out;
+}
+
+// Smooth scroll
+html {
+  scroll-behavior: smooth;
+}
