@@ -24,6 +24,7 @@ export class AppComponent {
   readonly unreadMessagesCount = this.chatService.unreadTotal;
   readonly isLandingPage = signal<boolean>(false);
   readonly isAuthOrLanding = signal<boolean>(false);
+  readonly mobileMenuOpen = signal<boolean>(false);
 
   constructor() {
     this.router.events
@@ -34,10 +35,20 @@ export class AppComponent {
         const isAuth = url === '/login' || url === '/register';
         this.isLandingPage.set(isLanding);
         this.isAuthOrLanding.set(isLanding || isAuth);
+        this.mobileMenuOpen.set(false); // Close mobile menu when navigating
       });
   }
 
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.update((open) => !open);
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen.set(false);
+  }
+
   onLogout(): void {
+    this.mobileMenuOpen.set(false);
     this.chatService.disconnectSocket();
     this.authService.logout();
   }
