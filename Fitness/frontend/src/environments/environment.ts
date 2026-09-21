@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:5000/api/v1',
+  apiUrl: 'https://fitness-app-82e9.onrender.com/api/v1',
 };
