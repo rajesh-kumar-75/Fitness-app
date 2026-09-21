@@ -87,6 +87,8 @@ app.get('/', (req, res) => {
   });
 });
 
+const mongoose = require('mongoose');
+
 // Health check endpoint
 const healthHandler = (req, res) => {
   res.status(200).json({
@@ -95,6 +97,7 @@ const healthHandler = (req, res) => {
     data: {
       service: 'Fitness Management Platform API',
       status: 'healthy',
+      database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
     },
