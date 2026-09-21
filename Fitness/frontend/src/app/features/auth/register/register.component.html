@@ -1,154 +1,629 @@
-<div class="auth-container">
-  <div class="auth-card glass-panel">
-    <!-- Header -->
-    <div class="auth-header">
-      <div class="brand-badge">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-          <circle cx="9" cy="7" r="4"></circle>
-          <line x1="19" y1="8" x2="19" y2="14"></line>
-          <line x1="22" y1="11" x2="16" y2="11"></line>
-        </svg>
+<div class="w-full min-h-screen bg-background relative flex items-center justify-center font-body-md text-on-surface antialiased">
+  <div class="min-h-screen w-full flex flex-col lg:flex-row relative overflow-hidden bg-background text-on-surface">
+
+    <!-- Mobile Header Bar (Visible on mobile/tablet) -->
+    <header class="lg:hidden flex items-center justify-between px-6 py-4 border-b border-surface-container-highest/80 bg-surface-container-lowest/90 backdrop-blur z-20">
+      <a routerLink="/" class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-primary/15 border border-primary/40 flex items-center justify-center shadow-lg shadow-primary/20">
+          <span class="material-symbols-outlined text-primary text-lg">bolt</span>
+        </div>
+        <div>
+          <span class="font-headline-sm text-title-md font-bold text-white tracking-tight">FitPlatform</span>
+          <span class="block font-mono text-[9px] tracking-widest text-primary uppercase">Workout &amp; Health</span>
+        </div>
+      </a>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono bg-primary/10 border border-primary/20 text-primary">
+          <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+          Telemetry Active
+        </span>
       </div>
-      <h1 class="auth-title">Create Account</h1>
-      <p class="auth-subtitle">Start your fitness journey today</p>
-    </div>
+    </header>
 
-    <!-- Error Alert -->
-    <div *ngIf="errorMessage()" class="alert-box" role="alert">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-      </svg>
-      <span>{{ errorMessage() }}</span>
-    </div>
-
-    <!-- Register Form -->
-    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate class="auth-form">
-      <!-- Name Field -->
-      <div class="form-group" [class.has-error]="name?.invalid && name?.touched">
-        <label for="regName" class="form-label">Full Name</label>
-        <div class="input-wrapper">
-          <input
-            id="regName"
-            type="text"
-            class="form-control"
-            placeholder="John Doe"
-            formControlName="name"
-            autocomplete="name"
-          />
-        </div>
-        <div *ngIf="name?.invalid && name?.touched" class="error-feedback">
-          <span *ngIf="name?.errors?.['required']">Full name is required.</span>
-          <span *ngIf="name?.errors?.['minlength']">Name must be at least 2 characters.</span>
-        </div>
+    <!-- LEFT PANEL: Atmospheric Gym Visual & Motivational Quote (Desktop 52% split) -->
+    <aside class="relative hidden lg:flex lg:w-[52%] xl:w-[54%] flex-col justify-between p-12 xl:p-16 overflow-hidden border-r border-surface-container-highest/80">
+      <!-- Background Image with Moody Overlay -->
+      <div class="absolute inset-0 z-0">
+        <img
+          alt="Moody luxury performance fitness training gym at night with emerald neon lighting"
+          class="w-full h-full object-cover object-center scale-105 filter brightness-90 contrast-105"
+          src="https://lh3.googleusercontent.com/aida/AEtjO1Uucsxc7VMA1A6UzN94hRzIJ0pkudPa84yZ7pSyicejKDzefAOJrt92H9heHrLHHti0UEP9l-yiYJno-b4pml4hX0tXYys3X0jXl2j_OJ4JxX9V8zHB2MefShvpunv_1ks3ZB07Hwf-1O_8EKKbW4xQ25KhY6zwjDYHxECtfGvdI9ZCldpo2XY0yC0qhNKRQF4CLJBBMhQ_jxZ4y1GtSnK6coyxqqHwhF8at23GEZD-0Q"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-[#090D11] via-[#090D11]/60 to-[#090D11]/40 mix-blend-multiply"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-[#090D11]/40 to-[#090D11]"></div>
+        <!-- Ambient emerald neon glow spots -->
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[130px] pointer-events-none"></div>
+        <div class="absolute bottom-1/3 left-10 w-80 h-80 bg-primary/15 rounded-full blur-[100px] pointer-events-none"></div>
       </div>
 
-      <!-- Email Field -->
-      <div class="form-group" [class.has-error]="email?.invalid && email?.touched">
-        <label for="regEmail" class="form-label">Email Address</label>
-        <div class="input-wrapper">
-          <input
-            id="regEmail"
-            type="email"
-            class="form-control"
-            placeholder="john@example.com"
-            formControlName="email"
-            autocomplete="email"
-          />
-        </div>
-        <div *ngIf="email?.invalid && email?.touched" class="error-feedback">
-          <span *ngIf="email?.errors?.['required']">Email is required.</span>
-          <span *ngIf="email?.errors?.['email']">Please enter a valid email address.</span>
+      <!-- Top Branding in Left Panel -->
+      <div class="relative z-10 flex items-center justify-between">
+        <a routerLink="/" class="flex items-center gap-3.5 group cursor-pointer">
+          <div class="w-10 h-10 rounded-xl bg-primary/20 border border-primary/50 flex items-center justify-center shadow-lg shadow-primary/30 transition-transform group-hover:scale-105">
+            <span class="material-symbols-outlined text-primary text-2xl">bolt</span>
+          </div>
+          <div>
+            <div class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+              FitPlatform
+              <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-primary/15 text-primary border border-primary/30">v4.8 PRO</span>
+            </div>
+            <p class="text-[10px] font-mono tracking-[0.2em] text-on-surface-variant uppercase">Workout &amp; Health</p>
+          </div>
+        </a>
+
+        <!-- Biometrics & System Pill -->
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-lowest/80 backdrop-blur border border-surface-container-highest shadow-inner text-xs font-mono text-on-surface">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+          </span>
+          <span class="text-on-surface-variant">HUD Telemetry:</span>
+          <span class="text-primary font-semibold">ONLINE 60 FPS</span>
         </div>
       </div>
 
-      <!-- Role Selector -->
-      <div class="form-group">
-        <label class="form-label">Account Type / Role</label>
-        <div class="role-selector">
-          <label class="role-option" [class.selected]="role?.value === 'USER'">
-            <input type="radio" formControlName="role" value="USER" />
-            <span class="role-title">Member (User)</span>
-            <span class="role-desc">Track personal workouts & nutrition</span>
-          </label>
-          <label class="role-option" [class.selected]="role?.value === 'TRAINER'">
-            <input type="radio" formControlName="role" value="TRAINER" />
-            <span class="role-title">Fitness Trainer</span>
-            <span class="role-desc">Manage clients & design workout programs</span>
-          </label>
+      <!-- Center Biometrics Floating Telemetry Cards -->
+      <div class="relative z-10 my-auto py-8 max-w-xl">
+        <!-- Floating live preview badge -->
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-surface-container-low/90 border border-primary/30 text-xs font-mono text-primary mb-6 shadow-xl">
+          <span class="material-symbols-outlined text-base text-primary">neurology</span>
+          <span>AUTONOMOUS KINEMATICS ENGINE</span>
+        </div>
+
+        <!-- Core Quote -->
+        <blockquote class="space-y-4">
+          <p class="text-2xl xl:text-3xl font-bold tracking-tight text-white leading-snug font-display">
+            “Every champion was once a contender that refused to give up. Start your journey with FitPlatform.”
+          </p>
+          <div class="flex items-center gap-4 pt-2">
+            <div class="h-0.5 w-10 bg-primary"></div>
+            <p class="text-xs font-mono uppercase tracking-widest text-on-surface-variant">Peak Athletic Intelligence System</p>
+          </div>
+        </blockquote>
+
+        <!-- Telemetry Snapshot Stats Strip -->
+        <div class="grid grid-cols-3 gap-3.5 mt-8 pt-8 border-t border-surface-container-highest/80">
+          <div class="p-3.5 rounded-xl bg-surface-container-lowest/80 border border-surface-container-highest backdrop-blur">
+            <div class="text-[11px] font-mono text-on-surface-variant uppercase tracking-wider">Exercises</div>
+            <div class="text-xl font-bold text-primary mt-1 flex items-baseline gap-1">500<span class="text-xs text-on-surface-variant">+</span></div>
+            <div class="text-[10px] text-on-surface-variant/80 mt-0.5 font-mono">18 Keypoint Tracking</div>
+          </div>
+          <div class="p-3.5 rounded-xl bg-surface-container-lowest/80 border border-surface-container-highest backdrop-blur">
+            <div class="text-[11px] font-mono text-on-surface-variant uppercase tracking-wider">Active Athletes</div>
+            <div class="text-xl font-bold text-white mt-1">120K+</div>
+            <div class="text-[10px] text-on-surface-variant/80 mt-0.5 font-mono">Global Community</div>
+          </div>
+          <div class="p-3.5 rounded-xl bg-surface-container-lowest/80 border border-surface-container-highest backdrop-blur">
+            <div class="text-[11px] font-mono text-on-surface-variant uppercase tracking-wider">AI Coaching</div>
+            <div class="text-xl font-bold text-secondary mt-1">24/7</div>
+            <div class="text-[10px] text-on-surface-variant/80 mt-0.5 font-mono">Sub-10ms Feedback</div>
+          </div>
         </div>
       </div>
 
-      <!-- Password Field -->
-      <div class="form-group" [class.has-error]="password?.invalid && password?.touched">
-        <label for="regPassword" class="form-label">Password</label>
-        <div class="input-wrapper">
-          <input
-            id="regPassword"
-            type="password"
-            class="form-control"
-            placeholder="At least 6 characters"
-            formControlName="password"
-            autocomplete="new-password"
-          />
+      <!-- Bottom Status & Security Seals in Left Panel -->
+      <div class="relative z-10 flex items-center justify-between text-xs text-on-surface-variant pt-6 border-t border-surface-container-highest/60 font-mono">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-base text-primary">verified_user</span>
+          <span>256-Bit Encrypted Telemetry Sync</span>
         </div>
-        <div *ngIf="password?.invalid && password?.touched" class="error-feedback">
-          <span *ngIf="password?.errors?.['required']">Password is required.</span>
-          <span *ngIf="password?.errors?.['minlength']">Password must be at least 6 characters.</span>
+        <div>
+          <span>© 2025 FitPlatform Core Inc.</span>
         </div>
       </div>
+    </aside>
 
-      <!-- Confirm Password Field -->
-      <div
-        class="form-group"
-        [class.has-error]="
-          (confirmPassword?.invalid || registerForm.errors?.['passwordMismatch']) &&
-          confirmPassword?.touched
-        "
-      >
-        <label for="regConfirmPassword" class="form-label">Confirm Password</label>
-        <div class="input-wrapper">
-          <input
-            id="regConfirmPassword"
-            type="password"
-            class="form-control"
-            placeholder="Repeat password"
-            formControlName="confirmPassword"
-            autocomplete="new-password"
-          />
+    <!-- RIGHT PANEL: Minimalist Glassmorphic Wizard (48%) -->
+    <section class="flex-1 flex items-center justify-center p-4 sm:p-8 lg:p-10 xl:p-12 relative z-10">
+      <!-- Subtle Cybernetic telemetry background pattern -->
+      <div class="pointer-events-none absolute inset-0 opacity-[0.035]" style="background-image: radial-gradient(#41e68d 1px, transparent 1px); background-size: 24px 24px;"></div>
+      <!-- Background ambient glow for form -->
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+      <div class="w-full max-w-xl mx-auto relative z-10">
+
+        <!-- Error Alert Banner -->
+        <div *ngIf="errorMessage()" class="mb-5 p-3.5 rounded-xl bg-red-950/60 border border-red-500/40 text-red-300 text-xs font-mono flex items-center gap-2">
+          <span class="material-symbols-outlined text-red-400 text-base">error</span>
+          <span>{{ errorMessage() }}</span>
         </div>
-        <div
-          *ngIf="
-            (confirmPassword?.invalid || registerForm.errors?.['passwordMismatch']) &&
-            confirmPassword?.touched
-          "
-          class="error-feedback"
-        >
-          <span *ngIf="confirmPassword?.errors?.['required']">Password confirmation is required.</span>
-          <span *ngIf="registerForm.errors?.['passwordMismatch']">Passwords do not match.</span>
+
+        <!-- Wizard Glass Container Card -->
+        <div class="rounded-2xl p-6 sm:p-8 shadow-2xl relative bg-surface-container-low/90 backdrop-blur-2xl border border-surface-container-highest/60">
+
+          <!-- Top Wizard Progress Tracker (Visible on Steps 1, 2, 3) -->
+          <div class="relative mb-8" *ngIf="currentStep() < 4">
+            <div class="absolute top-5 left-8 right-8 h-0.5 bg-surface-container-highest"></div>
+            <div
+              class="absolute top-5 left-8 h-0.5 bg-gradient-to-r from-primary to-secondary transition-all duration-500"
+              [style.width]="currentStep() === 1 ? '0%' : (currentStep() === 2 ? '50%' : '100%')"
+            ></div>
+
+            <div class="relative flex justify-between items-start">
+              <!-- Node 1 -->
+              <div class="flex flex-col items-center group cursor-pointer" (click)="goToStep(1)">
+                <div
+                  class="w-10 h-10 rounded-full flex items-center justify-center font-title-md text-title-md transition-all duration-300"
+                  [ngClass]="currentStep() >= 1 ? 'bg-primary text-on-primary shadow-lg shadow-primary/30' : 'bg-surface-container-highest text-on-surface-variant'"
+                >
+                  <span class="material-symbols-outlined text-lg">person</span>
+                </div>
+                <span
+                  class="mt-2 font-label-sm text-label-sm uppercase tracking-wider font-semibold"
+                  [ngClass]="currentStep() >= 1 ? 'text-primary' : 'text-on-surface-variant'"
+                >
+                  1. Account
+                </span>
+              </div>
+
+              <!-- Node 2 -->
+              <div class="flex flex-col items-center group cursor-pointer" (click)="goToStep(2)">
+                <div
+                  class="w-10 h-10 rounded-full flex items-center justify-center font-title-md text-title-md transition-all duration-300"
+                  [ngClass]="currentStep() >= 2 ? 'bg-primary text-on-primary shadow-lg shadow-primary/30' : 'bg-surface-container-highest text-on-surface-variant'"
+                >
+                  <span class="material-symbols-outlined text-lg">tune</span>
+                </div>
+                <span
+                  class="mt-2 font-label-sm text-label-sm uppercase tracking-wider font-semibold"
+                  [ngClass]="currentStep() >= 2 ? 'text-primary' : 'text-on-surface-variant'"
+                >
+                  2. Role &amp; Goals
+                </span>
+              </div>
+
+              <!-- Node 3 -->
+              <div class="flex flex-col items-center group cursor-pointer" (click)="goToStep(3)">
+                <div
+                  class="w-10 h-10 rounded-full flex items-center justify-center font-title-md text-title-md transition-all duration-300"
+                  [ngClass]="currentStep() >= 3 ? 'bg-primary text-on-primary shadow-lg shadow-primary/30' : 'bg-surface-container-highest text-on-surface-variant'"
+                >
+                  <span class="material-symbols-outlined text-lg">rocket_launch</span>
+                </div>
+                <span
+                  class="mt-2 font-label-sm text-label-sm uppercase tracking-wider font-semibold"
+                  [ngClass]="currentStep() >= 3 ? 'text-primary' : 'text-on-surface-variant'"
+                >
+                  3. Launch
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 1: Account Information -->
+          <div class="space-y-5 transition-all duration-300" *ngIf="currentStep() === 1">
+            <div>
+              <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary font-label-sm text-label-sm mb-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>Biomechanical Identity
+              </div>
+              <h2 class="font-headline-lg text-headline-lg text-on-surface font-bold font-display">Create your athlete profile</h2>
+              <p class="font-body-md text-body-md text-on-surface-variant mt-1">Join 120,000+ athletes training with real-time biomechanics and kinetic telemetry.</p>
+            </div>
+
+            <form [formGroup]="registerForm" class="space-y-3.5 pt-1">
+              <!-- Full Name -->
+              <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-1">Athlete Full Name</label>
+                <div class="relative flex items-center">
+                  <span class="material-symbols-outlined absolute left-3.5 text-on-surface-variant pointer-events-none text-xl">person</span>
+                  <input
+                    type="text"
+                    formControlName="name"
+                    placeholder="Alex Vance"
+                    class="w-full pl-11 pr-4 py-3 bg-surface-container-lowest rounded-xl border border-surface-container-highest/80 text-on-surface font-body-md text-body-md focus:outline-none focus:bg-surface-container-high transition-colors"
+                  />
+                </div>
+                <div *ngIf="name?.invalid && name?.touched" class="text-xs text-red-400 pt-0.5">
+                  <span *ngIf="name?.errors?.['required']">Full name is required.</span>
+                </div>
+              </div>
+
+              <!-- Email Address -->
+              <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-1">Encrypted Telemetry Email</label>
+                <div class="relative flex items-center">
+                  <span class="material-symbols-outlined absolute left-3.5 text-on-surface-variant pointer-events-none text-xl">alternate_email</span>
+                  <input
+                    type="email"
+                    formControlName="email"
+                    placeholder="alex.vance@fitplatform.com"
+                    class="w-full pl-11 pr-4 py-3 bg-surface-container-lowest rounded-xl border border-surface-container-highest/80 text-on-surface font-body-md text-body-md focus:outline-none focus:bg-surface-container-high transition-colors"
+                  />
+                </div>
+                <div *ngIf="email?.invalid && email?.touched" class="text-xs text-red-400 pt-0.5">
+                  <span *ngIf="email?.errors?.['required']">Email is required.</span>
+                  <span *ngIf="email?.errors?.['email']">Please enter a valid email.</span>
+                </div>
+              </div>
+
+              <!-- Password -->
+              <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-1">Secure Passkey</label>
+                <div class="relative flex items-center">
+                  <span class="material-symbols-outlined absolute left-3.5 text-on-surface-variant pointer-events-none text-xl">lock</span>
+                  <input
+                    [type]="showPassword() ? 'text' : 'password'"
+                    formControlName="password"
+                    (input)="evaluatePasswordStrength(password?.value || '')"
+                    placeholder="Create high-entropy key..."
+                    class="w-full pl-11 pr-11 py-3 bg-surface-container-lowest rounded-xl border border-surface-container-highest/80 text-on-surface font-body-md text-body-md focus:outline-none focus:bg-surface-container-high transition-colors"
+                  />
+                  <button
+                    type="button"
+                    (click)="togglePasswordVisibility()"
+                    class="absolute right-3.5 text-on-surface-variant hover:text-primary transition-colors focus:outline-none cursor-pointer"
+                  >
+                    <span class="material-symbols-outlined text-xl">{{ showPassword() ? 'visibility_off' : 'visibility' }}</span>
+                  </button>
+                </div>
+
+                <!-- Dynamic Password Strength HUD -->
+                <div class="mt-2.5 p-3 rounded-xl bg-surface-container-lowest/80 border border-surface-container-highest/50 space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Entropy Security Rating</span>
+                    <span class="font-label-sm text-label-sm font-semibold uppercase" [ngClass]="strengthColor()">{{ strengthLabel() }}</span>
+                  </div>
+                  <div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden flex">
+                    <div
+                      class="h-full bg-gradient-to-r from-red-500 via-yellow-400 to-primary rounded-full transition-all duration-300"
+                      [style.width.%]="strengthPercent()"
+                    ></div>
+                  </div>
+                  <div class="flex flex-wrap gap-1.5 pt-1">
+                    <span
+                      class="px-2 py-0.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 transition-colors"
+                      [ngClass]="hasLength() ? 'bg-primary/20 text-primary' : 'bg-surface-container-high text-on-surface-variant'"
+                    >
+                      <span class="material-symbols-outlined text-xs">{{ hasLength() ? 'check_circle' : 'radio_button_unchecked' }}</span> 8+ Chars
+                    </span>
+                    <span
+                      class="px-2 py-0.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 transition-colors"
+                      [ngClass]="hasNumber() ? 'bg-primary/20 text-primary' : 'bg-surface-container-high text-on-surface-variant'"
+                    >
+                      <span class="material-symbols-outlined text-xs">{{ hasNumber() ? 'check_circle' : 'radio_button_unchecked' }}</span> Number
+                    </span>
+                    <span
+                      class="px-2 py-0.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 transition-colors"
+                      [ngClass]="hasUpper() ? 'bg-primary/20 text-primary' : 'bg-surface-container-high text-on-surface-variant'"
+                    >
+                      <span class="material-symbols-outlined text-xs">{{ hasUpper() ? 'check_circle' : 'radio_button_unchecked' }}</span> Uppercase
+                    </span>
+                    <span
+                      class="px-2 py-0.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 transition-colors"
+                      [ngClass]="hasSpecial() ? 'bg-primary/20 text-primary' : 'bg-surface-container-high text-on-surface-variant'"
+                    >
+                      <span class="material-symbols-outlined text-xs">{{ hasSpecial() ? 'check_circle' : 'radio_button_unchecked' }}</span> Special Symbol
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+            <div class="pt-3">
+              <button
+                type="button"
+                (click)="nextStep(2)"
+                class="w-full py-3.5 px-6 rounded-xl bg-primary text-on-primary font-headline-sm text-title-md font-bold tracking-wide shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:bg-primary-container active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Continue to Role &amp; Goals</span>
+                <span class="material-symbols-outlined">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- STEP 2: Role & Fitness Focus -->
+          <div class="space-y-5 transition-all duration-300" *ngIf="currentStep() === 2">
+            <div>
+              <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary font-label-sm text-label-sm mb-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>Kinetic Specialization
+              </div>
+              <h2 class="font-headline-lg text-headline-lg text-on-surface font-bold font-display">Tailor your training engine</h2>
+              <p class="font-body-md text-body-md text-on-surface-variant mt-1">Select your operational platform role and primary physiological targets.</p>
+            </div>
+
+            <!-- Role Selectors -->
+            <div class="space-y-3">
+              <label class="block font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Select Athlete Class</label>
+              
+              <!-- Athlete Role -->
+              <div
+                (click)="selectRole('USER')"
+                class="p-3.5 rounded-xl cursor-pointer border transition-all duration-200 flex items-start justify-between shadow-md"
+                [ngClass]="registerForm.get('role')?.value === 'USER' ? 'bg-surface-container-low border-primary' : 'bg-surface-container-lowest border-surface-container-highest/60 hover:bg-surface-container-low'"
+              >
+                <div class="flex items-start space-x-3.5">
+                  <div
+                    class="p-2 rounded-lg transition-colors"
+                    [ngClass]="registerForm.get('role')?.value === 'USER' ? 'bg-primary text-on-primary' : 'bg-surface-container-high text-on-surface-variant'"
+                  >
+                    <span class="material-symbols-outlined text-2xl">bolt</span>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h4 class="font-title-md text-title-md text-on-surface font-bold">Athlete / Member</h4>
+                      <span class="px-2 py-0.5 rounded-full bg-primary/20 text-primary font-label-sm text-label-sm">Primary</span>
+                    </div>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Track biomechanics, ingest nutrition telemetry, and execute AI auto-regulating programs.</p>
+                  </div>
+                </div>
+                <div
+                  class="w-5 h-5 rounded-full flex items-center justify-center"
+                  [ngClass]="registerForm.get('role')?.value === 'USER' ? 'bg-primary text-on-primary' : 'bg-surface-container-highest'"
+                >
+                  <div class="w-2 h-2 rounded-full" [ngClass]="registerForm.get('role')?.value === 'USER' ? 'bg-on-primary' : 'bg-transparent'"></div>
+                </div>
+              </div>
+
+              <!-- Trainer Role -->
+              <div
+                (click)="selectRole('TRAINER')"
+                class="p-3.5 rounded-xl cursor-pointer border transition-all duration-200 flex items-start justify-between shadow-md"
+                [ngClass]="registerForm.get('role')?.value === 'TRAINER' ? 'bg-surface-container-low border-primary' : 'bg-surface-container-lowest border-surface-container-highest/60 hover:bg-surface-container-low'"
+              >
+                <div class="flex items-start space-x-3.5">
+                  <div
+                    class="p-2 rounded-lg transition-colors"
+                    [ngClass]="registerForm.get('role')?.value === 'TRAINER' ? 'bg-primary text-on-primary' : 'bg-surface-container-high text-on-surface-variant'"
+                  >
+                    <span class="material-symbols-outlined text-2xl">sports</span>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h4 class="font-title-md text-title-md text-on-surface font-bold">Personal Trainer</h4>
+                      <span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">Supervisor</span>
+                    </div>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Supervise velocity profiles, craft periodized protocols, and audit live kinematic telemetry.</p>
+                  </div>
+                </div>
+                <div
+                  class="w-5 h-5 rounded-full flex items-center justify-center"
+                  [ngClass]="registerForm.get('role')?.value === 'TRAINER' ? 'bg-primary text-on-primary' : 'bg-surface-container-highest'"
+                >
+                  <div class="w-2 h-2 rounded-full" [ngClass]="registerForm.get('role')?.value === 'TRAINER' ? 'bg-on-primary' : 'bg-transparent'"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Goals Multi-Select -->
+            <div class="space-y-2.5 pt-1">
+              <div class="flex items-center justify-between">
+                <label class="block font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Physiological Focus</label>
+                <span class="font-label-sm text-label-sm text-primary font-mono">{{ selectedGoals().length }} selected</span>
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  (click)="toggleGoal('Build Muscle')"
+                  [ngClass]="isGoalSelected('Build Muscle') ? 'bg-primary/15 text-primary border-primary/40' : 'bg-surface-container-lowest text-on-surface-variant border-surface-container-highest/40'"
+                  class="px-3 py-2 rounded-lg text-left border transition-all flex items-center justify-between cursor-pointer"
+                >
+                  <span class="font-title-md text-title-md">Build Muscle</span>
+                  <span class="material-symbols-outlined text-base" [class.opacity-0]="!isGoalSelected('Build Muscle')">check</span>
+                </button>
+                <button
+                  type="button"
+                  (click)="toggleGoal('Lose Fat')"
+                  [ngClass]="isGoalSelected('Lose Fat') ? 'bg-primary/15 text-primary border-primary/40' : 'bg-surface-container-lowest text-on-surface-variant border-surface-container-highest/40'"
+                  class="px-3 py-2 rounded-lg text-left border transition-all flex items-center justify-between cursor-pointer"
+                >
+                  <span class="font-title-md text-title-md">Lose Fat</span>
+                  <span class="material-symbols-outlined text-base" [class.opacity-0]="!isGoalSelected('Lose Fat')">check</span>
+                </button>
+                <button
+                  type="button"
+                  (click)="toggleGoal('Increase Strength')"
+                  [ngClass]="isGoalSelected('Increase Strength') ? 'bg-primary/15 text-primary border-primary/40' : 'bg-surface-container-lowest text-on-surface-variant border-surface-container-highest/40'"
+                  class="px-3 py-2 rounded-lg text-left border transition-all flex items-center justify-between cursor-pointer"
+                >
+                  <span class="font-title-md text-title-md">Max Strength</span>
+                  <span class="material-symbols-outlined text-base" [class.opacity-0]="!isGoalSelected('Increase Strength')">check</span>
+                </button>
+                <button
+                  type="button"
+                  (click)="toggleGoal('Endurance & Stamina')"
+                  [ngClass]="isGoalSelected('Endurance & Stamina') ? 'bg-primary/15 text-primary border-primary/40' : 'bg-surface-container-lowest text-on-surface-variant border-surface-container-highest/40'"
+                  class="px-3 py-2 rounded-lg text-left border transition-all flex items-center justify-between cursor-pointer"
+                >
+                  <span class="font-title-md text-title-md">Stamina &amp; VO2</span>
+                  <span class="material-symbols-outlined text-base" [class.opacity-0]="!isGoalSelected('Endurance & Stamina')">check</span>
+                </button>
+                <button
+                  type="button"
+                  (click)="toggleGoal('Mobility & Health')"
+                  [ngClass]="isGoalSelected('Mobility & Health') ? 'bg-primary/15 text-primary border-primary/40' : 'bg-surface-container-lowest text-on-surface-variant border-surface-container-highest/40'"
+                  class="px-3 py-2 rounded-lg text-left border transition-all flex items-center justify-between cursor-pointer"
+                >
+                  <span class="font-title-md text-title-md">Mobility Matrix</span>
+                  <span class="material-symbols-outlined text-base" [class.opacity-0]="!isGoalSelected('Mobility & Health')">check</span>
+                </button>
+                <button
+                  type="button"
+                  (click)="toggleGoal('Athletic Performance')"
+                  [ngClass]="isGoalSelected('Athletic Performance') ? 'bg-primary/15 text-primary border-primary/40' : 'bg-surface-container-lowest text-on-surface-variant border-surface-container-highest/40'"
+                  class="px-3 py-2 rounded-lg text-left border transition-all flex items-center justify-between cursor-pointer"
+                >
+                  <span class="font-title-md text-title-md">High Velocity</span>
+                  <span class="material-symbols-outlined text-base" [class.opacity-0]="!isGoalSelected('Athletic Performance')">check</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="pt-3 flex items-center gap-3">
+              <button
+                type="button"
+                (click)="nextStep(1)"
+                class="w-1/3 py-3 px-4 rounded-xl bg-surface-container text-on-surface font-title-md text-title-md hover:bg-surface-container-high transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <span class="material-symbols-outlined">arrow_back</span>Back
+              </button>
+              <button
+                type="button"
+                (click)="nextStep(3)"
+                class="w-2/3 py-3 px-6 rounded-xl bg-primary text-on-primary font-headline-sm text-title-md font-bold tracking-wide shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:bg-primary-container transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Continue to Verification</span>
+                <span class="material-symbols-outlined">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- STEP 3: Verification & Launch -->
+          <div class="space-y-5 transition-all duration-300" *ngIf="currentStep() === 3">
+            <div>
+              <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary font-label-sm text-label-sm mb-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>Telemetry Initialization
+              </div>
+              <h2 class="font-headline-lg text-headline-lg text-on-surface font-bold font-display">Review &amp; finalize profile</h2>
+              <p class="font-body-md text-body-md text-on-surface-variant mt-1">One click away from your autonomous workout intelligence platform.</p>
+            </div>
+
+            <!-- Dossier Card -->
+            <div class="p-4 rounded-xl bg-surface-container-lowest/80 border border-surface-container-highest/60 space-y-3.5 shadow-inner">
+              <div class="flex items-center justify-between pb-3 border-b border-surface-container-highest">
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-headline-sm text-headline-sm">
+                    <span class="material-symbols-outlined">fingerprint</span>
+                  </div>
+                  <div>
+                    <p class="font-title-md text-title-md text-on-surface font-bold">{{ name?.value || 'Athlete' }}</p>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant">{{ email?.value }}</p>
+                  </div>
+                </div>
+                <span class="px-2.5 py-1 rounded-full bg-primary text-on-primary font-label-sm text-label-sm font-bold uppercase tracking-wider">
+                  {{ registerForm.get('role')?.value === 'TRAINER' ? 'Personal Trainer' : 'Athlete / Member' }}
+                </span>
+              </div>
+              <div>
+                <span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant block mb-2">Configured Vector Priorities:</span>
+                <div class="flex flex-wrap gap-1.5">
+                  <span
+                    *ngFor="let goal of selectedGoals()"
+                    class="px-2.5 py-1 rounded-full bg-surface-container text-primary font-body-sm text-body-sm border border-primary/20"
+                  >
+                    {{ goal }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Consents -->
+            <form [formGroup]="registerForm" class="space-y-2.5 pt-1">
+              <label class="flex items-start gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  formControlName="termsAccepted"
+                  class="mt-1 w-4 h-4 rounded text-primary bg-surface-container-highest focus:ring-0 accent-primary cursor-pointer"
+                />
+                <span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">
+                  I accept the <span class="text-primary underline">FitPlatform Terms of Service</span> and consent to encrypted Biometric Telemetry processing.
+                </span>
+              </label>
+              <label class="flex items-start gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  formControlName="aiConsent"
+                  class="mt-1 w-4 h-4 rounded text-primary bg-surface-container-highest focus:ring-0 accent-primary cursor-pointer"
+                />
+                <span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">
+                  Authorize real-time kinematic pose correction and AI load modulation.
+                </span>
+              </label>
+            </form>
+
+            <!-- Launch Buttons -->
+            <div class="pt-3 flex flex-col gap-2.5">
+              <button
+                type="button"
+                (click)="executeRegistration()"
+                [disabled]="isLoading() || !registerForm.get('termsAccepted')?.value"
+                class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-primary to-primary-container text-on-primary font-headline-sm text-title-md font-bold tracking-wide shadow-xl shadow-primary/30 hover:shadow-primary/50 hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                <ng-container *ngIf="!isLoading()">
+                  <span>Create FitPlatform Account</span>
+                  <span class="material-symbols-outlined font-bold">bolt</span>
+                </ng-container>
+                <ng-container *ngIf="isLoading()">
+                  <svg class="animate-spin h-5 w-5 text-on-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Compiling Telemetry Dossier...</span>
+                </ng-container>
+              </button>
+              <button
+                type="button"
+                (click)="nextStep(2)"
+                class="w-full py-2 rounded-lg text-on-surface-variant font-title-md text-title-md hover:text-on-surface transition-colors flex items-center justify-center gap-1 cursor-pointer"
+              >
+                <span class="material-symbols-outlined text-lg">edit</span>Modify Preferences
+              </button>
+            </div>
+          </div>
+
+          <!-- STEP 4: Success Telemetry Launchpad -->
+          <div class="space-y-5 py-4 text-center transition-all duration-500" *ngIf="currentStep() === 4">
+            <div class="w-16 h-16 mx-auto rounded-full bg-primary/20 text-primary flex items-center justify-center shadow-2xl shadow-primary/40 animate-pulse">
+              <span class="material-symbols-outlined text-3xl">check_circle</span>
+            </div>
+            <div class="space-y-1.5">
+              <span class="px-3 py-1 rounded-full bg-primary/20 text-primary font-label-sm text-label-sm uppercase tracking-widest font-semibold">
+                Access Granted • Synchronized
+              </span>
+              <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface font-display">
+                Welcome to the Vanguard, <span>{{ name?.value }}</span>.
+              </h2>
+              <p class="font-body-md text-body-md text-on-surface-variant max-w-md mx-auto">
+                Your physiological baseline is compiled. Connecting your sensors to real-time kinematic rendering...
+              </p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-surface-container-lowest max-w-md mx-auto text-left space-y-2 font-label-sm text-label-sm border border-surface-container-highest/60">
+              <div class="flex justify-between text-on-surface-variant">
+                <span>Neural Vector Weight:</span>
+                <span class="text-primary font-mono">1.042 ms</span>
+              </div>
+              <div class="flex justify-between text-on-surface-variant">
+                <span>Kinematic Profile:</span>
+                <span class="text-primary font-mono">3D POSE CALIBRATED</span>
+              </div>
+              <div class="flex justify-between text-on-surface-variant">
+                <span>Telemetry Feed:</span>
+                <span class="text-secondary-fixed-dim font-mono">ENCRYPTED (TLS 1.3)</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              (click)="resetForm()"
+              class="mt-3 px-6 py-2.5 rounded-xl bg-surface-container-high hover:bg-surface-bright text-on-surface font-title-md text-title-md transition-all cursor-pointer"
+            >
+              Simulate Restart Flow
+            </button>
+          </div>
+
+          <!-- Card Footer: Already authenticated athlete switch link (Steps 1, 2, 3) -->
+          <div class="mt-6 pt-5 border-t border-surface-container-highest/60 flex items-center justify-between text-center" *ngIf="currentStep() < 4">
+            <span class="font-body-sm text-body-sm text-on-surface-variant">Already an authenticated athlete?</span>
+            <a routerLink="/login" class="font-title-md text-title-md font-semibold text-primary hover:underline flex items-center gap-1">
+              Sign In
+              <span class="material-symbols-outlined text-sm">arrow_outward</span>
+            </a>
+          </div>
+
         </div>
+
+        <!-- Security & Legal Badges under Card -->
+        <div class="mt-5 flex items-center justify-center gap-4 sm:gap-6 text-[11px] font-mono text-on-surface-variant/80">
+          <span class="flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-sm text-primary">verified_user</span>SOC2 Type II Certified
+          </span>
+          <span>•</span>
+          <span class="text-on-surface-variant">Privacy Policy</span>
+          <span>•</span>
+          <span class="text-on-surface-variant">Terms of Service</span>
+        </div>
+
       </div>
+    </section>
 
-      <!-- Submit Button -->
-      <button
-        id="registerSubmitBtn"
-        type="submit"
-        class="btn-submit"
-        [disabled]="isLoading() || registerForm.invalid"
-      >
-        <span *ngIf="isLoading()" class="spinner"></span>
-        <span>{{ isLoading() ? 'Creating Account...' : 'Sign Up' }}</span>
-      </button>
-    </form>
-
-    <!-- Footer -->
-    <div class="auth-footer">
-      <p>
-        Already have an account?
-        <a routerLink="/login" class="link-primary">Sign In</a>
-      </p>
-    </div>
   </div>
 </div>
