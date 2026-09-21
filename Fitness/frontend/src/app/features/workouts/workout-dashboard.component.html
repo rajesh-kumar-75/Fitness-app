@@ -1,0 +1,437 @@
+<div class="workout-dashboard-container">
+  <!-- Anti-Gravity Floating Gym Equipment Layer -->
+  <div class="antigravity-equipment-layer" aria-hidden="true">
+    <div class="floating-item barbell-center">
+      <div class="barbell-wrap">
+        <div class="plate-stack left">
+          <div class="plate plate-outer"></div>
+          <div class="plate plate-large"></div>
+          <div class="plate plate-mid"></div>
+          <div class="collar"></div>
+        </div>
+        <div class="bar-shaft">
+          <div class="knurl-pattern left"></div>
+          <div class="knurl-pattern center"></div>
+          <div class="knurl-pattern right"></div>
+          <div class="energy-gleam"></div>
+        </div>
+        <div class="plate-stack right">
+          <div class="collar"></div>
+          <div class="plate plate-mid"></div>
+          <div class="plate plate-large"></div>
+          <div class="plate plate-outer"></div>
+        </div>
+      </div>
+    </div>
+    <div class="floating-item kettlebell-top-left">
+      <div class="kettlebell-3d">
+        <div class="kb-handle"></div>
+        <div class="kb-body"><span class="kb-weight">24</span><div class="kb-specular"></div></div>
+      </div>
+    </div>
+    <div class="floating-item kettlebell-top-right">
+      <div class="kettlebell-3d">
+        <div class="kb-handle"></div>
+        <div class="kb-body"><span class="kb-weight">32</span><div class="kb-specular"></div></div>
+      </div>
+    </div>
+    <div class="floating-data-chart">
+      <svg viewBox="0 0 200 60" class="waveform-svg">
+        <path d="M0 30 Q 25 10, 50 30 T 100 30 T 130 15 T 150 45 T 170 20 T 200 30" fill="none" stroke="#00f5ff" stroke-width="2.5" class="pulse-wave" />
+        <circle cx="130" cy="15" r="3.5" fill="#00f5ff" />
+      </svg>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="dashboard-header holo-card">
+    <div class="card-plasma-border"></div>
+    <div class="header-text">
+      <div class="badge-row">
+        <div class="badge-tag">Workout Management</div>
+        <span class="streak-badge">ACTIVE STREAK: {{ activeStreak }}</span>
+        <span class="goal-badge">NEXT GOAL: {{ nextGoal }}</span>
+      </div>
+      <h1 class="page-title">Weekly Workout Schedule</h1>
+      <p class="page-subtitle">
+        Follow your structured training program, log sets in real-time, and monitor your consistency.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn-secondary holo-btn" (click)="openPlansModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        <span>Browse Plans</span>
+      </button>
+
+      <a *ngIf="isTrainer() || isAdmin()" routerLink="/workouts/create" class="btn-primary holo-btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>Create Plan</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Alerts -->
+  <div *ngIf="successMessage()" class="alert-banner alert-success" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+    <span>{{ successMessage() }}</span>
+  </div>
+
+  <div *ngIf="errorMessage()" class="alert-banner alert-danger" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="8" x2="12" y2="12"></line>
+      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+    <span>{{ errorMessage() }}</span>
+  </div>
+
+  <!-- In-Progress Session Resume Banner -->
+  <div *ngIf="activeSession()" class="resume-session-banner glass-panel">
+    <div class="resume-info">
+      <div class="pulsing-live-dot"></div>
+      <div>
+        <h3 class="resume-title">Workout in Progress: {{ activeSession()?.dayName }}</h3>
+        <p class="resume-desc">Started on {{ activeSession()?.startedAt | date: 'shortTime' }}. Resume to log remaining sets and complete your workout.</p>
+      </div>
+    </div>
+    <button class="btn-resume" (click)="onResumeSession()">
+      <span>Resume Workout</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="loading-state">
+    <div class="spinner-large"></div>
+    <p>Loading your workout schedule...</p>
+  </div>
+
+  <div *ngIf="!isLoading()">
+    <!-- Active Plan Overview Hero -->
+    <section class="active-plan-hero glass-panel" *ngIf="activePlan()">
+      <div class="plan-hero-bg">
+        <img
+          [src]="imageService.getWorkoutCover(activePlan())"
+          [alt]="activePlan()?.title || 'Workout Plan'"
+          (error)="imageService.onImageError($event, 'workout', activePlan()?.title)"
+          loading="lazy"
+        />
+        <div class="plan-hero-gradient"></div>
+      </div>
+
+      <div class="plan-hero-left">
+        <div class="plan-badges">
+          <span class="badge-goal">{{ activePlan()?.goal }}</span>
+          <span class="badge-diff">{{ activePlan()?.difficulty }}</span>
+          <span class="badge-meta">{{ activePlan()?.daysPerWeek }} Days/Week</span>
+          <span class="badge-meta">{{ activePlan()?.durationWeeks }} Weeks Program</span>
+          <span class="badge-meta">{{ getTotalExercises(activePlan()) }} Exercises</span>
+        </div>
+        <h2 class="plan-title">{{ activePlan()?.title }}</h2>
+        <p class="plan-desc">{{ activePlan()?.description }}</p>
+
+        <button class="btn-view-details" (click)="openPlanDetail(activePlan()!)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span>View Full Workout Details</span>
+        </button>
+      </div>
+
+      <div class="plan-hero-right">
+        <!-- Today's Workout Quick Action -->
+        <div class="today-callout" *ngIf="getTodaySchedule() as todayDay">
+          <span class="today-label">TODAY'S SCHEDULE ({{ todayDay.dayOfWeek | uppercase }})</span>
+          <h3 class="today-day-name">{{ todayDay.dayName }}</h3>
+
+          <div *ngIf="!todayDay.isRestDay" class="today-stats">
+            <span>{{ todayDay.exercises.length }} Exercises</span> &bull;
+            <span>~{{ todayDay.estimatedDurationMinutes }} min</span>
+          </div>
+
+          <div *ngIf="todayDay.isRestDay" class="today-rest">
+            <span>Active Recovery Day &bull; Hydrate & Rest</span>
+          </div>
+
+          <button
+            *ngIf="!todayDay.isRestDay"
+            class="btn-start-today"
+            (click)="onStartWorkout(todayDay)"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <span>Start Today's Workout</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Weekly Schedule (7 Days Grid) -->
+    <section class="weekly-schedule-section">
+      <div class="section-title-row">
+        <h2 class="section-heading">Weekly Training Schedule</h2>
+        <span class="text-muted">7-Day Split with Thumbnails</span>
+      </div>
+
+      <div class="schedule-grid" *ngIf="activePlan()?.schedule">
+        <div
+          *ngFor="let day of activePlan()?.schedule"
+          class="day-card glass-panel"
+          [class.is-today]="day.dayOfWeek === todayDayOfWeek"
+          [class.is-rest]="day.isRestDay"
+        >
+          <!-- Day Cover Thumbnail -->
+          <div class="day-thumb-header">
+            <img
+              [src]="imageService.getWorkoutCover(day)"
+              [alt]="day.dayName"
+              (error)="imageService.onImageError($event, 'workout', day.dayName)"
+              loading="lazy"
+            />
+            <div class="day-thumb-overlay">
+              <span class="day-category-pill">{{ getDayCategory(day) }}</span>
+              <span *ngIf="!day.isRestDay" class="day-duration">{{ day.estimatedDurationMinutes }}m</span>
+            </div>
+          </div>
+
+          <!-- Day Header -->
+          <div class="day-header">
+            <span class="day-name-pill" [class.pill-today]="day.dayOfWeek === todayDayOfWeek">
+              {{ day.dayOfWeek }}
+              <small *ngIf="day.dayOfWeek === todayDayOfWeek"> (TODAY)</small>
+            </span>
+          </div>
+
+          <!-- Day Title -->
+          <h3 class="day-title">{{ day.dayName }}</h3>
+
+          <!-- Day Content -->
+          <div class="day-body">
+            <!-- Rest Day -->
+            <div *ngIf="day.isRestDay" class="rest-indicator">
+              <span class="rest-icon">🧘</span>
+              <p>Rest & Muscle Recovery</p>
+            </div>
+
+            <!-- Workout Day Exercises -->
+            <div *ngIf="!day.isRestDay" class="day-exercises-list">
+              <div *ngFor="let ex of day.exercises" class="day-ex-item">
+                <div class="ex-mini-thumb">
+                  <img
+                    [src]="imageService.getExerciseImage(ex, 'thumb')"
+                    [alt]="imageService.getExerciseAlt(ex)"
+                    (error)="imageService.onImageError($event, 'exercise', ex.exerciseName)"
+                    loading="lazy"
+                  />
+                </div>
+                <div class="ex-details">
+                  <span class="ex-name">{{ ex.exerciseName }}</span>
+                  <span class="ex-meta">{{ ex.sets }} sets &times; {{ ex.reps }} reps &bull; {{ ex.targetWeight }}kg &bull; {{ ex.restTimeSeconds }}s rest</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Day Footer Action -->
+          <div class="day-footer" *ngIf="!day.isRestDay">
+            <button class="btn-start-day" (click)="onStartWorkout(day)">
+              <span>Start Workout</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Workout History & Stats -->
+    <section class="workout-history-section">
+      <div class="section-title-row">
+        <h2 class="section-heading">Training Progress & History</h2>
+        <div class="stats-pills" *ngIf="stats()">
+          <span class="stat-pill">
+            <strong>{{ stats()?.totalWorkouts }}</strong> Workouts Completed
+          </span>
+          <span class="stat-pill">
+            <strong>{{ stats()?.totalMinutes }}</strong> Minutes Trained
+          </span>
+        </div>
+      </div>
+
+      <!-- History Table / Cards -->
+      <div *ngIf="history().length === 0" class="empty-history glass-panel">
+        <p>No completed workouts yet. Start your first session to begin tracking progress!</p>
+      </div>
+
+      <div *ngIf="history().length > 0" class="history-list glass-panel">
+        <div *ngFor="let item of history()" class="history-row">
+          <div class="hist-icon">✓</div>
+          <div class="hist-main">
+            <h4 class="hist-title">{{ item.dayName }} ({{ item.dayOfWeek }})</h4>
+            <span class="hist-date">{{ item.completedAt | date: 'mediumDate' }} at {{ item.completedAt | date: 'shortTime' }}</span>
+          </div>
+          <div class="hist-stats">
+            <span class="hist-badge">{{ item.durationMinutes }} mins</span>
+            <span class="hist-badge">{{ item.exercises.length }} exercises</span>
+          </div>
+          <p *ngIf="item.notes" class="hist-notes">"{{ item.notes }}"</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Browse Plans Modal -->
+  <div *ngIf="isPlansModalOpen()" class="modal-backdrop" (click)="closePlansModal()">
+    <div class="modal-dialog glass-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Browse Workout Programs</h2>
+        <button class="modal-close-btn" (click)="closePlansModal()" title="Close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="plans-list">
+          <div *ngFor="let plan of availablePlans()" class="plan-select-card" [class.is-active]="plan._id === activePlan()?._id">
+            <div class="plan-card-thumb">
+              <img
+                [src]="imageService.getWorkoutCover(plan)"
+                [alt]="plan.title"
+                (error)="imageService.onImageError($event, 'workout', plan.title)"
+                loading="lazy"
+              />
+              <span *ngIf="plan._id === activePlan()?._id" class="badge-active-pill">ACTIVE PLAN</span>
+            </div>
+
+            <div class="plan-card-content">
+              <div class="plan-card-header">
+                <div>
+                  <span class="badge-goal">{{ plan.goal }}</span>
+                  <span class="badge-diff">{{ plan.difficulty }}</span>
+                </div>
+              </div>
+
+              <h3 class="plan-card-title">{{ plan.title }}</h3>
+              <p class="plan-card-desc">{{ plan.description }}</p>
+
+              <div class="plan-card-meta">
+                <span>{{ plan.daysPerWeek }} Days/Week</span> &bull;
+                <span>{{ plan.durationWeeks }} Weeks</span> &bull;
+                <span>{{ getTotalExercises(plan) }} Exercises</span>
+              </div>
+
+              <div class="plan-card-actions">
+                <button class="btn-secondary btn-sm" (click)="openPlanDetail(plan)">View Details</button>
+                <button
+                  *ngIf="plan._id !== activePlan()?._id"
+                  class="btn-adopt"
+                  (click)="onAdoptPlan(plan)"
+                >
+                  Set as Active Plan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closePlansModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Workout Details Modal -->
+  <div *ngIf="selectedPlanForDetail() as planDetail" class="modal-backdrop" (click)="closePlanDetail()">
+    <div class="modal-dialog modal-lg glass-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Program Details: {{ planDetail.title }}</h2>
+        <button class="modal-close-btn" (click)="closePlanDetail()" title="Close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Large Cover Image -->
+        <div class="detail-cover-wrapper">
+          <img
+            [src]="imageService.getWorkoutCover(planDetail)"
+            [alt]="planDetail.title"
+            (error)="imageService.onImageError($event, 'workout', planDetail.title)"
+            loading="lazy"
+          />
+          <div class="detail-cover-overlay">
+            <span class="badge-goal">{{ planDetail.goal }}</span>
+            <span class="badge-diff">{{ planDetail.difficulty }}</span>
+            <span class="badge-meta">{{ planDetail.daysPerWeek }} Days/Week &bull; {{ planDetail.durationWeeks }} Weeks</span>
+          </div>
+        </div>
+
+        <p class="detail-desc">{{ planDetail.description }}</p>
+
+        <h3 class="detail-section-heading">Scheduled Exercises by Training Day</h3>
+
+        <div class="detail-schedule-list">
+          <div *ngFor="let day of planDetail.schedule" class="detail-day-block">
+            <div class="detail-day-header">
+              <span class="detail-day-pill">{{ day.dayOfWeek }}</span>
+              <h4 class="detail-day-name">{{ day.dayName }}</h4>
+              <span *ngIf="!day.isRestDay" class="detail-day-duration">~{{ day.estimatedDurationMinutes }} min</span>
+            </div>
+
+            <div *ngIf="day.isRestDay" class="detail-rest-notice">
+              <span>🧘 Rest & Active Recovery</span>
+            </div>
+
+            <div *ngIf="!day.isRestDay" class="detail-exercise-cards-grid">
+              <div *ngFor="let ex of day.exercises" class="detail-exercise-card">
+                <div class="detail-ex-thumb">
+                  <img
+                    [src]="imageService.getExerciseImage(ex, 'thumb')"
+                    [alt]="imageService.getExerciseAlt(ex)"
+                    (error)="imageService.onImageError($event, 'exercise', ex.exerciseName)"
+                    loading="lazy"
+                  />
+                  <span class="detail-ex-muscle">{{ ex.muscleGroup }}</span>
+                </div>
+                <div class="detail-ex-info">
+                  <h5 class="detail-ex-title">{{ ex.exerciseName }}</h5>
+                  <div class="detail-ex-stats">
+                    <span>{{ ex.sets }} sets &times; {{ ex.reps }} reps</span>
+                    <span *ngIf="ex.targetWeight > 0">&bull; {{ ex.targetWeight }} kg</span>
+                    <span>&bull; {{ ex.restTimeSeconds }}s rest</span>
+                  </div>
+                  <p *ngIf="ex.notes" class="detail-ex-notes">{{ ex.notes }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          *ngIf="planDetail._id !== activePlan()?._id"
+          class="btn-primary"
+          (click)="onAdoptPlan(planDetail)"
+        >
+          Set as My Active Plan
+        </button>
+        <button class="btn-secondary" (click)="closePlanDetail()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

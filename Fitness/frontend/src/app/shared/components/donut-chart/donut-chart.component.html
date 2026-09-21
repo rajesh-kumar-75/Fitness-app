@@ -1,0 +1,54 @@
+<div class="donut-chart-wrapper">
+  <div class="donut-svg-container" [style.width.px]="size" [style.height.px]="size">
+    <svg [attr.width]="size" [attr.height]="size" class="donut-svg">
+      <!-- Background Track Circle -->
+      <circle
+        [attr.cx]="size / 2"
+        [attr.cy]="size / 2"
+        [attr.r]="radius()"
+        fill="transparent"
+        stroke="rgba(255, 255, 255, 0.06)"
+        [attr.stroke-width]="strokeWidth"
+      />
+
+      <!-- Segments -->
+      @for (seg of processedSegments(); track seg.label) {
+        <circle
+          [attr.cx]="size / 2"
+          [attr.cy]="size / 2"
+          [attr.r]="radius()"
+          fill="transparent"
+          [attr.stroke]="seg.color"
+          [attr.stroke-width]="strokeWidth"
+          [attr.stroke-dasharray]="seg.strokeDasharray"
+          [attr.stroke-dashoffset]="seg.strokeDashoffset"
+          stroke-linecap="round"
+          class="donut-segment"
+        />
+      }
+    </svg>
+
+    <!-- Center Text Display -->
+    <div class="donut-center-content">
+      <span class="donut-center-val">{{ centerValue }}</span>
+      @if (centerLabel) {
+        <span class="donut-center-lbl">{{ centerLabel }}</span>
+      }
+    </div>
+  </div>
+
+  <!-- Legend -->
+  @if (segments.length > 0) {
+    <div class="donut-legend">
+      @for (seg of processedSegments(); track seg.label) {
+        <div class="legend-item">
+          <div class="legend-color-dot" [style.background-color]="seg.color"></div>
+          <div class="legend-text">
+            <span class="legend-label">{{ seg.label }}</span>
+            <span class="legend-val">{{ seg.value }}{{ seg.unit || '' }} ({{ seg.percentage }}%)</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

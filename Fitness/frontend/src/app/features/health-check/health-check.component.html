@@ -1,0 +1,280 @@
+<div class="health-dashboard">
+  <!-- Hero / Header Section -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <div class="badge-tag">Platform Foundation Ready</div>
+      <h1 class="title">Fitness & Workout Management Platform</h1>
+      <p class="subtitle">
+        System Health, Microservices Diagnostics & Live Gateway Verification
+      </p>
+    </div>
+
+    <!-- Quick Control Bar -->
+    <div class="header-actions">
+      <label class="auto-refresh-toggle" for="autoRefreshCheck">
+        <input
+          type="checkbox"
+          id="autoRefreshCheck"
+          [formControl]="autoRefreshControl"
+        />
+        <span class="toggle-slider"></span>
+        <span class="toggle-label">Auto-refresh (10s)</span>
+      </label>
+
+      <button
+        id="pingBackendBtn"
+        class="btn-primary"
+        (click)="checkHealth()"
+        [disabled]="isLoading()"
+      >
+        <span *ngIf="isLoading()" class="spinner"></span>
+        <svg
+          *ngIf="!isLoading()"
+          class="btn-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M23 4v6h-6"></path>
+          <path d="M1 20v-6h6"></path>
+          <path
+            d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
+          ></path>
+        </svg>
+        <span>{{ isLoading() ? 'Checking...' : 'Ping Backend' }}</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Error Alert Banner -->
+  <div *ngIf="errorMessage()" class="alert-card alert-danger" role="alert">
+    <div class="alert-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+    </div>
+    <div class="alert-body">
+      <h2 class="alert-heading">Backend Connection Offline</h2>
+      <p class="alert-text">{{ errorMessage() }}</p>
+      <div class="alert-hints">
+        <span>Troubleshooting steps:</span>
+        <ul>
+          <li>Ensure backend is running: <code>cd backend && npm run dev</code></li>
+          <li>Verify Express is listening on <code>http://localhost:5000</code></li>
+          <li>Ensure MongoDB is running locally on <code>mongodb://localhost:27017</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Metrics Grid -->
+  <section class="metrics-grid">
+    <!-- Card 1: API Gateway -->
+    <div class="metric-card glass-panel">
+      <div class="card-header">
+        <div class="icon-wrapper gateway-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+            <line x1="6" y1="6" x2="6.01" y2="6"></line>
+            <line x1="6" y1="18" x2="6.01" y2="18"></line>
+          </svg>
+        </div>
+        <div class="status-indicator">
+          <span
+            class="status-dot"
+            [class.dot-green]="healthData()?.status === 'healthy'"
+            [class.dot-red]="!healthData()"
+          ></span>
+          <span class="status-text">{{
+            healthData() ? 'ONLINE' : 'UNREACHABLE'
+          }}</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <span class="card-label">API Gateway</span>
+        <h2 class="card-title">Express REST API</h2>
+        <div class="card-meta">
+          <div class="meta-row">
+            <span class="meta-key">Endpoint</span>
+            <code class="meta-val">/api/v1/health</code>
+          </div>
+          <div class="meta-row">
+            <span class="meta-key">Latency</span>
+            <span
+              class="badge-pill"
+              [class.pill-success]="latencyMs() !== null && latencyMs()! < 150"
+              [class.pill-warning]="latencyMs() !== null && latencyMs()! >= 150"
+            >
+              {{ latencyMs() !== null ? latencyMs() + ' ms' : '--' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Server Uptime & Env -->
+    <div class="metric-card glass-panel">
+      <div class="card-header">
+        <div class="icon-wrapper server-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div class="status-indicator">
+          <span class="badge-env">{{
+            healthData()?.environment || 'development' | uppercase
+          }}</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <span class="card-label">Server Uptime</span>
+        <h2 class="card-title">
+          {{ healthData()?.uptime?.formatted || 'Offline' }}
+        </h2>
+        <div class="card-meta">
+          <div class="meta-row">
+            <span class="meta-key">Total Seconds</span>
+            <span class="meta-val">{{
+              healthData()?.uptime?.seconds ?? '--'
+            }}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-key">Last Sync</span>
+            <span class="meta-val">{{
+              lastCheckedAt() ? (lastCheckedAt() | date: 'mediumTime') : '--'
+            }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: Database (MongoDB) -->
+    <div class="metric-card glass-panel">
+      <div class="card-header">
+        <div class="icon-wrapper db-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+          </svg>
+        </div>
+        <div class="status-indicator">
+          <span
+            class="status-dot"
+            [class.dot-green]="healthData()?.database?.status === 'connected'"
+            [class.dot-yellow]="healthData()?.database?.status === 'connecting'"
+            [class.dot-red]="
+              !healthData() || healthData()?.database?.status === 'disconnected'
+            "
+          ></span>
+          <span class="status-text">{{
+            healthData()?.database?.status || 'disconnected' | uppercase
+          }}</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <span class="card-label">Database Connection</span>
+        <h2 class="card-title">{{ healthData()?.database?.provider || 'MongoDB' }}</h2>
+        <div class="card-meta">
+          <div class="meta-row">
+            <span class="meta-key">Mongoose State</span>
+            <span
+              class="badge-pill"
+              [class.pill-success]="healthData()?.database?.connected"
+              [class.pill-danger]="!healthData()?.database?.connected"
+            >
+              {{ healthData()?.database?.status || 'disconnected' }}
+            </span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-key">Driver</span>
+            <span class="meta-val">Mongoose v8.x</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4: Memory Usage -->
+    <div class="metric-card glass-panel">
+      <div class="card-header">
+        <div class="icon-wrapper memory-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 20V10"></path>
+            <path d="M12 20V4"></path>
+            <path d="M6 20v-6"></path>
+          </svg>
+        </div>
+        <div class="status-indicator">
+          <span class="meta-val text-dim">Process Stats</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <span class="card-label">Node Memory Heap</span>
+        <h2 class="card-title">
+          {{ healthData()?.memoryUsage?.heapUsed || '--' }}
+        </h2>
+        <div class="card-meta">
+          <div class="meta-row">
+            <span class="meta-key">Heap Total</span>
+            <span class="meta-val">{{
+              healthData()?.memoryUsage?.heapTotal || '--'
+            }}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-key">RSS</span>
+            <span class="meta-val">{{
+              healthData()?.memoryUsage?.rss || '--'
+            }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Foundation Architecture Checklist -->
+  <section class="foundation-section glass-panel">
+    <div class="section-header">
+      <h2 class="section-title">Core Foundation Checklist</h2>
+      <span class="tag-ready">Production Ready</span>
+    </div>
+
+    <div class="checklist-grid">
+      <div class="check-item">
+        <div class="check-icon">✓</div>
+        <div class="check-content">
+          <h3>Angular 19 Frontend</h3>
+          <p>TypeScript, Standalone Components, Reactive Forms, SCSS & HttpClient</p>
+        </div>
+      </div>
+
+      <div class="check-item">
+        <div class="check-icon">✓</div>
+        <div class="check-content">
+          <h3>Express.js REST Gateway</h3>
+          <p>Clean MVC structure, Helmet security headers, CORS origin verification</p>
+        </div>
+      </div>
+
+      <div class="check-item">
+        <div class="check-icon">✓</div>
+        <div class="check-content">
+          <h3>MongoDB & Mongoose</h3>
+          <p>Configured connection lifecycle, retry logic & graceful termination</p>
+        </div>
+      </div>
+
+      <div class="check-item">
+        <div class="check-icon">✓</div>
+        <div class="check-content">
+          <h3>Centralized Error Handling</h3>
+          <p>Custom ApiError class, functional HTTP interceptor & uniform response payload</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,202 @@
+<!-- Global Floating Launcher Button -->
+<div class="ai-widget-wrapper" [class.is-open]="aiService.isWidgetOpen()">
+  <!-- Floating Launcher Icon -->
+  <button
+    *ngIf="!aiService.isWidgetOpen()"
+    (click)="toggle()"
+    class="ai-launcher-btn"
+    title="Open FitPlatform AI Coach"
+    type="button"
+  >
+    <div class="launcher-glow"></div>
+    <div class="launcher-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"></path>
+        <rect x="4" y="8" width="16" height="12" rx="3"></rect>
+        <circle cx="9" cy="13" r="1.5" fill="currentColor"></circle>
+        <circle cx="15" cy="13" r="1.5" fill="currentColor"></circle>
+        <path d="M10 17h4"></path>
+      </svg>
+      <span class="sparkle-chip">AI</span>
+    </div>
+    <span *ngIf="aiService.unreadCount() > 0" class="launcher-badge">
+      {{ aiService.unreadCount() }}
+    </span>
+  </button>
+
+  <!-- Expandable Chat Panel Window -->
+  <div *ngIf="aiService.isWidgetOpen()" class="ai-chat-window">
+    <!-- Panel Header -->
+    <div class="chat-header">
+      <div class="header-identity">
+        <div class="bot-avatar-wrap">
+          <div class="bot-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"></path>
+              <rect x="4" y="8" width="16" height="12" rx="3"></rect>
+              <circle cx="9" cy="13" r="1.5" fill="currentColor"></circle>
+              <circle cx="15" cy="13" r="1.5" fill="currentColor"></circle>
+              <path d="M10 17h4"></path>
+            </svg>
+          </div>
+          <span class="avatar-status-dot"></span>
+        </div>
+        <div class="header-text">
+          <div class="header-title-row">
+            <h4>FitPlatform AI</h4>
+            <span class="status-pill">Coach Active</span>
+          </div>
+          <p class="header-subtitle">Workouts • Yoga • Nutrition</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Full Screen Link -->
+        <button
+          (click)="openFullScreen()"
+          class="header-btn"
+          title="Open in Full Coach Studio"
+          type="button"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <polyline points="9 21 3 21 3 15"></polyline>
+            <line x1="21" y1="3" x2="14" y2="10"></line>
+            <line x1="3" y1="21" x2="10" y2="14"></line>
+          </svg>
+        </button>
+
+        <!-- Clear Chat -->
+        <button
+          (click)="clearChat()"
+          class="header-btn"
+          title="Clear Conversation"
+          type="button"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+        </button>
+
+        <!-- Minimize / Close -->
+        <button
+          (click)="close()"
+          class="header-btn btn-close"
+          title="Minimize Chat"
+          type="button"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Messages Container -->
+    <div #messagesContainer class="chat-messages">
+      <div
+        *ngFor="let msg of aiService.messages()"
+        class="message-row"
+        [ngClass]="'sender-' + msg.sender"
+      >
+        <!-- Avatar icon -->
+        <div class="msg-avatar" *ngIf="msg.sender === 'assistant'">
+          <span>🤖</span>
+        </div>
+
+        <div class="msg-bubble-wrap">
+          <div class="msg-bubble">
+            <div
+              class="msg-content"
+              [innerHTML]="formatMessage(msg.text)"
+            ></div>
+
+            <!-- Injected Exercise Preview Cards if any -->
+            <div *ngIf="msg.exercises && msg.exercises.length > 0" class="msg-exercises-grid">
+              <div *ngFor="let ex of msg.exercises" class="exercise-chip-card">
+                <img
+                  *ngIf="ex.thumbnailUrl || ex.imageUrl"
+                  [src]="ex.thumbnailUrl || ex.imageUrl"
+                  [alt]="ex.name"
+                  class="chip-thumb"
+                  loading="lazy"
+                />
+                <div class="chip-info">
+                  <span class="chip-name">{{ ex.name }}</span>
+                  <div class="chip-tags">
+                    <span class="chip-group">{{ ex.muscleGroup }}</span>
+                    <span class="chip-diff">{{ ex.difficulty }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Suggestion Action Pills -->
+          <div
+            *ngIf="msg.suggestions && msg.suggestions.length > 0"
+            class="suggestions-container"
+          >
+            <button
+              *ngFor="let prompt of msg.suggestions"
+              (click)="sendMessage(prompt)"
+              class="suggestion-pill"
+              type="button"
+            >
+              {{ prompt }}
+            </button>
+          </div>
+
+          <span class="msg-time">{{ msg.timestamp }}</span>
+        </div>
+      </div>
+
+      <!-- Typing Indicator -->
+      <div *ngIf="aiService.isTyping()" class="message-row sender-assistant is-typing-row">
+        <div class="msg-avatar">
+          <span>🤖</span>
+        </div>
+        <div class="msg-bubble typing-bubble">
+          <div class="typing-indicator">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <span class="typing-text">FitPlatform AI is thinking...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Input Form -->
+    <div class="chat-input-area">
+      <form (submit)="sendMessage()" class="input-form">
+        <input
+          type="text"
+          [ngModel]="inputText()"
+          (ngModelChange)="inputText.set($event)"
+          name="userMessage"
+          placeholder="Ask workouts, yoga poses, macros, diet..."
+          (keydown)="onKeyDown($event)"
+          [disabled]="aiService.isTyping()"
+          autocomplete="off"
+        />
+        <button
+          type="submit"
+          class="btn-send"
+          [disabled]="!inputText().trim() || aiService.isTyping()"
+          title="Send message"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </form>
+      <div class="input-footer-note">
+        <span>FitPlatform AI Coach &bull; English &amp; Telugu Support</span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,368 @@
+<div class="progress-container">
+  <!-- Anti-Gravity Floating Gym Equipment Layer -->
+  <div class="antigravity-equipment-layer" aria-hidden="true">
+    <div class="floating-item barbell-center">
+      <div class="barbell-wrap">
+        <div class="plate-stack left"><div class="plate plate-outer"></div><div class="plate plate-large"></div><div class="plate plate-mid"></div><div class="collar"></div></div>
+        <div class="bar-shaft"><div class="knurl-pattern left"></div><div class="knurl-pattern center"></div><div class="knurl-pattern right"></div><div class="energy-gleam"></div></div>
+        <div class="plate-stack right"><div class="collar"></div><div class="plate plate-mid"></div><div class="plate plate-large"></div><div class="plate plate-outer"></div></div>
+      </div>
+    </div>
+    <div class="floating-item kettlebell-top-right">
+      <div class="kettlebell-3d"><div class="kb-handle"></div><div class="kb-body"><span class="kb-weight">32</span><div class="kb-specular"></div></div></div>
+    </div>
+  </div>
+
+  <!-- Top Header & Navigation -->
+  <header class="progress-header holo-card">
+    <div class="card-plasma-border"></div>
+    <div class="header-titles">
+      <div class="badge-row">
+        <span class="badge-tag">Telemetry &amp; Metrics</span>
+        <span class="streak-badge">ACTIVE STREAK: {{ activeStreak }}</span>
+        <span class="goal-badge">NEXT GOAL: {{ nextGoal }}</span>
+      </div>
+      <h1>Progress &amp; Analytics</h1>
+      <p>Track your physical transformation, strength gains, and body measurements over time.</p>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" class="btn-add-measurement holo-btn-primary" (click)="openMeasurementModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Log Measurements
+      </button>
+      <a routerLink="/workouts/history" class="btn-history-link holo-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        Workout History
+      </a>
+    </div>
+  </header>
+
+  <!-- Top Metrics Cards -->
+  @if (overview(); as stats) {
+    <section class="overview-grid">
+      <div class="metric-card glass-panel">
+        <span class="m-label">CURRENT WEIGHT</span>
+        <div class="m-val-wrap">
+          <span class="m-val">{{ stats.currentWeight }}</span>
+          <span class="m-unit">kg</span>
+        </div>
+        <span class="m-sub" [class.negative]="stats.netWeightChange < 0" [class.positive]="stats.netWeightChange > 0">
+          {{ stats.netWeightChange > 0 ? '+' : '' }}{{ stats.netWeightChange }} kg net change
+        </span>
+      </div>
+
+      <div class="metric-card glass-panel">
+        <span class="m-label">TOTAL SESSIONS</span>
+        <div class="m-val-wrap">
+          <span class="m-val">{{ stats.totalWorkouts }}</span>
+          <span class="m-unit">completed</span>
+        </div>
+        <span class="m-sub text-muted">All-time tracked workouts</span>
+      </div>
+
+      <div class="metric-card glass-panel">
+        <span class="m-label">TIME UNDER TENSION</span>
+        <div class="m-val-wrap">
+          <span class="m-val">{{ stats.totalMinutes }}</span>
+          <span class="m-unit">minutes</span>
+        </div>
+        <span class="m-sub text-muted">Total logged training time</span>
+      </div>
+    </section>
+  }
+
+  <!-- Progress Tabs -->
+  <div class="progress-tabs-bar">
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="activeTab() === 'weight'"
+      (click)="activeTab.set('weight')"
+    >
+      Weight Tracking
+    </button>
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="activeTab() === 'strength'"
+      (click)="activeTab.set('strength')"
+    >
+      Strength Progression
+    </button>
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="activeTab() === 'measurements'"
+      (click)="activeTab.set('measurements')"
+    >
+      Body Measurements ({{ measurementsList().length }})
+    </button>
+  </div>
+
+  <!-- Tab 1: Weight Tracking -->
+  @if (activeTab() === 'weight') {
+    <section class="tab-section">
+      <div class="chart-card glass-panel">
+        <div class="chart-header">
+          <div>
+            <h2>Weight Progression</h2>
+            <p class="chart-desc">Your recorded body weight trajectory over time.</p>
+          </div>
+
+          @if (weightData()?.stats; as ws) {
+            <div class="chart-stats-pills">
+              <div class="stat-pill">
+                <span class="lbl">Start</span>
+                <span class="val">{{ ws.startWeight }} kg</span>
+              </div>
+              <div class="stat-pill">
+                <span class="lbl">Lowest</span>
+                <span class="val">{{ ws.lowestWeight }} kg</span>
+              </div>
+              <div class="stat-pill">
+                <span class="lbl">Highest</span>
+                <span class="val">{{ ws.highestWeight }} kg</span>
+              </div>
+              <div class="stat-pill highlight">
+                <span class="lbl">Net Change</span>
+                <span class="val">{{ ws.netChange > 0 ? '+' : '' }}{{ ws.netChange }} kg</span>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="chart-body">
+          <app-line-chart
+            [data]="weightChartPoints()"
+            yAxisUnit="kg"
+            lineColor="#10b981"
+            gradientId="weightGrad"
+            [height]="260"
+          />
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- Tab 2: Strength Progression -->
+  @if (activeTab() === 'strength') {
+    <section class="tab-section">
+      <div class="chart-card glass-panel">
+        <div class="chart-header strength-header">
+          <div>
+            <h2>Strength Progression</h2>
+            <p class="chart-desc">Maximum load lifted and training volume per exercise session.</p>
+          </div>
+
+          <!-- Exercise Selector -->
+          @if (strengthData()?.availableExercises; as exercises) {
+            <div class="exercise-select-wrap">
+              <label for="strength-ex-select">Exercise:</label>
+              <select
+                id="strength-ex-select"
+                [value]="selectedExercise()"
+                (change)="onSelectExercise($any($event.target).value)"
+              >
+                @for (ex of exercises; track ex) {
+                  <option [value]="ex">{{ ex }}</option>
+                }
+              </select>
+            </div>
+          }
+        </div>
+
+        @if (strengthData()?.stats; as ss) {
+          <div class="strength-summary-row">
+            <div class="pr-badge-card">
+              <span class="pr-trophy">🏆</span>
+              <div>
+                <span class="pr-lbl">PERSONAL RECORD (PR)</span>
+                <span class="pr-val">{{ ss.personalRecord }} kg</span>
+              </div>
+            </div>
+
+            <div class="pr-badge-card">
+              <span class="pr-trophy">📊</span>
+              <div>
+                <span class="pr-lbl">TOTAL VOLUME</span>
+                <span class="pr-val">{{ ss.totalVolume | number:'1.0-0' }} kg</span>
+              </div>
+            </div>
+
+            <div class="pr-badge-card">
+              <span class="pr-trophy">🗓️</span>
+              <div>
+                <span class="pr-lbl">LOGGED SESSIONS</span>
+                <span class="pr-val">{{ ss.totalSessions }}</span>
+              </div>
+            </div>
+          </div>
+        }
+
+        <div class="chart-body">
+          <app-line-chart
+            [data]="strengthChartPoints()"
+            yAxisUnit="kg"
+            lineColor="#6366f1"
+            gradientId="strengthGrad"
+            [height]="260"
+          />
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- Tab 3: Body Measurements Table -->
+  @if (activeTab() === 'measurements') {
+    <section class="tab-section">
+      <div class="table-card glass-panel">
+        <div class="table-header-flex">
+          <div>
+            <h2>Body Measurements History</h2>
+            <p class="section-desc">Circumference logs and body composition trends.</p>
+          </div>
+          <button type="button" class="btn-add-sm" (click)="openMeasurementModal()">
+            + Log Measurement
+          </button>
+        </div>
+
+        @if (measurementsList().length === 0) {
+          <div class="empty-measurements">
+            <p>No body measurements recorded yet. Start tracking your circumference metrics!</p>
+            <button type="button" class="btn-empty-action" (click)="openMeasurementModal()">
+              + Add First Measurement
+            </button>
+          </div>
+        } @else {
+          <div class="responsive-table-wrap">
+            <table class="measurements-table">
+              <thead>
+                <tr>
+                  <th>DATE</th>
+                  <th>WEIGHT</th>
+                  <th>BODY FAT</th>
+                  <th>CHEST</th>
+                  <th>WAIST</th>
+                  <th>HIPS</th>
+                  <th>BICEPS</th>
+                  <th>THIGHS</th>
+                  <th>NOTES</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (m of measurementsList(); track m._id) {
+                  <tr>
+                    <td><strong>{{ m.date | date:'mediumDate' }}</strong></td>
+                    <td><span class="val-badge">{{ m.weight }} kg</span></td>
+                    <td>{{ m.bodyFatPercentage ? (m.bodyFatPercentage + '%') : '—' }}</td>
+                    <td>{{ m.chest ? (m.chest + ' cm') : '—' }}</td>
+                    <td>{{ m.waist ? (m.waist + ' cm') : '—' }}</td>
+                    <td>{{ m.hips ? (m.hips + ' cm') : '—' }}</td>
+                    <td>{{ m.biceps ? (m.biceps + ' cm') : '—' }}</td>
+                    <td>{{ m.thighs ? (m.thighs + ' cm') : '—' }}</td>
+                    <td><span class="notes-snippet">{{ m.notes || '—' }}</span></td>
+                    <td>
+                      <button
+                        type="button"
+                        class="btn-delete-row"
+                        (click)="deleteMeasurement(m._id)"
+                        title="Delete measurement"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- Add Measurement Modal -->
+  @if (isMeasurementModalOpen()) {
+    <div class="modal-backdrop" (click)="closeMeasurementModal()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div>
+            <h3>Log Body Measurements</h3>
+            <p>Record your weight and circumference metrics to monitor progress.</p>
+          </div>
+          <button type="button" class="btn-close-modal" (click)="closeMeasurementModal()">✕</button>
+        </div>
+
+        <form [formGroup]="measurementForm" (ngSubmit)="submitMeasurement()" class="measurement-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Weight (kg) *</label>
+              <input type="number" formControlName="weight" step="0.1" placeholder="e.g. 75.5" />
+              @if (measurementForm.get('weight')?.invalid && measurementForm.get('weight')?.touched) {
+                <span class="field-error">Weight is required (20-400 kg).</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label>Date *</label>
+              <input type="date" formControlName="date" />
+            </div>
+
+            <div class="form-group">
+              <label>Body Fat (%)</label>
+              <input type="number" formControlName="bodyFatPercentage" step="0.1" placeholder="e.g. 15.5" />
+            </div>
+
+            <div class="form-group">
+              <label>Chest (cm)</label>
+              <input type="number" formControlName="chest" step="0.5" placeholder="e.g. 102" />
+            </div>
+
+            <div class="form-group">
+              <label>Waist (cm)</label>
+              <input type="number" formControlName="waist" step="0.5" placeholder="e.g. 82" />
+            </div>
+
+            <div class="form-group">
+              <label>Hips (cm)</label>
+              <input type="number" formControlName="hips" step="0.5" placeholder="e.g. 96" />
+            </div>
+
+            <div class="form-group">
+              <label>Biceps (cm)</label>
+              <input type="number" formControlName="biceps" step="0.5" placeholder="e.g. 37" />
+            </div>
+
+            <div class="form-group">
+              <label>Thighs (cm)</label>
+              <input type="number" formControlName="thighs" step="0.5" placeholder="e.g. 58" />
+            </div>
+
+            <div class="form-group full">
+              <label>Notes / Observations</label>
+              <textarea formControlName="notes" rows="2" placeholder="Morning weigh-in, post-workout, fasting..."></textarea>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-ghost" (click)="closeMeasurementModal()">Cancel</button>
+            <button type="submit" class="btn-save" [disabled]="isSubmitting()">
+              Save Measurements
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

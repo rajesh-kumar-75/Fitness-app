@@ -1,0 +1,320 @@
+<div class="tracker-container">
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading your active workout session...</p>
+    </div>
+  } @else {
+    @if (session(); as activeSession) {
+      <!-- Top Tracker Header -->
+      <header class="tracker-header">
+        <div class="header-left">
+          <button type="button" class="btn-back" routerLink="/workouts" title="Back to dashboard">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            Dashboard
+          </button>
+          <div class="session-info">
+            <h2>{{ planTitle() }}</h2>
+            <span class="day-badge">{{ activeSession.dayName }}</span>
+            @if (isSaving()) {
+              <span class="save-status saving">
+                <span class="dot pulse"></span> Saving...
+              </span>
+            } @else {
+              <span class="save-status saved">
+                <span class="dot"></span> Saved
+              </span>
+            }
+          </div>
+        </div>
+
+        <div class="header-right">
+          <button type="button" class="btn-abandon" (click)="abandonWorkout()">
+            Cancel Workout
+          </button>
+          <button
+            type="button"
+            class="btn-finish"
+            [disabled]="isCompleting()"
+            (click)="finishWorkout()"
+          >
+            @if (isCompleting()) {
+              <span class="spinner-sm"></span> Finishing...
+            } @else {
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Finish Workout
+            }
+          </button>
+        </div>
+      </header>
+
+      <!-- Global Progress Bar -->
+      <div class="progress-bar-container">
+        <div class="progress-bar-info">
+          <span>Overall Progress: {{ totalCompletedSets() }} / {{ totalSets() }} Sets Complete</span>
+          <span>{{ totalSets() > 0 ? ((totalCompletedSets() / totalSets()) * 100 | number:'1.0-0') : 0 }}%</span>
+        </div>
+        <div class="progress-track">
+          <div
+            class="progress-fill"
+            [style.width.%]="totalSets() > 0 ? (totalCompletedSets() / totalSets()) * 100 : 0"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Tracker Main Body -->
+      <div class="tracker-body">
+        <!-- Exercise Nav / Queue Sidebar -->
+        <aside class="exercise-nav-sidebar">
+          <h3>Exercises ({{ activeSession.exercises.length }})</h3>
+          <div class="nav-list">
+            @for (ex of activeSession.exercises; track $index) {
+              <button
+                type="button"
+                class="nav-item"
+                [class.active]="currentExIndex() === $index"
+                (click)="selectExercise($index)"
+              >
+                <div class="nav-thumb">
+                  <img
+                    [src]="imageService.getExerciseImage(ex, 'thumb')"
+                    [alt]="imageService.getExerciseAlt(ex)"
+                    (error)="imageService.onImageError($event, 'exercise', ex.name)"
+                    loading="lazy"
+                  />
+                  <span class="nav-step-badge">{{ $index + 1 }}</span>
+                </div>
+                <div class="nav-content">
+                  <div class="item-name">{{ ex.name }}</div>
+                  <div class="nav-item-meta">
+                    <span class="meta-muscle">{{ ex.muscleGroup }}</span>
+                    <span class="sets-ratio">{{ ex.sets.length }} sets</span>
+                  </div>
+                </div>
+              </button>
+            }
+          </div>
+        </aside>
+
+        <!-- Active Exercise Main Section -->
+        <main class="active-exercise-card">
+          @if (currentExercise(); as ex) {
+            <!-- Step Progress Indicator -->
+            <div class="exercise-stepper-bar">
+              <div class="stepper-label">
+                <span class="stepper-step">Exercise {{ currentExIndex() + 1 }} of {{ activeSession.exercises.length }}</span>
+                <span class="stepper-pct">{{ ((currentExIndex() + 1) / activeSession.exercises.length) * 100 | number:'1.0-0' }}% Completed</span>
+              </div>
+              <div class="stepper-track">
+                <div
+                  class="stepper-fill"
+                  [style.width.%]="((currentExIndex() + 1) / activeSession.exercises.length) * 100"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Active Exercise Demonstration Hero Card -->
+            <div class="active-ex-hero">
+              <div class="hero-image-wrapper">
+                <img
+                  [src]="imageService.getExerciseImage(ex, 'full')"
+                  [alt]="imageService.getExerciseAlt(ex)"
+                  (error)="imageService.onImageError($event, 'exercise', ex.name)"
+                />
+              </div>
+
+              <div class="hero-details">
+                <div class="hero-top-row">
+                  <div class="hero-badges">
+                    <span class="badge-muscle">{{ ex.muscleGroup }}</span>
+                    <span class="badge-sets">{{ ex.sets.length }} Sets</span>
+                  </div>
+
+                  <div class="exercise-nav-controls">
+                    <button
+                      type="button"
+                      class="btn-icon"
+                      [disabled]="currentExIndex() === 0"
+                      (click)="prevExercise()"
+                      title="Previous Exercise"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn-icon"
+                      [disabled]="currentExIndex() === activeSession.exercises.length - 1"
+                      (click)="nextExercise()"
+                      title="Next Exercise"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <h1 class="hero-title">{{ ex.name }}</h1>
+
+                <div class="hero-cta-row">
+                  <button
+                    type="button"
+                    class="btn-complete-exercise"
+                    (click)="completeCurrentExercise()"
+                    title="Mark all sets complete and advance to next exercise"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Complete Exercise</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sets Logging Table -->
+            <div class="sets-container">
+              <div class="sets-table-header">
+                <span class="col-set">SET</span>
+                <span class="col-prev">TARGET</span>
+                <span class="col-weight">WEIGHT (KG)</span>
+                <span class="col-reps">REPS</span>
+                <span class="col-check">DONE</span>
+              </div>
+
+              <div class="sets-list">
+                @for (set of ex.sets; track set.setNumber) {
+                  <div class="set-row" [class.completed]="set.isCompleted">
+                    <div class="col-set">
+                      <span class="set-badge">{{ set.setNumber }}</span>
+                    </div>
+
+                    <div class="col-prev">
+                      <span class="target-text">
+                        {{ set.targetWeight > 0 ? (set.targetWeight + ' kg × ') : '' }}{{ set.targetReps }} reps
+                      </span>
+                    </div>
+
+                    <div class="col-weight">
+                      <div class="stepper-input">
+                        <button type="button" class="step-btn" (click)="updateWeight(set, -2.5)">-</button>
+                        <input
+                          type="number"
+                          [value]="set.actualWeight"
+                          (change)="set.actualWeight = +$any($event.target).value; saveProgress()"
+                          step="0.5"
+                          min="0"
+                        />
+                        <button type="button" class="step-btn" (click)="updateWeight(set, 2.5)">+</button>
+                      </div>
+                    </div>
+
+                    <div class="col-reps">
+                      <div class="stepper-input">
+                        <button type="button" class="step-btn" (click)="updateReps(set, -1)">-</button>
+                        <input
+                          type="number"
+                          [value]="set.completedReps"
+                          (change)="set.completedReps = +$any($event.target).value; saveProgress()"
+                          min="1"
+                        />
+                        <button type="button" class="step-btn" (click)="updateReps(set, 1)">+</button>
+                      </div>
+                    </div>
+
+                    <div class="col-check">
+                      <button
+                        type="button"
+                        class="check-btn"
+                        [class.checked]="set.isCompleted"
+                        (click)="toggleSet(set)"
+                        title="Mark set complete"
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Rest Timer Widget (Floating / Inline) -->
+            @if (restTimerSeconds() > 0) {
+              <div class="rest-timer-card">
+                <div class="timer-display">
+                  <div class="timer-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                  </div>
+                  <div class="timer-info">
+                    <span class="timer-label">REST TIMER</span>
+                    <span class="timer-countdown">{{ restTimerSeconds() }}s</span>
+                  </div>
+                </div>
+
+                <div class="timer-actions">
+                  <button type="button" class="timer-btn" (click)="addTimerSeconds(30)">+30s</button>
+                  <button type="button" class="timer-btn skip" (click)="skipTimer()">Skip Rest</button>
+                </div>
+              </div>
+            }
+
+            <!-- Session Notes -->
+            <div class="session-notes-section">
+              <label for="session-notes">Session Notes</label>
+              <textarea
+                id="session-notes"
+                [formControl]="notesControl"
+                (blur)="saveProgress()"
+                placeholder="Add personal notes, weights used, fatigue levels, or reminders..."
+                rows="3"
+              ></textarea>
+            </div>
+          }
+        </main>
+      </div>
+    }
+  }
+
+  <!-- Celebration Modal -->
+  @if (isCelebration()) {
+    <div class="celebration-overlay">
+      <div class="celebration-card">
+        <div class="trophy-icon">🏆</div>
+        <h2>Workout Completed!</h2>
+        <p class="celebration-subtitle">Great work pushing through today's session!</p>
+
+        @if (completedStats(); as stats) {
+          <div class="stats-summary">
+            <div class="stat-pill">
+              <span class="stat-num">{{ stats.duration }} min</span>
+              <span class="stat-lbl">Duration</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-num">{{ stats.exercisesCount }}</span>
+              <span class="stat-lbl">Exercises</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-num">{{ stats.setsCount }}</span>
+              <span class="stat-lbl">Sets Completed</span>
+            </div>
+          </div>
+        }
+
+        <button type="button" class="btn-dashboard-return" routerLink="/workouts">
+          Return to Workout Dashboard
+        </button>
+      </div>
+    </div>
+  }
+</div>

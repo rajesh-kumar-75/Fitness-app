@@ -1,0 +1,83 @@
+<div class="chart-container" [style.height.px]="height">
+  @if (data.length === 0) {
+    <div class="empty-chart">
+      <p>No data recorded yet for this timeframe.</p>
+    </div>
+  } @else {
+    <svg
+      [attr.viewBox]="'0 0 ' + viewWidth + ' ' + viewHeight"
+      class="line-chart-svg"
+      preserveAspectRatio="none"
+    >
+      <defs>
+        <linearGradient [id]="gradientId" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" [attr.stop-color]="lineColor" stop-opacity="0.35" />
+          <stop offset="100%" [attr.stop-color]="lineColor" stop-opacity="0.0" />
+        </linearGradient>
+      </defs>
+
+      <!-- Horizontal Grid Lines -->
+      @for (y of gridLines(); track y) {
+        <line
+          [attr.x1]="padding.left"
+          [attr.y1]="y"
+          [attr.x2]="viewWidth - padding.right"
+          [attr.y2]="y"
+          class="grid-line"
+        />
+      }
+
+      <!-- Gradient Area Fill -->
+      @if (areaD()) {
+        <path [attr.d]="areaD()" [attr.fill]="'url(#' + gradientId + ')'" />
+      }
+
+      <!-- Stroke Path -->
+      <path
+        [attr.d]="pathD()"
+        fill="none"
+        [attr.stroke]="lineColor"
+        stroke-width="3"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="chart-line"
+      />
+
+      <!-- Data Point Circles -->
+      @for (pt of scaledPoints(); track $index) {
+        <circle
+          [attr.cx]="pt.svgX"
+          [attr.cy]="pt.svgY"
+          r="4.5"
+          [attr.fill]="lineColor"
+          class="point-circle"
+          (mouseenter)="onHover(pt)"
+          (mouseleave)="onLeave()"
+        />
+        <!-- Date Label on X Axis for select points -->
+        @if ($index === 0 || $index === scaledPoints().length - 1 || $index % 3 === 0) {
+          <text
+            [attr.x]="pt.svgX"
+            [attr.y]="viewHeight - 12"
+            text-anchor="middle"
+            class="axis-label"
+          >
+            {{ formatDate(pt.data.x) }}
+          </text>
+        }
+      }
+    </svg>
+
+    <!-- Floating Tooltip on Hover -->
+    @if (hoveredPoint(); as hp) {
+      <div
+        class="chart-tooltip"
+        [style.left.%]="(hp.x / viewWidth) * 100"
+        [style.top.px]="hp.y - 45"
+      >
+        <span class="tooltip-date">{{ formatDate(hp.data.x) }}</span>
+        <span class="tooltip-val">{{ hp.data.y }} {{ yAxisUnit }}</span>
+      </div>
+    }
+  }
+</div>

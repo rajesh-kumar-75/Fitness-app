@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 380" width="600" height="380">
+  <defs>
+    <linearGradient id="bg-shoulders.svg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c1322"/>
+      <stop offset="50%" stop-color="#111c34"/>
+      <stop offset="100%" stop-color="#0a0f1d"/>
+    </linearGradient>
+    <linearGradient id="grad-shoulders.svg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <radialGradient id="glow-shoulders.svg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#bg-shoulders.svg)"/>
+  <circle cx="300" cy="190" r="160" fill="url(#glow-shoulders.svg)"/>
+  <rect x="20" y="20" width="560" height="340" rx="16" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1.5"/>
+  <path d="M160 200 C200 150 250 140 300 140 C350 140 400 150 440 200" stroke="#fbbf24" stroke-width="8" stroke-linecap="round" fill="none"/>
+           <circle cx="160" cy="200" r="22" fill="#f59e0b"/>
+           <circle cx="440" cy="200" r="22" fill="#f59e0b"/>
+           <path d="M300 140 V260 M220 230 H380" stroke="#fbbf24" stroke-width="6" stroke-linecap="round"/>
+</svg>

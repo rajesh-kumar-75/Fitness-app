@@ -1,0 +1,95 @@
+<div class="split-screen-container">
+  <div class="image-section">
+    <img src="assets/cinematic-gym.jpg" alt="Fitness Training" />
+    <div class="cinematic-overlay"></div>
+    <app-three-background></app-three-background>
+  </div>
+  <div class="form-section">
+    <div class="login-card">
+      <!-- Header -->
+      <div class="auth-header">
+        <div class="brand-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <polyline points="10 17 15 12 10 7"></polyline>
+            <line x1="15" y1="12" x2="3" y2="12"></line>
+          </svg>
+        </div>
+        <h1 class="auth-title">Welcome Back</h1>
+        <p class="auth-subtitle">Sign in to your Fitness Platform account</p>
+      </div>
+
+      <!-- Error Alert -->
+      <div *ngIf="errorMessage()" class="alert-box" role="alert">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span>{{ errorMessage() }}</span>
+      </div>
+
+      <!-- Login Form -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate class="auth-form">
+        <!-- Email Field -->
+        <div class="form-group" [class.has-error]="email?.invalid && email?.touched">
+          <label for="loginEmail" class="form-label">Email Address</label>
+          <div class="input-wrapper">
+            <input
+              id="loginEmail"
+              type="email"
+              class="form-control"
+              placeholder="you@fitness.com"
+              formControlName="email"
+              autocomplete="email"
+            />
+          </div>
+          <div *ngIf="email?.invalid && email?.touched" class="error-feedback">
+            <span *ngIf="email?.errors?.['required']">Email is required.</span>
+            <span *ngIf="email?.errors?.['email']">Please enter a valid email address.</span>
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div class="form-group" [class.has-error]="password?.invalid && password?.touched">
+          <div class="label-row">
+            <label for="loginPassword" class="form-label">Password</label>
+          </div>
+          <div class="input-wrapper">
+            <input
+              id="loginPassword"
+              type="password"
+              class="form-control"
+              placeholder="••••••••"
+              formControlName="password"
+              autocomplete="current-password"
+            />
+          </div>
+          <div *ngIf="password?.invalid && password?.touched" class="error-feedback">
+            <span *ngIf="password?.errors?.['required']">Password is required.</span>
+            <span *ngIf="password?.errors?.['minlength']">Password must be at least 6 characters.</span>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          id="loginSubmitBtn"
+          type="submit"
+          class="btn-submit"
+          [disabled]="isLoading() || loginForm.invalid"
+        >
+          <span *ngIf="isLoading()" class="spinner"></span>
+          <span>{{ isLoading() ? 'Signing In...' : 'Sign In' }}</span>
+        </button>
+      </form>
+
+      <!-- Footer -->
+      <div class="auth-footer">
+        <p>
+          Don't have an account yet?
+          <a routerLink="/register" class="link-primary">Create an account</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,650 @@
+<div class="client-detail-container">
+  <!-- Back Link & Top Bar -->
+  <div class="top-nav">
+    <a routerLink="/trainer" class="back-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      <span>Back to Trainer Studio</span>
+    </a>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading athlete studio &amp; coaching telemetry...</p>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="error-banner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  } @else if (clientData()) {
+    <!-- Alerts -->
+    @if (successMessage()) {
+      <div class="alert alert-success">{{ successMessage() }}</div>
+    }
+
+    <!-- Client Header Card -->
+    <header class="client-header glass-card">
+      <div class="header-profile-section">
+        <div class="client-avatar">
+          @if (clientData().profileImage) {
+            <img [src]="clientData().profileImage" [alt]="clientData().name" />
+          } @else {
+            <div class="avatar-placeholder">
+              {{ clientData().name.charAt(0).toUpperCase() }}
+            </div>
+          }
+        </div>
+        <div class="client-title-info">
+          <div class="title-badge-row">
+            <h1 class="client-name">{{ clientData().name }}</h1>
+            <span class="status-badge active">Active Client</span>
+          </div>
+          <p class="client-email">{{ clientData().email }}</p>
+          <div class="badges-row">
+            <span class="badge goal-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="6"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+              </svg>
+              {{ clientData().fitnessGoal || 'General Fitness' }}
+            </span>
+            <span class="badge activity-badge">
+              {{ clientData().activityLevel || 'Moderate' }} Activity
+            </span>
+            @if (clientData().bmi) {
+              <span class="badge bmi-badge">
+                BMI {{ clientData().bmi }} ({{ clientData().bmiCategory }})
+              </span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Controls -->
+      <div class="header-actions">
+        <button class="btn btn-action-workout" (click)="openPlanModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 5v14M18 5v14M2 9h4M18 9h4M2 15h4M18 15h4M6 12h12"></path>
+          </svg>
+          <span>Assign Workout Plan</span>
+        </button>
+
+        <button class="btn btn-action-diet" (click)="openDietModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+          </svg>
+          <span>Prescribe Diet Plan</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Detail Navigation Tabs -->
+    <div class="tabs-nav">
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'overview'"
+        (click)="activeTab.set('overview')"
+      >
+        Overview
+      </button>
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'workouts'"
+        (click)="activeTab.set('workouts')"
+      >
+        Workout History ({{ totalWorkouts() }})
+      </button>
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'nutrition'"
+        (click)="activeTab.set('nutrition')"
+      >
+        Nutrition &amp; Diet
+      </button>
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'progress'"
+        (click)="activeTab.set('progress')"
+      >
+        Progress Analytics
+      </button>
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'measurements'"
+        (click)="activeTab.set('measurements')"
+      >
+        Body Measurements ({{ measurementsList().length }})
+      </button>
+    </div>
+
+    <!-- Tab 1: Overview -->
+    @if (activeTab() === 'overview') {
+      <div class="tab-content overview-grid">
+        <!-- Vitals & Metrics -->
+        <div class="glass-card metrics-card">
+          <h2 class="card-title">Athlete Vitals</h2>
+          <div class="metrics-grid">
+            <div class="metric-item">
+              <span class="label">Current Weight</span>
+              <span class="val">{{ clientData().weight ? (clientData().weight + ' kg') : '--' }}</span>
+            </div>
+            <div class="metric-item">
+              <span class="label">Height</span>
+              <span class="val">{{ clientData().height ? (clientData().height + ' cm') : '--' }}</span>
+            </div>
+            <div class="metric-item">
+              <span class="label">Age</span>
+              <span class="val">{{ clientData().age ? (clientData().age + ' yrs') : '--' }}</span>
+            </div>
+            <div class="metric-item">
+              <span class="label">Gender</span>
+              <span class="val capitalize">{{ clientData().gender || '--' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Current Assignments Card -->
+        <div class="glass-card assignments-card">
+          <h2 class="card-title">Assigned Protocols</h2>
+
+          <div class="protocol-box">
+            <div class="protocol-header">
+              <span class="protocol-type workout">Assigned Workout Routine</span>
+              <button class="btn-text" (click)="openPlanModal()">Change</button>
+            </div>
+            @if (connection()?.assignedWorkoutPlan) {
+              <div class="protocol-info">
+                <h4 class="protocol-name">{{ connection()?.assignedWorkoutPlan?.title || connection()?.assignedWorkoutPlan?.name }}</h4>
+                <div class="protocol-tags">
+                  <span class="tag">{{ connection()?.assignedWorkoutPlan?.difficulty }}</span>
+                  <span class="tag">{{ connection()?.assignedWorkoutPlan?.daysPerWeek }} Days/Week</span>
+                  <span class="tag">{{ connection()?.assignedWorkoutPlan?.goal }}</span>
+                </div>
+              </div>
+            } @else {
+              <p class="empty-note">No workout routine assigned yet.</p>
+            }
+          </div>
+
+          <div class="protocol-box">
+            <div class="protocol-header">
+              <span class="protocol-type diet">Prescribed Nutrition Plan</span>
+              <button class="btn-text" (click)="openDietModal()">
+                {{ dietPlan() ? 'Edit' : 'Create' }}
+              </button>
+            </div>
+            @if (dietPlan()) {
+              <div class="protocol-info">
+                <h4 class="protocol-name">{{ dietPlan()?.title }}</h4>
+                <div class="protocol-tags">
+                  <span class="tag calories">{{ dietPlan()?.targetCalories }} kcal</span>
+                  <span class="tag">{{ dietPlan()?.targetProtein }}g Protein</span>
+                  <span class="tag">{{ dietPlan()?.targetCarbs }}g Carbs</span>
+                  <span class="tag">{{ dietPlan()?.targetFat }}g Fat</span>
+                </div>
+              </div>
+            } @else {
+              <p class="empty-note">No customized diet plan prescribed yet.</p>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Tab 2: Workout History -->
+    @if (activeTab() === 'workouts') {
+      <div class="tab-content workouts-tab">
+        @if (workoutHistory().length === 0) {
+          <div class="empty-state">
+            <p>No completed workout sessions recorded for this athlete yet.</p>
+          </div>
+        } @else {
+          <div class="workout-history-list">
+            @for (session of workoutHistory(); track session._id) {
+              <div class="session-card glass-card">
+                <div class="session-header">
+                  <div>
+                    <h3 class="session-title">{{ session.workoutName || session.planName || 'Workout Session' }}</h3>
+                    <span class="session-date">{{ session.completedAt | date:'mediumDate' }} • {{ session.duration }} mins</span>
+                  </div>
+                  <div class="session-badges">
+                    <span class="badge volume">{{ session.totalVolume || 0 }} kg volume</span>
+                  </div>
+                </div>
+
+                <div class="session-exercises">
+                  @for (ex of session.exercises; track ex._id || ex.exercise) {
+                    <div class="exercise-item">
+                      <div class="ex-header">
+                        <span class="ex-name">{{ ex.name || 'Exercise' }}</span>
+                        <span class="ex-meta">{{ ex.sets?.length || 0 }} sets completed</span>
+                      </div>
+                      <div class="sets-row">
+                        @for (s of ex.sets; track $index) {
+                          <span class="set-chip">
+                            Set {{ $index + 1 }}: {{ s.weight || 0 }}kg × {{ s.reps || 0 }}
+                          </span>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Tab 3: Nutrition & Diet Plan -->
+    @if (activeTab() === 'nutrition') {
+      <div class="tab-content nutrition-tab">
+        @if (!dietPlan()) {
+          <div class="empty-state">
+            <h3>No Active Diet Plan</h3>
+            <p>You haven't prescribed a customized nutrition protocol for {{ clientData().name }} yet.</p>
+            <button class="btn btn-action-diet" (click)="openDietModal()">Prescribe Diet Plan Now</button>
+          </div>
+        } @else {
+          <div class="diet-plan-view glass-card">
+            <div class="diet-header">
+              <div>
+                <h2 class="diet-title">{{ dietPlan()?.title }}</h2>
+                @if (dietPlan()?.description) {
+                  <p class="diet-desc">{{ dietPlan()?.description }}</p>
+                }
+              </div>
+              <button class="btn btn-outline" (click)="openDietModal()">Edit Diet Plan</button>
+            </div>
+
+            <!-- Target Macros Grid -->
+            <div class="macros-summary-grid">
+              <div class="macro-card calories">
+                <span class="macro-label">Daily Calories</span>
+                <span class="macro-value">{{ dietPlan()?.targetCalories }}</span>
+                <span class="macro-unit">kcal / day</span>
+              </div>
+              <div class="macro-card protein">
+                <span class="macro-label">Target Protein</span>
+                <span class="macro-value">{{ dietPlan()?.targetProtein }}g</span>
+                <span class="macro-unit">Muscle repair</span>
+              </div>
+              <div class="macro-card carbs">
+                <span class="macro-label">Target Carbs</span>
+                <span class="macro-value">{{ dietPlan()?.targetCarbs }}g</span>
+                <span class="macro-unit">Energy &amp; fuel</span>
+              </div>
+              <div class="macro-card fat">
+                <span class="macro-label">Target Healthy Fat</span>
+                <span class="macro-value">{{ dietPlan()?.targetFat }}g</span>
+                <span class="macro-unit">Hormonal balance</span>
+              </div>
+            </div>
+
+            <!-- Meals Schedule -->
+            <div class="meals-section">
+              <h3 class="section-title">Prescribed Daily Meals</h3>
+              <div class="meals-grid">
+                @for (meal of dietPlan()?.meals; track meal._id || meal.name) {
+                  <div class="meal-card">
+                    <div class="meal-card-header">
+                      <h4 class="meal-name">{{ meal.name }}</h4>
+                      @if (meal.time) {
+                        <span class="meal-time">{{ meal.time }}</span>
+                      }
+                      <span class="meal-cals">{{ meal.targetCalories }} kcal</span>
+                    </div>
+
+                    @if (meal.suggestedFoods && meal.suggestedFoods.length > 0) {
+                      <div class="meal-foods">
+                        <span class="foods-label">Suggested Options:</span>
+                        <div class="food-chips">
+                          @for (f of meal.suggestedFoods; track f) {
+                            <span class="food-chip">{{ f }}</span>
+                          }
+                        </div>
+                      </div>
+                    }
+
+                    @if (meal.instructions) {
+                      <p class="meal-instructions">{{ meal.instructions }}</p>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Guidelines -->
+            @if (dietPlan()?.guidelines && dietPlan()?.guidelines!.length > 0) {
+              <div class="guidelines-section">
+                <h3 class="section-title">Trainer Coaching Guidelines</h3>
+                <ul class="guidelines-list">
+                  @for (g of dietPlan()?.guidelines; track g) {
+                    <li>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                      <span>{{ g }}</span>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Tab 4: Progress Analytics -->
+    @if (activeTab() === 'progress') {
+      <div class="tab-content progress-tab">
+        <!-- Weight Progression -->
+        <div class="glass-card chart-card">
+          <div class="chart-header">
+            <div>
+              <h2 class="card-title">Weight Progression (Last 30 Days)</h2>
+              <span class="chart-sub">
+                Current: {{ currentWeight() ? (currentWeight() + ' kg') : '--' }}
+                @if (weightChange() !== 0) {
+                  <span [class.positive]="weightChange() > 0" [class.negative]="weightChange() < 0">
+                    ({{ weightChange() > 0 ? '+' : '' }}{{ weightChange() }} kg)
+                  </span>
+                }
+              </span>
+            </div>
+          </div>
+          @if (weightChartPoints().length === 0) {
+            <div class="empty-state">
+              <p>No weight logs recorded for this athlete yet.</p>
+            </div>
+          } @else {
+            <app-line-chart [data]="weightChartPoints()" yLabel="Weight (kg)"></app-line-chart>
+          }
+        </div>
+
+        <!-- Strength Progression -->
+        <div class="glass-card chart-card">
+          <div class="chart-header">
+            <div>
+              <h2 class="card-title">Strength Progression</h2>
+              <span class="chart-sub">Track max load lifted across workout sessions</span>
+            </div>
+            @if (strengthExercises().length > 0) {
+              <div class="chart-controls">
+                <select
+                  class="select-control"
+                  [value]="selectedStrengthExercise()"
+                  (change)="onStrengthExerciseChange($any($event.target).value)"
+                >
+                  @for (ex of strengthExercises(); track ex) {
+                    <option [value]="ex">{{ ex }}</option>
+                  }
+                </select>
+              </div>
+            }
+          </div>
+
+          @if (strengthChartPoints().length === 0) {
+            <div class="empty-state">
+              <p>No strength telemetry logged for the selected exercise yet.</p>
+            </div>
+          } @else {
+            <app-line-chart [data]="strengthChartPoints()" yLabel="Max Weight (kg)"></app-line-chart>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Tab 5: Body Measurements -->
+    @if (activeTab() === 'measurements') {
+      <div class="tab-content measurements-tab">
+        @if (measurementsList().length === 0) {
+          <div class="empty-state">
+            <p>No body measurements recorded for this client yet.</p>
+          </div>
+        } @else {
+          <div class="glass-card table-card">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Chest</th>
+                  <th>Waist</th>
+                  <th>Hips</th>
+                  <th>Arms</th>
+                  <th>Thighs</th>
+                  <th>Calves</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (m of measurementsList(); track m._id || m.date) {
+                  <tr>
+                    <td class="date-cell">{{ m.date | date:'mediumDate' }}</td>
+                    <td>{{ m.chest ? (m.chest + ' cm') : '--' }}</td>
+                    <td>{{ m.waist ? (m.waist + ' cm') : '--' }}</td>
+                    <td>{{ m.hips ? (m.hips + ' cm') : '--' }}</td>
+                    <td>{{ m.arms ? (m.arms + ' cm') : '--' }}</td>
+                    <td>{{ m.thighs ? (m.thighs + ' cm') : '--' }}</td>
+                    <td>{{ m.calves ? (m.calves + ' cm') : '--' }}</td>
+                    <td class="notes-cell">{{ m.notes || '--' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- MODAL: Assign Workout Plan -->
+    @if (isPlanModalOpen()) {
+      <div class="modal-backdrop" (click)="closePlanModal()">
+        <div class="modal-card glass-card" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>Assign Workout Plan</h3>
+            <button class="btn-close" (click)="closePlanModal()">&times;</button>
+          </div>
+
+          <div class="modal-body">
+            <p class="modal-sub">
+              Select an existing workout template or program to assign to {{ clientData().name }}.
+            </p>
+
+            <div class="form-group">
+              <label for="workoutPlanSelect">Choose Plan</label>
+              <select
+                id="workoutPlanSelect"
+                class="form-control"
+                [value]="selectedPlanId()"
+                (change)="selectedPlanId.set($any($event.target).value)"
+              >
+                <option value="" disabled>-- Select a workout plan --</option>
+                @for (plan of availablePlans(); track plan._id) {
+                  <option [value]="plan._id">
+                    {{ plan.title || plan.name }} ({{ plan.difficulty }} • {{ plan.daysPerWeek }} days/wk)
+                  </option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn btn-outline" (click)="closePlanModal()">Cancel</button>
+            <button
+              class="btn btn-primary"
+              [disabled]="isAssigningPlan() || !selectedPlanId()"
+              (click)="submitAssignPlan()"
+            >
+              @if (isAssigningPlan()) {
+                Assigning...
+              } @else {
+                Assign Plan
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- MODAL: Prescribe Custom Diet Plan -->
+    @if (isDietModalOpen()) {
+      <div class="modal-backdrop" (click)="closeDietModal()">
+        <div class="modal-card modal-large glass-card" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>Prescribe Custom Nutrition Plan</h3>
+            <button class="btn-close" (click)="closeDietModal()">&times;</button>
+          </div>
+
+          <form [formGroup]="dietForm" (ngSubmit)="submitDietPlan()" class="modal-body">
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label for="dietTitle">Diet Plan Title *</label>
+                <input
+                  id="dietTitle"
+                  type="text"
+                  class="form-control"
+                  placeholder="e.g. High Protein Hypertrophy Fuel"
+                  formControlName="title"
+                />
+              </div>
+              <div class="form-group flex-1">
+                <label for="dietCalories">Target Daily Calories (kcal) *</label>
+                <input
+                  id="dietCalories"
+                  type="number"
+                  class="form-control"
+                  placeholder="2400"
+                  formControlName="targetCalories"
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="dietDesc">Description / Goal Note</label>
+              <input
+                id="dietDesc"
+                type="text"
+                class="form-control"
+                placeholder="e.g. Slight caloric surplus tailored for lean muscle hypertrophy with nutrient timing."
+                formControlName="description"
+              />
+            </div>
+
+            <!-- Target Macros -->
+            <div class="form-row three-cols">
+              <div class="form-group">
+                <label for="targetProtein">Protein (g) *</label>
+                <input id="targetProtein" type="number" class="form-control" formControlName="targetProtein" />
+              </div>
+              <div class="form-group">
+                <label for="targetCarbs">Carbs (g) *</label>
+                <input id="targetCarbs" type="number" class="form-control" formControlName="targetCarbs" />
+              </div>
+              <div class="form-group">
+                <label for="targetFat">Healthy Fat (g) *</label>
+                <input id="targetFat" type="number" class="form-control" formControlName="targetFat" />
+              </div>
+            </div>
+
+            <!-- Meals Builder -->
+            <div class="meals-builder-section">
+              <div class="meals-builder-header">
+                <h4>Prescribed Daily Meals</h4>
+                <button type="button" class="btn btn-sm btn-outline" (click)="addMeal()">+ Add Meal</button>
+              </div>
+
+              <div formArrayName="meals" class="builder-meals-list">
+                @for (mealGroup of meals.controls; track $index) {
+                  <div [formGroupName]="$index" class="builder-meal-item">
+                    <div class="builder-meal-top">
+                      <span class="meal-number">Meal {{ $index + 1 }}</span>
+                      <button type="button" class="btn-remove" (click)="removeMeal($index)">&times;</button>
+                    </div>
+
+                    <div class="form-row">
+                      <div class="form-group flex-2">
+                        <label>Meal Name *</label>
+                        <input type="text" class="form-control" placeholder="e.g. Breakfast / Post-Workout" formControlName="name" />
+                      </div>
+                      <div class="form-group flex-1">
+                        <label>Time</label>
+                        <input type="text" class="form-control" placeholder="e.g. 08:00 AM" formControlName="time" />
+                      </div>
+                      <div class="form-group flex-1">
+                        <label>Target Cals *</label>
+                        <input type="number" class="form-control" placeholder="600" formControlName="targetCalories" />
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label>Suggested Foods (comma separated)</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="e.g. Oatmeal, 4 egg whites, 1 scoop whey, blueberries"
+                        formControlName="suggestedFoods"
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label>Coaching Instructions</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="e.g. Consume within 45 minutes of training session"
+                        formControlName="instructions"
+                      />
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Guidelines -->
+            <div class="form-group">
+              <label for="guidelines">Coaching Guidelines &amp; Rules (one per line)</label>
+              <textarea
+                id="guidelines"
+                rows="3"
+                class="form-control"
+                placeholder="Drink 3-4 liters of water daily&#10;Consume protein with every meal&#10;Prioritize sleep for recovery"
+                formControlName="guidelines"
+              ></textarea>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline" (click)="closeDietModal()">Cancel</button>
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="isSubmittingDiet() || dietForm.invalid"
+              >
+                @if (isSubmittingDiet()) {
+                  Prescribing Diet...
+                } @else {
+                  Save &amp; Prescribe Diet Plan
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    }
+  }
+</div>

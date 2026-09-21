@@ -1,0 +1,398 @@
+<div class="trainer-dashboard-container">
+  <!-- Anti-Gravity Floating Gym Equipment Layer -->
+  <div class="antigravity-equipment-layer" aria-hidden="true">
+    <div class="floating-item barbell-center">
+      <div class="barbell-wrap">
+        <div class="plate-stack left"><div class="plate plate-outer"></div><div class="plate plate-large"></div><div class="plate plate-mid"></div><div class="collar"></div></div>
+        <div class="bar-shaft"><div class="knurl-pattern left"></div><div class="knurl-pattern center"></div><div class="knurl-pattern right"></div><div class="energy-gleam"></div></div>
+        <div class="plate-stack right"><div class="collar"></div><div class="plate plate-mid"></div><div class="plate plate-large"></div><div class="plate plate-outer"></div></div>
+      </div>
+    </div>
+    <div class="floating-item kettlebell-top-right">
+      <div class="kettlebell-3d"><div class="kb-handle"></div><div class="kb-body"><span class="kb-weight">28</span><div class="kb-specular"></div></div></div>
+    </div>
+  </div>
+
+  <!-- Header Section -->
+  <header class="dashboard-header holo-card">
+    <div class="card-plasma-border"></div>
+    <div class="header-content">
+      <div class="header-badge-row">
+        <div class="header-badge">
+          <span class="badge-dot"></span>
+          <span>Trainer Studio &amp; Coaching Hub</span>
+        </div>
+        <span class="streak-badge">ACTIVE STREAK: {{ activeStreak }}</span>
+        <span class="goal-badge">NEXT GOAL: {{ nextGoal }}</span>
+      </div>
+      <h1 class="page-title">Client Roster &amp; Management</h1>
+      <p class="page-subtitle">
+        Oversee your assigned athletes, tailor workout routines, prescribe custom nutrition plans, and track comprehensive client progression.
+      </p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="header-stats">
+      <div class="stat-card">
+        <div class="stat-icon clients-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <div class="stat-meta">
+          <span class="stat-label">Active Clients</span>
+          <span class="stat-value">{{ activeCount() }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon requests-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div class="stat-meta">
+          <span class="stat-label">Pending Inquiries</span>
+          <span class="stat-value">{{ pendingCount() }}</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <div class="tabs-nav">
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="activeTab() === 'clients'"
+      (click)="activeTab.set('clients')"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="9" cy="7" r="4"></circle>
+      </svg>
+      <span>Active Roster ({{ activeCount() }})</span>
+    </button>
+
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="activeTab() === 'requests'"
+      (click)="activeTab.set('requests')"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="8.5" cy="7" r="4"></circle>
+        <line x1="20" y1="8" x2="20" y2="14"></line>
+        <line x1="23" y1="11" x2="17" y2="11"></line>
+      </svg>
+      <span>Client Inquiries ({{ pendingCount() }})</span>
+      @if (pendingCount() > 0) {
+        <span class="tab-badge">{{ pendingCount() }}</span>
+      }
+    </button>
+
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="activeTab() === 'profile'"
+      (click)="activeTab.set('profile')"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+      <span>Trainer Profile</span>
+    </button>
+  </div>
+
+  <!-- Content Sections -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading roster and coaching records...</p>
+    </div>
+  } @else {
+    <!-- Active Clients Tab -->
+    @if (activeTab() === 'clients') {
+      <div class="clients-section">
+        @if (activeClients().length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <h3>No Active Clients Yet</h3>
+            <p>
+              When athletes request you as their personal trainer and you accept, they will appear in your roster.
+            </p>
+            @if (pendingCount() > 0) {
+              <button class="btn btn-primary" (click)="activeTab.set('requests')">
+                Review Pending Inquiries ({{ pendingCount() }})
+              </button>
+            }
+          </div>
+        } @else {
+          <div class="client-grid">
+            @for (item of activeClients(); track item._id) {
+              <div class="client-card">
+                <div class="client-card-header">
+                  <div class="client-avatar">
+                    @if (item.client.profileImage) {
+                      <img [src]="item.client.profileImage" [alt]="item.client.name" />
+                    } @else {
+                      <div class="avatar-placeholder">
+                        {{ item.client.name.charAt(0).toUpperCase() }}
+                      </div>
+                    }
+                  </div>
+                  <div class="client-info">
+                    <h3 class="client-name">{{ item.client.name }}</h3>
+                    <p class="client-email">{{ item.client.email }}</p>
+                    <span class="client-goal-badge">
+                      {{ item.client.fitnessGoal || 'General Fitness' }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="client-meta-grid">
+                  <div class="meta-item">
+                    <span class="meta-label">Weight</span>
+                    <span class="meta-value">{{ item.client.weight ? (item.client.weight + ' kg') : '--' }}</span>
+                  </div>
+                  <div class="meta-item">
+                    <span class="meta-label">Height</span>
+                    <span class="meta-value">{{ item.client.height ? (item.client.height + ' cm') : '--' }}</span>
+                  </div>
+                  <div class="meta-item">
+                    <span class="meta-label">Activity</span>
+                    <span class="meta-value">{{ item.client.activityLevel || 'Moderate' }}</span>
+                  </div>
+                  <div class="meta-item">
+                    <span class="meta-label">Age</span>
+                    <span class="meta-value">{{ item.client.age ? (item.client.age + ' yrs') : '--' }}</span>
+                  </div>
+                </div>
+
+                <div class="client-assignments">
+                  <div class="assignment-row">
+                    <span class="assignment-tag workout">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 5v14M18 5v14M2 9h4M18 9h4M2 15h4M18 15h4M6 12h12"></path>
+                      </svg>
+                      Workout Plan:
+                    </span>
+                    <span class="assignment-name">
+                      {{ item.assignedWorkoutPlan?.title || item.assignedWorkoutPlan?.name || 'Not assigned yet' }}
+                    </span>
+                  </div>
+                  <div class="assignment-row">
+                    <span class="assignment-tag diet">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                        <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                      </svg>
+                      Diet Plan:
+                    </span>
+                    <span class="assignment-name">
+                      {{ item.assignedDietPlan?.title || item.assignedDietPlan?.name || 'Not assigned yet' }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="client-card-actions">
+                  <button class="btn btn-manage" (click)="viewClient(item.client._id)">
+                    <span>Manage Client Studio</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Inquiries / Pending Requests Tab -->
+    @if (activeTab() === 'requests') {
+      <div class="requests-section">
+        @if (pendingRequests().length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+            <h3>No Pending Inquiries</h3>
+            <p>All client requests have been processed. New connection requests will show up here.</p>
+          </div>
+        } @else {
+          <div class="requests-grid">
+            @for (req of pendingRequests(); track req._id) {
+              <div class="request-card">
+                <div class="request-card-header">
+                  <div class="client-avatar">
+                    @if (req.client.profileImage) {
+                      <img [src]="req.client.profileImage" [alt]="req.client.name" />
+                    } @else {
+                      <div class="avatar-placeholder">
+                        {{ req.client.name.charAt(0).toUpperCase() }}
+                      </div>
+                    }
+                  </div>
+                  <div class="request-info">
+                    <h3 class="client-name">{{ req.client.name }}</h3>
+                    <p class="client-email">{{ req.client.email }}</p>
+                    <span class="request-date">
+                      Requested: {{ req.connectedAt | date:'mediumDate' }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="request-details">
+                  <div class="detail-row">
+                    <span class="label">Goal:</span>
+                    <span class="value highlight">{{ req.client.fitnessGoal || 'General Fitness' }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="label">Experience Level:</span>
+                    <span class="value">{{ req.client.activityLevel || 'Moderate' }}</span>
+                  </div>
+                  @if (req.notes || req.requestMessage) {
+                    <div class="detail-row notes">
+                      <span class="label">Message:</span>
+                      <p class="value-notes">"{{ req.notes || req.requestMessage }}"</p>
+                    </div>
+                  }
+                </div>
+
+                <div class="request-actions">
+                  <button class="btn btn-success" (click)="respondToRequest(req.client._id, 'accept')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Accept Client
+                  </button>
+                  <button class="btn btn-outline-danger" (click)="respondToRequest(req.client._id, 'reject')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    Decline
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Trainer Profile Settings Tab -->
+    @if (activeTab() === 'profile') {
+      <div class="profile-settings-section">
+        <div class="form-container glass-card">
+          <div class="form-header">
+            <h3>Public Trainer Profile</h3>
+            <p>
+              This information is visible to athletes when browsing for personal coaches in the Trainer Directory.
+            </p>
+          </div>
+
+          @if (successMessage()) {
+            <div class="alert alert-success">{{ successMessage() }}</div>
+          }
+          @if (errorMessage()) {
+            <div class="alert alert-danger">{{ errorMessage() }}</div>
+          }
+
+          <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+            <div class="form-group">
+              <label for="specialties">Specialties (comma-separated)</label>
+              <input
+                id="specialties"
+                type="text"
+                class="form-control"
+                placeholder="e.g. Hypertrophy, Bodybuilding, Fat Loss, Powerlifting"
+                formControlName="specialties"
+              />
+              <span class="field-hint">Key disciplines you specialize in guiding athletes through.</span>
+            </div>
+
+            <div class="form-group">
+              <label for="certifications">Certifications (comma-separated)</label>
+              <input
+                id="certifications"
+                type="text"
+                class="form-control"
+                placeholder="e.g. NASM CPT, CSCS, ACE Nutrition Specialist"
+                formControlName="certifications"
+              />
+              <span class="field-hint">Professional coaching licenses and accredited credentials.</span>
+            </div>
+
+            <div class="form-group">
+              <label for="yearsOfExperience">Years of Professional Experience</label>
+              <input
+                id="yearsOfExperience"
+                type="number"
+                min="0"
+                max="50"
+                class="form-control"
+                placeholder="e.g. 5"
+                formControlName="yearsOfExperience"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="bio">Professional Bio &amp; Coaching Philosophy</label>
+              <textarea
+                id="bio"
+                rows="4"
+                class="form-control"
+                placeholder="Tell prospective clients about your coaching background, philosophy, and how you help clients achieve their fitness transformation..."
+                formControlName="bio"
+              ></textarea>
+            </div>
+
+            <div class="form-group checkbox-group">
+              <label class="switch-container">
+                <input type="checkbox" formControlName="isAcceptingClients" />
+                <span class="slider"></span>
+                <span class="switch-label">Currently accepting new clients</span>
+              </label>
+              <span class="field-hint">
+                When active, your profile will be marked open for inquiries in the Trainer Directory.
+              </span>
+            </div>
+
+            <div class="form-actions">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="isSavingProfile() || profileForm.invalid"
+              >
+                @if (isSavingProfile()) {
+                  <span class="spinner-sm"></span> Saving Profile...
+                } @else {
+                  Save Trainer Profile
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    }
+  }
+</div>

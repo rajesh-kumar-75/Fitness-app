@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 380" width="600" height="380">
+  <defs>
+    <linearGradient id="bg-barbell-curl" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0f1d"/>
+      <stop offset="50%" stop-color="#111c34"/>
+      <stop offset="100%" stop-color="#0b1325"/>
+    </linearGradient>
+    <radialGradient id="glow-barbell-curl" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#bg-barbell-curl)"/>
+  <circle cx="300" cy="190" r="150" fill="url(#glow-barbell-curl)"/>
+  <rect x="20" y="20" width="560" height="340" rx="16" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1.5"/>
+  <circle cx="300" cy="140" r="20" fill="#a78bfa"/>
+               <line x1="300" y1="155" x2="300" y2="260" stroke="#8b5cf6" stroke-width="12" stroke-linecap="round"/>
+               <line x1="240" y1="180" x2="360" y2="180" stroke="#94a3b8" stroke-width="8" stroke-linecap="round"/>
+               <circle cx="240" cy="180" r="18" fill="#7c3aed"/>
+               <circle cx="360" cy="180" r="18" fill="#7c3aed"/>
+               <path d="M290 195 L260 185 M310 195 L340 185" stroke="#cbd5e1" stroke-width="7" stroke-linecap="round"/>
+</svg>

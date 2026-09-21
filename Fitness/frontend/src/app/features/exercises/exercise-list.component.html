@@ -1,0 +1,387 @@
+<div class="exercise-container">
+  <!-- Anti-Gravity Floating Gym Equipment Layer -->
+  <div class="antigravity-equipment-layer" aria-hidden="true">
+    <div class="floating-item barbell-center">
+      <div class="barbell-wrap">
+        <div class="plate-stack left">
+          <div class="plate plate-outer"></div>
+          <div class="plate plate-large"></div>
+          <div class="plate plate-mid"></div>
+          <div class="collar"></div>
+        </div>
+        <div class="bar-shaft">
+          <div class="knurl-pattern left"></div>
+          <div class="knurl-pattern center"></div>
+          <div class="knurl-pattern right"></div>
+          <div class="energy-gleam"></div>
+        </div>
+        <div class="plate-stack right">
+          <div class="collar"></div>
+          <div class="plate plate-mid"></div>
+          <div class="plate plate-large"></div>
+          <div class="plate plate-outer"></div>
+        </div>
+      </div>
+    </div>
+    <div class="floating-item kettlebell-top-right">
+      <div class="kettlebell-3d">
+        <div class="kb-handle"></div>
+        <div class="kb-body"><span class="kb-weight">32</span><div class="kb-specular"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header & Controls -->
+  <header class="exercise-header holo-card">
+    <div class="card-plasma-border"></div>
+    <div class="header-text">
+      <div class="badge-row">
+        <div class="badge-tag">Exercise Directory</div>
+        <span class="count-badge">📚 {{ exercises().length }} EXERCISES</span>
+        <span class="streak-badge">ACTIVE STREAK: {{ activeStreak }}</span>
+        <span class="goal-badge">NEXT GOAL: {{ nextGoal }}</span>
+      </div>
+      <h1 class="page-title">Exercise Library</h1>
+      <p class="page-subtitle">
+        Explore 100+ strength, hypertrophy, yoga, and conditioning movements with step-by-step instructions.
+      </p>
+    </div>
+
+    <div class="header-actions" *ngIf="isAdmin()">
+      <button class="btn-primary holo-btn-primary" (click)="openCreateModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>Add Exercise</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Alerts -->
+  <div *ngIf="successMessage()" class="alert-banner alert-success" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+    <span>{{ successMessage() }}</span>
+  </div>
+
+  <div *ngIf="errorMessage()" class="alert-banner alert-danger" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="8" x2="12" y2="12"></line>
+      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+    <span>{{ errorMessage() }}</span>
+  </div>
+
+  <!-- Search & Filter Controls -->
+  <section class="filters-panel glass-panel">
+    <div class="search-row">
+      <!-- Search Input -->
+      <div class="search-input-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search by exercise name or description..."
+          [formControl]="searchControl"
+        />
+        <button
+          *ngIf="searchControl.value"
+          class="clear-btn"
+          (click)="searchControl.setValue('')"
+          title="Clear search"
+        >
+          ✕
+        </button>
+      </div>
+
+      <!-- Difficulty Dropdown -->
+      <div class="filter-dropdown-wrapper">
+        <select class="filter-select" [formControl]="selectedDifficulty">
+          <option *ngFor="let diff of difficulties" [value]="diff">
+            {{ diff === 'All' ? 'All Difficulties' : diff }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Muscle Group Filter Pills -->
+    <div class="muscle-group-pills">
+      <button
+        *ngFor="let mg of muscleGroups"
+        type="button"
+        class="pill-btn"
+        [class.active]="selectedMuscleGroup() === mg"
+        (click)="onSelectMuscleGroup(mg)"
+      >
+        <span>{{ mg }}</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="loading-state">
+    <div class="spinner-large"></div>
+    <p>Loading exercises...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading() && exercises().length === 0" class="empty-state glass-panel">
+    <div class="empty-icon">🏋️</div>
+    <h2>No Exercises Found</h2>
+    <p>Try adjusting your search criteria or muscle group filters.</p>
+    <button class="btn-secondary" (click)="searchControl.setValue(''); onSelectMuscleGroup('All'); selectedDifficulty.setValue('All')">
+      Reset Filters
+    </button>
+  </div>
+
+  <!-- Exercises Grid with Angular 19 @for control flow & dynamic [src] property binding -->
+  @if (!isLoading() && exercises().length > 0) {
+    <section class="exercises-grid">
+      @for (ex of exercises(); track ex._id || ex.name) {
+        <div
+          class="exercise-card glass-panel"
+          (click)="openDetailModal(ex)"
+        >
+          <!-- Thumbnail with Dynamic Property Binding -->
+          <div class="card-thumb">
+            <img
+              [src]="ex.imageUrl || ex.thumbnailUrl || imageService.getExerciseImage(ex, 'thumb')"
+              [alt]="ex.name || imageService.getExerciseAlt(ex)"
+              (error)="imageService.onImageError($event, 'exercise', ex.name)"
+              loading="lazy"
+            />
+            <div class="thumb-badges">
+              <span class="badge-muscle" [ngClass]="'muscle-' + ex.muscleGroup.toLowerCase()">
+                {{ ex.muscleGroup }}
+              </span>
+              <span class="badge-difficulty" [ngClass]="'diff-' + ex.difficulty.toLowerCase()">
+                {{ ex.difficulty }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Card Body -->
+          <div class="card-body">
+            <h3 class="exercise-name">{{ ex.name }}</h3>
+            <p class="exercise-desc">{{ ex.description }}</p>
+
+            <div class="card-meta">
+              <span class="equipment-chip">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 5v14M18 5v14M6 12h12"></path>
+                </svg>
+                {{ ex.equipment }}
+              </span>
+              <span class="steps-count">
+                {{ ex.instructions.length }} {{ ex.instructions.length === 1 ? 'step' : 'steps' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Card Footer -->
+          <div class="card-footer">
+            <button class="btn-card-action" (click)="openDetailModal(ex)">
+              <span>View Details</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+
+            <!-- Admin Controls -->
+            <div class="admin-actions" *ngIf="isAdmin()">
+              <button
+                class="btn-icon-admin btn-edit"
+                (click)="openEditModal(ex, $event)"
+                title="Edit Exercise"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+              <button
+                class="btn-icon-admin btn-delete"
+                (click)="onDeleteExercise(ex, $event)"
+                title="Delete Exercise"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </section>
+  }
+
+  <!-- Exercise Detail Modal -->
+  <div *ngIf="selectedExercise()" class="modal-backdrop" (click)="closeDetailModal()">
+    <div class="modal-dialog glass-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-area">
+          <div class="modal-tags">
+            <span class="badge-muscle" [ngClass]="'muscle-' + selectedExercise()?.muscleGroup?.toLowerCase()">
+              {{ selectedExercise()?.muscleGroup }}
+            </span>
+            <span class="badge-difficulty" [ngClass]="'diff-' + selectedExercise()?.difficulty?.toLowerCase()">
+              {{ selectedExercise()?.difficulty }}
+            </span>
+            <span class="equipment-chip">{{ selectedExercise()?.equipment }}</span>
+          </div>
+          <h2 class="modal-title">{{ selectedExercise()?.name }}</h2>
+        </div>
+        <button class="modal-close-btn" (click)="closeDetailModal()" title="Close modal">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Media / Image with Dynamic Property Binding -->
+        <div class="detail-media">
+          <img
+            [src]="selectedExercise()?.imageUrl || imageService.getExerciseImage(selectedExercise()!, 'full')"
+            [alt]="selectedExercise()?.name || imageService.getExerciseAlt(selectedExercise()!)"
+            (error)="imageService.onImageError($event, 'exercise', selectedExercise()!.name)"
+          />
+        </div>
+
+        <p class="detail-description">{{ selectedExercise()?.description }}</p>
+
+        <!-- Video Link -->
+        <div *ngIf="selectedExercise()?.video" class="video-link-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          <a [href]="selectedExercise()?.video" target="_blank" rel="noopener noreferrer">
+            Watch Video Demonstration on YouTube ↗
+          </a>
+        </div>
+
+        <!-- Instructions List -->
+        <div class="instructions-section">
+          <h3>Step-by-Step Instructions</h3>
+          <ol class="instructions-list">
+            <li *ngFor="let step of selectedExercise()?.instructions; let i = index">
+              <span class="step-num">{{ i + 1 }}</span>
+              <span class="step-text">{{ step }}</span>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeDetailModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Create / Edit Modal -->
+  <div *ngIf="isFormModalOpen()" class="modal-backdrop" (click)="closeFormModal()">
+    <div class="modal-dialog modal-form glass-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">{{ editingExerciseId() ? 'Edit Exercise' : 'Add New Exercise' }}</h2>
+        <button class="modal-close-btn" (click)="closeFormModal()" title="Close modal">✕</button>
+      </div>
+
+      <form [formGroup]="exerciseForm" (ngSubmit)="onSaveExercise()" novalidate class="modal-form-content">
+        <div class="form-grid-2">
+          <!-- Exercise Name -->
+          <div class="form-group" [class.has-error]="exerciseForm.get('name')?.invalid && exerciseForm.get('name')?.touched">
+            <label class="form-label">Exercise Name *</label>
+            <input type="text" class="form-control" placeholder="e.g. Incline Bench Press" formControlName="name" />
+            <span *ngIf="exerciseForm.get('name')?.invalid && exerciseForm.get('name')?.touched" class="error-feedback">
+              Exercise name is required.
+            </span>
+          </div>
+
+          <!-- Muscle Group -->
+          <div class="form-group">
+            <label class="form-label">Target Muscle Group *</label>
+            <select class="form-control" formControlName="muscleGroup">
+              <option *ngFor="let mg of muscleGroups.slice(1)" [value]="mg">{{ mg }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <!-- Equipment -->
+          <div class="form-group" [class.has-error]="exerciseForm.get('equipment')?.invalid && exerciseForm.get('equipment')?.touched">
+            <label class="form-label">Equipment *</label>
+            <input type="text" class="form-control" placeholder="e.g. Barbell, Dumbbell, None" formControlName="equipment" />
+            <span *ngIf="exerciseForm.get('equipment')?.invalid && exerciseForm.get('equipment')?.touched" class="error-feedback">
+              Equipment is required.
+            </span>
+          </div>
+
+          <!-- Difficulty -->
+          <div class="form-group">
+            <label class="form-label">Difficulty Level *</label>
+            <select class="form-control" formControlName="difficulty">
+              <option *ngFor="let diff of difficulties.slice(1)" [value]="diff">{{ diff }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group" [class.has-error]="exerciseForm.get('description')?.invalid && exerciseForm.get('description')?.touched">
+          <label class="form-label">Description *</label>
+          <textarea class="form-control" rows="3" placeholder="Brief summary of the exercise movement and benefits..." formControlName="description"></textarea>
+          <span *ngIf="exerciseForm.get('description')?.invalid && exerciseForm.get('description')?.touched" class="error-feedback">
+            Description is required.
+          </span>
+        </div>
+
+        <!-- Instructions -->
+        <div class="form-group" [class.has-error]="exerciseForm.get('instructions')?.invalid && exerciseForm.get('instructions')?.touched">
+          <label class="form-label">Instructions (One step per line) *</label>
+          <textarea class="form-control font-mono" rows="4" placeholder="Step 1: Set the bench...&#10;Step 2: Grip the bar...&#10;Step 3: Press upwards..." formControlName="instructions"></textarea>
+          <span *ngIf="exerciseForm.get('instructions')?.invalid && exerciseForm.get('instructions')?.touched" class="error-feedback">
+            At least one instruction step is required.
+          </span>
+        </div>
+
+        <div class="form-grid-2">
+          <!-- Image URL -->
+          <div class="form-group">
+            <label class="form-label">Full Image / Demonstration URL</label>
+            <input type="url" class="form-control" placeholder="https://... or /assets/images/exercises/..." formControlName="imageUrl" />
+          </div>
+
+          <!-- Thumbnail URL -->
+          <div class="form-group">
+            <label class="form-label">Thumbnail URL</label>
+            <input type="url" class="form-control" placeholder="https://... or /assets/images/exercises/..." formControlName="thumbnailUrl" />
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <!-- Alt Text -->
+          <div class="form-group">
+            <label class="form-label">Accessible Alt Text</label>
+            <input type="text" class="form-control" placeholder="e.g. Barbell Squat demonstration" formControlName="altText" />
+          </div>
+
+          <!-- Video URL -->
+          <div class="form-group">
+            <label class="form-label">Video Demonstration URL</label>
+            <input type="url" class="form-control" placeholder="https://youtube.com/..." formControlName="video" />
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" (click)="closeFormModal()">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="isSaving() || exerciseForm.invalid">
+            <span *ngIf="isSaving()" class="spinner"></span>
+            <span>{{ isSaving() ? 'Saving...' : (editingExerciseId() ? 'Update Exercise' : 'Create Exercise') }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

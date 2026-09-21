@@ -1,0 +1,353 @@
+<div class="profile-container">
+  <!-- Anti-Gravity Floating Gym Equipment Layer -->
+  <div class="antigravity-equipment-layer" aria-hidden="true">
+    <div class="floating-item barbell-center">
+      <div class="barbell-wrap">
+        <div class="plate-stack left"><div class="plate plate-outer"></div><div class="plate plate-large"></div><div class="plate plate-mid"></div><div class="collar"></div></div>
+        <div class="bar-shaft"><div class="knurl-pattern left"></div><div class="knurl-pattern center"></div><div class="knurl-pattern right"></div><div class="energy-gleam"></div></div>
+        <div class="plate-stack right"><div class="collar"></div><div class="plate plate-mid"></div><div class="plate plate-large"></div><div class="plate plate-outer"></div></div>
+      </div>
+    </div>
+    <div class="floating-item kettlebell-top-right">
+      <div class="kettlebell-3d"><div class="kb-handle"></div><div class="kb-body"><span class="kb-weight">16</span><div class="kb-specular"></div></div></div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="profile-header holo-card">
+    <div class="card-plasma-border"></div>
+    <div class="header-text">
+      <div class="badge-row">
+        <span class="badge-tag">Account &amp; Fitness Profile</span>
+        <span class="streak-badge">ACTIVE STREAK: {{ activeStreak }}</span>
+        <span class="goal-badge">NEXT GOAL: {{ nextGoal }}</span>
+      </div>
+      <h1 class="page-title">Personal Fitness Profile</h1>
+      <p class="page-subtitle">
+        Manage your personal biometric information, physical stats, and tailor your fitness goals.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <a routerLink="/dashboard" class="btn-ghost">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span>Back to Dashboard</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Alerts -->
+  <div *ngIf="successMessage()" class="alert-banner alert-success" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+    <span>{{ successMessage() }}</span>
+  </div>
+
+  <div *ngIf="errorMessage()" class="alert-banner alert-danger" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="8" x2="12" y2="12"></line>
+      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+    <span>{{ errorMessage() }}</span>
+  </div>
+
+  <!-- Loading Skeleton -->
+  <div *ngIf="isLoading()" class="loading-state">
+    <div class="spinner-large"></div>
+    <p>Loading your profile details...</p>
+  </div>
+
+  <!-- Main Content Layout -->
+  <div *ngIf="!isLoading()" class="profile-grid">
+    <!-- Left Column: Profile Card & Live BMI -->
+    <aside class="profile-sidebar">
+      <!-- User Overview Card -->
+      <div class="glass-panel user-summary-card">
+        <div class="avatar-wrapper">
+          <img
+            *ngIf="profileForm.get('profileImage')?.value"
+            [src]="profileForm.get('profileImage')?.value"
+            alt="Profile Avatar"
+            class="avatar-img"
+            (error)="profileForm.patchValue({ profileImage: '' })"
+          />
+          <div *ngIf="!profileForm.get('profileImage')?.value" class="avatar-fallback">
+            {{ profileForm.get('name')?.value?.charAt(0) || 'U' }}
+          </div>
+        </div>
+
+        <h2 class="user-name">{{ profileForm.get('name')?.value || 'User' }}</h2>
+        <p class="user-email">{{ profile()?.email }}</p>
+
+        <div class="user-role-badge" [ngClass]="'role-' + (profile()?.role?.toLowerCase() || 'user')">
+          <span class="dot"></span>
+          <span>{{ profile()?.role }}</span>
+        </div>
+
+        <div class="stats-mini-grid">
+          <div class="mini-stat">
+            <span class="stat-label">Height</span>
+            <span class="stat-value">{{ profileForm.get('height')?.value ? profileForm.get('height')?.value + ' cm' : '--' }}</span>
+          </div>
+          <div class="mini-stat">
+            <span class="stat-label">Weight</span>
+            <span class="stat-value">{{ profileForm.get('weight')?.value ? profileForm.get('weight')?.value + ' kg' : '--' }}</span>
+          </div>
+          <div class="mini-stat">
+            <span class="stat-label">Age</span>
+            <span class="stat-value">{{ profileForm.get('age')?.value ? profileForm.get('age')?.value + ' yrs' : '--' }}</span>
+          </div>
+          <div class="mini-stat">
+            <span class="stat-label">Gender</span>
+            <span class="stat-value font-sm">{{ profileForm.get('gender')?.value || '--' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live BMI Card -->
+      <div class="glass-panel bmi-card">
+        <div class="card-header-row">
+          <h3 class="bmi-title">Body Mass Index (BMI)</h3>
+          <span
+            *ngIf="liveBmiCategory()"
+            class="bmi-category-badge"
+            [ngClass]="'cat-' + liveBmiCategory()?.toLowerCase()?.replace(' ', '-')"
+          >
+            {{ liveBmiCategory() }}
+          </span>
+        </div>
+
+        <div class="bmi-display">
+          <span class="bmi-number">{{ liveBmi() !== null ? liveBmi() : '--' }}</span>
+          <span class="bmi-unit">kg/m²</span>
+        </div>
+
+        <p class="bmi-info" *ngIf="liveBmi() !== null">
+          Calculated dynamically from your height and weight.
+        </p>
+        <p class="bmi-info text-dim" *ngIf="liveBmi() === null">
+          Enter height and weight to calculate your BMI.
+        </p>
+
+        <!-- BMI Scale visual bar -->
+        <div class="bmi-scale">
+          <div class="scale-bar">
+            <div class="segment seg-under" title="Underweight (< 18.5)"></div>
+            <div class="segment seg-normal" title="Normal weight (18.5 - 24.9)"></div>
+            <div class="segment seg-over" title="Overweight (25 - 29.9)"></div>
+            <div class="segment seg-obese" title="Obese (≥ 30)"></div>
+          </div>
+          <div class="scale-labels">
+            <span>18.5</span>
+            <span>25.0</span>
+            <span>30.0</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right Column: Profile Edit Form -->
+    <main class="profile-main">
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" novalidate class="glass-panel form-card">
+        <!-- Section 1: Basic Info -->
+        <section class="form-section">
+          <h2 class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>Basic Information</span>
+          </h2>
+
+          <div class="form-grid-2">
+            <!-- Full Name -->
+            <div class="form-group" [class.has-error]="profileForm.get('name')?.invalid && profileForm.get('name')?.touched">
+              <label for="profName" class="form-label">Full Name *</label>
+              <input
+                id="profName"
+                type="text"
+                class="form-control"
+                placeholder="Your Full Name"
+                formControlName="name"
+              />
+              <div *ngIf="profileForm.get('name')?.invalid && profileForm.get('name')?.touched" class="error-feedback">
+                <span *ngIf="profileForm.get('name')?.errors?.['required']">Full name is required.</span>
+                <span *ngIf="profileForm.get('name')?.errors?.['minlength']">Name must be at least 2 characters.</span>
+              </div>
+            </div>
+
+            <!-- Email (Disabled) -->
+            <div class="form-group">
+              <label class="form-label">Email Address (Read-only)</label>
+              <input
+                type="email"
+                class="form-control input-readonly"
+                [value]="profile()?.email"
+                disabled
+              />
+            </div>
+          </div>
+
+          <!-- Profile Image URL -->
+          <div class="form-group">
+            <label for="profImage" class="form-label">Profile Avatar URL</label>
+            <input
+              id="profImage"
+              type="url"
+              class="form-control"
+              placeholder="https://images.unsplash.com/..."
+              formControlName="profileImage"
+            />
+            <span class="field-hint">Paste an image link or choose a preset below:</span>
+            <div class="avatar-preset-row">
+              <button
+                type="button"
+                *ngFor="let url of avatarPresets"
+                class="preset-thumb-btn"
+                [class.selected]="profileForm.get('profileImage')?.value === url"
+                (click)="selectAvatarPreset(url)"
+              >
+                <img [src]="url" alt="Preset Avatar" />
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 2: Physical Metrics -->
+        <section class="form-section">
+          <h2 class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 20V10"></path>
+              <path d="M12 20V4"></path>
+              <path d="M6 20v-6"></path>
+            </svg>
+            <span>Physical Attributes</span>
+          </h2>
+
+          <div class="form-grid-4">
+            <!-- Age -->
+            <div class="form-group" [class.has-error]="profileForm.get('age')?.invalid && profileForm.get('age')?.touched">
+              <label for="profAge" class="form-label">Age</label>
+              <input
+                id="profAge"
+                type="number"
+                class="form-control"
+                placeholder="e.g. 28"
+                formControlName="age"
+                min="10"
+                max="120"
+              />
+              <div *ngIf="profileForm.get('age')?.invalid && profileForm.get('age')?.touched" class="error-feedback">
+                <span>Must be between 10 and 120.</span>
+              </div>
+            </div>
+
+            <!-- Gender -->
+            <div class="form-group">
+              <label for="profGender" class="form-label">Gender</label>
+              <select id="profGender" class="form-control select-control" formControlName="gender">
+                <option *ngFor="let g of genderOptions" [value]="g">{{ g }}</option>
+              </select>
+            </div>
+
+            <!-- Height -->
+            <div class="form-group" [class.has-error]="profileForm.get('height')?.invalid && profileForm.get('height')?.touched">
+              <label for="profHeight" class="form-label">Height (cm)</label>
+              <input
+                id="profHeight"
+                type="number"
+                class="form-control"
+                placeholder="e.g. 175"
+                formControlName="height"
+                min="50"
+                max="300"
+              />
+              <div *ngIf="profileForm.get('height')?.invalid && profileForm.get('height')?.touched" class="error-feedback">
+                <span>Must be between 50 and 300 cm.</span>
+              </div>
+            </div>
+
+            <!-- Weight -->
+            <div class="form-group" [class.has-error]="profileForm.get('weight')?.invalid && profileForm.get('weight')?.touched">
+              <label for="profWeight" class="form-label">Weight (kg)</label>
+              <input
+                id="profWeight"
+                type="number"
+                class="form-control"
+                placeholder="e.g. 72"
+                formControlName="weight"
+                min="20"
+                max="500"
+              />
+              <div *ngIf="profileForm.get('weight')?.invalid && profileForm.get('weight')?.touched" class="error-feedback">
+                <span>Must be between 20 and 500 kg.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 3: Fitness Goals & Activity -->
+        <section class="form-section">
+          <h2 class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            <span>Primary Fitness Goal</span>
+          </h2>
+
+          <div class="radio-card-grid">
+            <label
+              *ngFor="let goal of fitnessGoals"
+              class="choice-card"
+              [class.active]="profileForm.get('fitnessGoal')?.value === goal"
+            >
+              <input type="radio" formControlName="fitnessGoal" [value]="goal" />
+              <span class="choice-title">{{ goal }}</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2 class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 14 14"></polyline>
+            </svg>
+            <span>Activity Level</span>
+          </h2>
+
+          <div class="radio-card-list">
+            <label
+              *ngFor="let act of activityLevels"
+              class="choice-row"
+              [class.active]="profileForm.get('activityLevel')?.value === act.value"
+            >
+              <input type="radio" formControlName="activityLevel" [value]="act.value" />
+              <div class="choice-row-content">
+                <span class="choice-row-title">{{ act.label }}</span>
+                <span class="choice-row-desc">{{ act.desc }}</span>
+              </div>
+            </label>
+          </div>
+        </section>
+
+        <!-- Form Actions -->
+        <div class="form-actions-bar">
+          <button
+            type="submit"
+            id="saveProfileBtn"
+            class="btn-save"
+            [disabled]="isSaving() || profileForm.invalid"
+          >
+            <span *ngIf="isSaving()" class="spinner"></span>
+            <span>{{ isSaving() ? 'Saving Changes...' : 'Save Profile Changes' }}</span>
+          </button>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>

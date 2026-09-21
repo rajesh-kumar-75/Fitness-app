@@ -1,0 +1,216 @@
+<div class="trainer-directory-container">
+  <!-- Anti-Gravity Floating Gym Equipment Layer -->
+  <div class="antigravity-equipment-layer" aria-hidden="true">
+    <div class="floating-item barbell-center">
+      <div class="barbell-wrap">
+        <div class="plate-stack left"><div class="plate plate-outer"></div><div class="plate plate-large"></div><div class="plate plate-mid"></div><div class="collar"></div></div>
+        <div class="bar-shaft"><div class="knurl-pattern left"></div><div class="knurl-pattern center"></div><div class="knurl-pattern right"></div><div class="energy-gleam"></div></div>
+        <div class="plate-stack right"><div class="collar"></div><div class="plate plate-mid"></div><div class="plate plate-large"></div><div class="plate plate-outer"></div></div>
+      </div>
+    </div>
+    <div class="floating-item kettlebell-top-right">
+      <div class="kettlebell-3d"><div class="kb-handle"></div><div class="kb-body"><span class="kb-weight">32</span><div class="kb-specular"></div></div></div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="directory-header holo-card">
+    <div class="card-plasma-border"></div>
+    <div class="header-badge-row">
+      <div class="header-badge">
+        <span class="badge-dot"></span>
+        <span>Certified Coaching Network</span>
+      </div>
+      <span class="streak-badge">ACTIVE STREAK: {{ activeStreak }}</span>
+      <span class="goal-badge">NEXT GOAL: {{ nextGoal }}</span>
+    </div>
+    <h1 class="page-title">Find Your Personal Trainer</h1>
+    <p class="page-subtitle">
+      Connect with elite certified personal trainers and nutrition specialists to unlock tailored workout programs, custom meal plans, and 1-on-1 progress oversight.
+    </p>
+  </header>
+
+  <!-- Alerts -->
+  @if (successMessage()) {
+    <div class="alert alert-success">{{ successMessage() }}</div>
+  }
+  @if (errorMessage()) {
+    <div class="alert alert-danger">{{ errorMessage() }}</div>
+  }
+
+  <!-- Current Trainer Status Banner (if connected) -->
+  @if (myConnection()) {
+    <div class="my-coach-banner glass-card">
+      <div class="coach-banner-content">
+        <div class="banner-badge-status" [class.active]="myConnection()?.status === 'active'">
+          {{ myConnection()?.status === 'active' ? 'Active Coach' : 'Inquiry Pending' }}
+        </div>
+        <h3 class="coach-banner-title">
+          @if (myConnection()?.status === 'active') {
+            <span>You are currently training with <strong>{{ myConnection()?.trainer ? ($any(myConnection()?.trainer).name || 'Your Trainer') : 'Your Trainer' }}</strong></span>
+          } @else {
+            <span>Your connection request to <strong>{{ myConnection()?.trainer ? ($any(myConnection()?.trainer).name || 'Trainer') : 'Trainer' }}</strong> is being reviewed</span>
+          }
+        </h3>
+        <p class="coach-banner-sub">
+          @if (myConnection()?.status === 'active') {
+            <span>Your coach has assigned custom workout and nutrition protocols to your dashboard.</span>
+          } @else {
+            <span>Once your coach accepts your request, your tailored workout and nutrition routines will unlock.</span>
+          }
+        </p>
+
+        @if (myConnection()?.status === 'active') {
+          <div class="assigned-protocols-preview">
+            <div class="protocol-chip workout">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 5v14M18 5v14M2 9h4M18 9h4M2 15h4M18 15h4M6 12h12"></path>
+              </svg>
+              <span>Workout: {{ myConnection()?.assignedWorkoutPlan?.title || myConnection()?.assignedWorkoutPlan?.name || 'In Development' }}</span>
+            </div>
+            <div class="protocol-chip diet">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+              </svg>
+              <span>Diet: {{ myConnection()?.assignedDietPlan?.title || myConnection()?.assignedDietPlan?.name || 'In Development' }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Locating verified trainers and fitness coaches...</p>
+    </div>
+  } @else {
+    <!-- Trainers Grid -->
+    <div class="trainers-grid">
+      @for (trainer of trainers(); track trainer._id) {
+        <div class="trainer-card glass-card">
+          <div class="trainer-card-header">
+            <div class="trainer-avatar">
+              @if (trainer.profileImage) {
+                <img [src]="trainer.profileImage" [alt]="trainer.name" />
+              } @else {
+                <div class="avatar-placeholder">
+                  {{ trainer.name.charAt(0).toUpperCase() }}
+                </div>
+              }
+            </div>
+            <div class="trainer-meta">
+              <h3 class="trainer-name">{{ trainer.name }}</h3>
+              <p class="trainer-exp">
+                {{ trainer.trainerProfile.yearsOfExperience || 1 }}+ Years Experience
+              </p>
+              <div class="accepting-badge" [class.open]="trainer.trainerProfile.isAcceptingClients">
+                <span class="status-dot"></span>
+                <span>{{ trainer.trainerProfile.isAcceptingClients ? 'Accepting Clients' : 'Roster Full' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="trainer-card-body">
+            <p class="trainer-bio">{{ trainer.trainerProfile.bio || 'Certified fitness coach specializing in high-performance results.' }}</p>
+
+            <!-- Specialties -->
+            @if (trainer.trainerProfile.specialties && trainer.trainerProfile.specialties.length > 0) {
+              <div class="section-group">
+                <span class="group-title">Specialties</span>
+                <div class="tags-row">
+                  @for (spec of trainer.trainerProfile.specialties; track spec) {
+                    <span class="tag-pill specialty">{{ spec }}</span>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Certifications -->
+            @if (trainer.trainerProfile.certifications && trainer.trainerProfile.certifications.length > 0) {
+              <div class="section-group">
+                <span class="group-title">Credentials</span>
+                <div class="tags-row">
+                  @for (cert of trainer.trainerProfile.certifications; track cert) {
+                    <span class="tag-pill cert">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                      {{ cert }}
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="trainer-card-footer">
+            @if (myConnection()?.trainer === trainer._id || (myConnection()?.trainer && $any(myConnection()?.trainer)._id === trainer._id)) {
+              <button class="btn btn-connected" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>{{ myConnection()?.status === 'active' ? 'Your Coach' : 'Request Pending' }}</span>
+              </button>
+            } @else {
+              <button
+                class="btn btn-connect"
+                [disabled]="!trainer.trainerProfile.isAcceptingClients"
+                (click)="openConnectModal(trainer)"
+              >
+                <span>Request Coaching</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Connect Request Modal -->
+  @if (isConnectModalOpen() && selectedTrainer()) {
+    <div class="modal-backdrop" (click)="closeConnectModal()">
+      <div class="modal-card glass-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Request Coaching with {{ selectedTrainer()?.name }}</h3>
+          <button class="btn-close" (click)="closeConnectModal()">&times;</button>
+        </div>
+
+        <form [formGroup]="connectForm" (ngSubmit)="submitConnectRequest()" class="modal-body">
+          <p class="modal-sub">
+            Send an introductory inquiry to coach {{ selectedTrainer()?.name }}. Share your fitness aspirations, current challenges, and training background.
+          </p>
+
+          <div class="form-group">
+            <label for="connectMessage">Personal Note / Fitness Ambitions</label>
+            <textarea
+              id="connectMessage"
+              rows="4"
+              class="form-control"
+              placeholder="Hi coach, I am looking to build muscle and improve my bench press..."
+              formControlName="message"
+            ></textarea>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" (click)="closeConnectModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="isSubmitting()">
+              @if (isSubmitting()) {
+                Sending Inquiry...
+              } @else {
+                Send Coaching Request
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

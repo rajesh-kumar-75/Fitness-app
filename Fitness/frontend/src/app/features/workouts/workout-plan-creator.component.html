@@ -1,0 +1,275 @@
+<div class="creator-container">
+  <!-- Top Navigation & Header -->
+  <div class="creator-header">
+    <button type="button" class="btn-back" routerLink="/workouts">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      Back to Workouts
+    </button>
+    <div class="header-titles">
+      <h1>Create Workout Plan</h1>
+      <p>Design a structured 7-day training regimen for yourself or your clients.</p>
+    </div>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  @if (successMessage()) {
+    <div class="alert alert-success">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+      <span>{{ successMessage() }}</span>
+    </div>
+  }
+
+  <form [formGroup]="planForm" (ngSubmit)="onSubmit()" class="creator-form">
+    <!-- Plan Details Card -->
+    <div class="form-card">
+      <h2>Plan Overview</h2>
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label for="plan-title">Plan Title *</label>
+          <input
+            id="plan-title"
+            type="text"
+            formControlName="title"
+            placeholder="e.g. 4-Day Upper / Lower Hypertrophy Split"
+          />
+          @if (planForm.get('title')?.invalid && planForm.get('title')?.touched) {
+            <span class="field-error">Title is required (min 3 characters).</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="plan-goal">Fitness Goal *</label>
+          <select id="plan-goal" formControlName="fitnessGoal">
+            @for (goal of goals; track goal) {
+              <option [value]="goal">{{ goal }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="plan-diff">Difficulty *</label>
+          <select id="plan-diff" formControlName="difficulty">
+            @for (diff of difficulties; track diff) {
+              <option [value]="diff">{{ diff }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="plan-desc">Description *</label>
+          <textarea
+            id="plan-desc"
+            formControlName="description"
+            rows="3"
+            placeholder="Describe the plan objectives, target audience, and training frequency..."
+          ></textarea>
+          @if (planForm.get('description')?.invalid && planForm.get('description')?.touched) {
+            <span class="field-error">Description is required (min 10 characters).</span>
+          }
+        </div>
+
+        <div class="form-group full-width cover-picker-group">
+          <label for="cover-select">Program Theme & Cover Image</label>
+          <div class="cover-picker-layout">
+            <select id="cover-select" formControlName="coverImageUrl">
+              @for (opt of coverOptions; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
+            </select>
+            <div class="cover-preview-thumb">
+              <img [src]="planForm.get('coverImageUrl')?.value" alt="Cover Preview" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7-Day Schedule Builder Card -->
+    <div class="form-card schedule-builder-card">
+      <div class="card-header-flex">
+        <div>
+          <h2>Weekly Schedule</h2>
+          <p class="section-desc">Select a day below to customize exercises and rest days.</p>
+        </div>
+      </div>
+
+      <!-- Days Tabs -->
+      <div class="days-tabs-bar">
+        @for (day of daysOfWeek; track day; let i = $index) {
+          <button
+            type="button"
+            class="day-tab-btn"
+            [class.active]="selectedDayIndex() === i"
+            (click)="selectDay(i)"
+          >
+            <span class="tab-day-name">{{ day | slice:0:3 }}</span>
+            <span class="tab-badge" [class.rest]="getDayGroup(i).get('isRestDay')?.value">
+              @if (getDayGroup(i).get('isRestDay')?.value) {
+                Rest
+              } @else {
+                {{ getExercisesArray(i).length }} ex
+              }
+            </span>
+          </button>
+        }
+      </div>
+
+      <!-- Active Day Configuration -->
+      <div [formGroup]="getDayGroup(selectedDayIndex())" class="day-config-panel">
+        <div class="day-panel-top">
+          <div class="day-title-wrap">
+            <h3>{{ daysOfWeek[selectedDayIndex()] }}</h3>
+            <div class="rest-toggle-wrap">
+              <label class="toggle-switch">
+                <input
+                  type="checkbox"
+                  formControlName="isRestDay"
+                  (change)="onRestDayToggle(selectedDayIndex())"
+                />
+                <span class="slider"></span>
+              </label>
+              <span class="toggle-label">Rest Day</span>
+            </div>
+          </div>
+
+          <div class="focus-group">
+            <label for="day-focus">Day Focus</label>
+            <input
+              id="day-focus"
+              type="text"
+              formControlName="focus"
+              placeholder="e.g. Chest & Triceps, Leg Day, Active Recovery"
+            />
+          </div>
+        </div>
+
+        <!-- Exercises for This Day (if not rest day) -->
+        @if (!getDayGroup(selectedDayIndex()).get('isRestDay')?.value) {
+          <div class="day-exercises-section">
+            <div class="section-top">
+              <h4>Scheduled Exercises ({{ getExercisesArray(selectedDayIndex()).length }})</h4>
+              <button
+                type="button"
+                class="btn-add-exercise"
+                (click)="addExercise(selectedDayIndex())"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add Exercise
+              </button>
+            </div>
+
+            @if (getExercisesArray(selectedDayIndex()).length === 0) {
+              <div class="empty-day-state">
+                <p>No exercises scheduled for this day yet.</p>
+                <button
+                  type="button"
+                  class="btn-outline-add"
+                  (click)="addExercise(selectedDayIndex())"
+                >
+                  + Add First Exercise
+                </button>
+              </div>
+            } @else {
+              <div class="exercises-form-list">
+                @for (exGroup of getExercisesArray(selectedDayIndex()).controls; track $index) {
+                  <div [formGroup]="$any(exGroup)" class="exercise-row-card">
+                    <div class="ex-card-header">
+                      <span class="ex-number">#{{ $index + 1 }}</span>
+                      <button
+                        type="button"
+                        class="btn-delete-ex"
+                        (click)="removeExercise(selectedDayIndex(), $index)"
+                        title="Remove exercise"
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                      </button>
+                    </div>
+
+                    <div class="ex-inputs-grid">
+                      <div class="input-cell ex-select-cell">
+                        <label>Exercise *</label>
+                        <select formControlName="exercise">
+                          @for (item of availableExercises(); track item._id) {
+                            <option [value]="item._id">
+                              {{ item.name }} ({{ item.muscleGroup }})
+                            </option>
+                          }
+                        </select>
+                      </div>
+
+                      <div class="input-cell">
+                        <label>Sets</label>
+                        <input type="number" formControlName="sets" min="1" max="20" />
+                      </div>
+
+                      <div class="input-cell">
+                        <label>Target Reps</label>
+                        <input type="number" formControlName="reps" min="1" max="100" />
+                      </div>
+
+                      <div class="input-cell">
+                        <label>Target Wt (kg)</label>
+                        <input type="number" formControlName="targetWeight" min="0" step="0.5" />
+                      </div>
+
+                      <div class="input-cell">
+                        <label>Rest (sec)</label>
+                        <input type="number" formControlName="restTimeSeconds" min="10" step="10" />
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="rest-day-message">
+            <div class="rest-icon">🛋️</div>
+            <h4>Rest & Recovery Day</h4>
+            <p>No workouts scheduled for {{ daysOfWeek[selectedDayIndex()] }}. Rest, hydrate, and recover!</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Submit Section -->
+    <div class="submit-bar">
+      <button type="button" class="btn-cancel" routerLink="/workouts">Cancel</button>
+      <button
+        type="submit"
+        class="btn-save-plan"
+        [disabled]="isSubmitting()"
+      >
+        @if (isSubmitting()) {
+          <span class="spinner-sm"></span> Creating Plan...
+        } @else {
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Save & Publish Plan
+        }
+      </button>
+    </div>
+  </form>
+</div>

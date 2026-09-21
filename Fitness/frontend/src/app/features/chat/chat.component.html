@@ -1,0 +1,258 @@
+<div class="chat-container">
+  <!-- Anti-Gravity Floating Gym Equipment Layer -->
+  <div class="antigravity-equipment-layer" aria-hidden="true">
+    <div class="floating-item barbell-center">
+      <div class="barbell-wrap">
+        <div class="plate-stack left"><div class="plate plate-outer"></div><div class="plate plate-large"></div><div class="plate plate-mid"></div><div class="collar"></div></div>
+        <div class="bar-shaft"><div class="knurl-pattern left"></div><div class="knurl-pattern center"></div><div class="knurl-pattern right"></div><div class="energy-gleam"></div></div>
+        <div class="plate-stack right"><div class="collar"></div><div class="plate plate-mid"></div><div class="plate plate-large"></div><div class="plate plate-outer"></div></div>
+      </div>
+    </div>
+    <div class="floating-item kettlebell-top-right">
+      <div class="kettlebell-3d"><div class="kb-handle"></div><div class="kb-body"><span class="kb-weight">20</span><div class="kb-specular"></div></div></div>
+    </div>
+  </div>
+
+  <!-- Holographic HUD Header -->
+  <header class="chat-page-header holo-card">
+    <div class="card-plasma-border"></div>
+    <div class="header-titles">
+      <div class="badge-row">
+        <span class="badge-tag">Neural Comms</span>
+        <span class="streak-badge">ACTIVE STREAK: {{ activeStreak }}</span>
+        <span class="goal-badge">NEXT GOAL: {{ nextGoal }}</span>
+      </div>
+      <h1>Coaching Messages &amp; Telemetry</h1>
+      <p>Instant encrypted 1-on-1 athlete &amp; personal coach communication link.</p>
+    </div>
+  </header>
+
+  <div class="chat-layout">
+    <!-- Left Sidebar: Conversations Roster -->
+    <aside class="chat-sidebar glass-panel">
+      <div class="sidebar-header">
+        <div class="header-title-row">
+          <h2 class="sidebar-title">Coaching Messages</h2>
+          <span class="live-dot" title="Real-time Socket.IO connected"></span>
+        </div>
+        <p class="sidebar-sub">Instant 1-on-1 athlete &amp; coach communication</p>
+      </div>
+
+    @if (isLoading()) {
+      <div class="sidebar-loading">
+        <div class="spinner-sm"></div>
+        <span>Loading conversations...</span>
+      </div>
+    } @else if (conversations().length === 0) {
+      <div class="sidebar-empty">
+        <div class="empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+        <p class="empty-title">No Active Conversations</p>
+        @if (userRole() === 'USER') {
+          <p class="empty-desc">Connect with a certified trainer from the Directory to start messaging.</p>
+          <a routerLink="/trainers" class="btn btn-sm btn-primary">Find a Coach</a>
+        } @else {
+          <p class="empty-desc">Accept athlete inquiries from your Trainer Studio to begin direct coaching.</p>
+          <a routerLink="/trainer" class="btn btn-sm btn-primary">Go to Studio</a>
+        }
+      </div>
+    } @else {
+      <div class="conversations-list">
+        @for (conv of conversations(); track conv._id) {
+          <div
+            class="conversation-item"
+            [class.active]="selectedConversation()?._id === conv._id"
+            (click)="selectConversation(conv)"
+          >
+            <div class="partner-avatar-wrap">
+              @if (conv.partner.profileImage) {
+                <img [src]="conv.partner.profileImage" [alt]="conv.partner.name" class="avatar-img" />
+              } @else {
+                <div class="avatar-placeholder">
+                  {{ conv.partner.name.charAt(0).toUpperCase() }}
+                </div>
+              }
+              <span
+                class="presence-indicator"
+                [class.online]="isOnline(conv.partner._id)"
+                [title]="isOnline(conv.partner._id) ? 'Online' : 'Offline'"
+              ></span>
+            </div>
+
+            <div class="conversation-info">
+              <div class="info-top">
+                <span class="partner-name">{{ conv.partner.name }}</span>
+                @if (conv.lastMessageAt) {
+                  <span class="message-time">{{ conv.lastMessageAt | date:'shortTime' }}</span>
+                }
+              </div>
+              <div class="info-bottom">
+                <p class="last-message-snippet">
+                  @if (conv.lastMessage) {
+                    {{ conv.lastMessage.content }}
+                  } @else {
+                    <span class="no-messages">Start your conversation...</span>
+                  }
+                </p>
+                @if (conv.unreadCount > 0) {
+                  <span class="unread-pill">{{ conv.unreadCount }}</span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </aside>
+
+  <!-- Right: Active Chat Room -->
+  <main class="chat-main glass-panel">
+    @if (!selectedConversation()) {
+      <div class="no-chat-selected">
+        <div class="select-prompt-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+          </svg>
+        </div>
+        <h3>Select a Conversation</h3>
+        <p>Choose an athlete or personal trainer from the roster on the left to start real-time messaging.</p>
+      </div>
+    } @else {
+      <!-- Chat Header -->
+      <header class="chat-header">
+        <div class="header-partner-meta">
+          <div class="header-avatar-wrap">
+            @if (selectedConversation()?.partner?.profileImage) {
+              <img [src]="selectedConversation()?.partner?.profileImage" [alt]="selectedConversation()?.partner?.name" class="avatar-img" />
+            } @else {
+              <div class="avatar-placeholder">
+                {{ selectedConversation()?.partner?.name?.charAt(0)?.toUpperCase() || '?' }}
+              </div>
+            }
+            <span class="presence-indicator" [class.online]="isPartnerOnline()"></span>
+          </div>
+
+          <div class="partner-meta-text">
+            <div class="name-badge-row">
+              <h3 class="active-partner-name">{{ selectedConversation()?.partner?.name }}</h3>
+              <span class="role-pill" [class.trainer]="selectedConversation()?.partner?.role === 'TRAINER'">
+                {{ selectedConversation()?.partner?.role }}
+              </span>
+            </div>
+            <span class="online-status-text" [class.online]="isPartnerOnline()">
+              {{ isPartnerOnline() ? '● Online Now' : '○ Offline' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          @if (userRole() === 'TRAINER' || userRole() === 'ADMIN') {
+            <a
+              [routerLink]="['/trainer/clients', selectedConversation()?.partner?._id]"
+              class="btn-icon-link"
+              title="View Client Studio &amp; Telemetry"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <span>Client Studio</span>
+            </a>
+          } @else {
+            <a routerLink="/workouts" class="btn-icon-link" title="View Assigned Workout Plan">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 5v14M18 5v14M6 12h12"></path>
+              </svg>
+              <span>Workouts</span>
+            </a>
+          }
+        </div>
+      </header>
+
+      <!-- Message History Stream -->
+      <div #messagesContainer class="messages-stream">
+        @if (isLoadingMessages()) {
+          <div class="stream-loading">
+            <div class="spinner-sm"></div>
+            <span>Fetching message history...</span>
+          </div>
+        } @else if (messages().length === 0) {
+          <div class="stream-empty">
+            <p>No messages yet. Say hello to {{ selectedConversation()?.partner?.name }}!</p>
+          </div>
+        } @else {
+          @for (msg of messages(); track msg._id) {
+            <div
+              class="message-bubble-wrapper"
+              [class.outgoing]="msg.sender._id === currentUserId()"
+              [class.incoming]="msg.sender._id !== currentUserId()"
+            >
+              <div class="bubble">
+                <p class="bubble-content">{{ msg.content }}</p>
+                <div class="bubble-meta">
+                  <span class="time">{{ msg.createdAt | date:'shortTime' }}</span>
+                  @if (msg.sender._id === currentUserId()) {
+                    <span class="read-check" [class.read]="msg.isRead" [title]="msg.isRead ? 'Read' : 'Sent'">
+                      @if (msg.isRead) {
+                        ✓✓
+                      } @else {
+                        ✓
+                      }
+                    </span>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        }
+
+        <!-- Partner Typing Indicator Bubble -->
+        @if (partnerTyping()) {
+          <div class="typing-indicator-row">
+            <div class="typing-bubble">
+              <span class="typing-dots">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+              </span>
+              <span class="typing-text">{{ partnerTyping() }} is typing...</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Message Input Composer -->
+      <footer class="chat-input-bar">
+        <form (ngSubmit)="sendMessage()" class="composer-form">
+          <input
+            type="text"
+            class="composer-input"
+            placeholder="Type your message... (Press Enter to send)"
+            [ngModel]="messageText()"
+            (ngModelChange)="messageText.set($event); onInputChange()"
+            name="messageInput"
+            autocomplete="off"
+            [disabled]="isSending()"
+          />
+          <button
+            type="submit"
+            class="btn-send"
+            [disabled]="!messageText().trim() || isSending()"
+            title="Send message"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </form>
+      </footer>
+    }
+  </main>
+  </div>
+</div>

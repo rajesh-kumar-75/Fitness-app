@@ -1,0 +1,380 @@
+<div class="holographic-viewport">
+  <!-- Cosmic Observation Portal Backdrop & Energy Canvas -->
+  <div class="cosmic-portal-layer">
+    <div class="nebula-dust nebula-dust-1"></div>
+    <div class="nebula-dust nebula-dust-2"></div>
+    <div class="nebula-dust nebula-dust-3"></div>
+    <div class="portal-curved-ring left-ring"></div>
+    <div class="portal-curved-ring right-ring"></div>
+    <!-- Interactive Procedural Plasma & Starfield Canvas -->
+    <canvas #plasmaCanvas class="plasma-canvas"></canvas>
+  </div>
+
+  <!-- Anti-Gravity Floating Gym Equipment Layer -->
+  <div class="antigravity-equipment-layer" aria-hidden="true">
+    <!-- 1. Left Perspective Treadmill -->
+    <div class="floating-item treadmill-left">
+      <div class="treadmill-frame">
+        <div class="tm-deck"></div>
+        <div class="tm-handrail"></div>
+        <div class="tm-console">
+          <span class="console-glow"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Right Perspective Treadmill -->
+    <div class="floating-item treadmill-right">
+      <div class="treadmill-frame mirror">
+        <div class="tm-deck"></div>
+        <div class="tm-handrail"></div>
+        <div class="tm-console">
+          <span class="console-glow"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Zero-G Olympic Barbell (Floating at top center) -->
+    <div class="floating-item barbell-center">
+      <div class="barbell-wrap">
+        <div class="plate-stack left">
+          <div class="plate plate-outer"></div>
+          <div class="plate plate-large"></div>
+          <div class="plate plate-mid"></div>
+          <div class="collar"></div>
+        </div>
+        <div class="bar-shaft">
+          <div class="knurl-pattern left"></div>
+          <div class="knurl-pattern center"></div>
+          <div class="knurl-pattern right"></div>
+          <div class="energy-gleam"></div>
+        </div>
+        <div class="plate-stack right">
+          <div class="collar"></div>
+          <div class="plate plate-mid"></div>
+          <div class="plate plate-large"></div>
+          <div class="plate plate-outer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Floating Kettlebells -->
+    <div class="floating-item kettlebell-top-left">
+      <div class="kettlebell-3d">
+        <div class="kb-handle"></div>
+        <div class="kb-body">
+          <span class="kb-weight">24</span>
+          <div class="kb-specular"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="floating-item kettlebell-top-right">
+      <div class="kettlebell-3d">
+        <div class="kb-handle"></div>
+        <div class="kb-body">
+          <span class="kb-weight">32</span>
+          <div class="kb-specular"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="floating-item kettlebell-center-mid">
+      <div class="kettlebell-3d">
+        <div class="kb-handle"></div>
+        <div class="kb-body">
+          <span class="kb-weight">16</span>
+          <div class="kb-specular"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Floating Dumbbells -->
+    <div class="floating-item dumbbell-left">
+      <div class="dumbbell-3d">
+        <div class="db-head left"></div>
+        <div class="db-bar"></div>
+        <div class="db-head right"></div>
+      </div>
+    </div>
+
+    <div class="floating-item dumbbell-right">
+      <div class="dumbbell-3d tilt-right">
+        <div class="db-head left"></div>
+        <div class="db-bar"></div>
+        <div class="db-head right"></div>
+      </div>
+    </div>
+
+    <!-- 6. Floating Holographic Data Waveform Chart -->
+    <div class="floating-data-chart">
+      <svg viewBox="0 0 200 60" class="waveform-svg">
+        <defs>
+          <linearGradient id="waveGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#00f5ff" stop-opacity="0.2" />
+            <stop offset="50%" stop-color="#00f5ff" stop-opacity="1" />
+            <stop offset="100%" stop-color="#b845ed" stop-opacity="0.6" />
+          </linearGradient>
+        </defs>
+        <path
+          d="M0 30 Q 25 10, 50 30 T 100 30 T 130 15 T 150 45 T 170 20 T 200 30"
+          fill="none"
+          stroke="url(#waveGrad)"
+          stroke-width="2.5"
+          class="pulse-wave"
+        />
+        <circle cx="130" cy="15" r="3.5" fill="#00f5ff" class="data-dot" />
+        <circle cx="170" cy="20" r="3" fill="#b845ed" class="data-dot" />
+      </svg>
+    </div>
+  </div>
+
+  <!-- Holographic Dashboard Main Content -->
+  <div class="dashboard-content-layer">
+    <!-- Top Holographic Hero Card -->
+    <header class="holo-card hero-card">
+      <div class="card-plasma-border"></div>
+
+      <div class="hero-top-row">
+        <!-- User Avatar & Identity Block -->
+        <div class="user-identity-block">
+          <div class="holo-avatar">
+            <span>{{ displayName().charAt(0) || 'A' }}</span>
+          </div>
+
+          <div class="identity-info">
+            <div class="role-pill-badge">
+              <span class="pulse-dot"></span>
+              <span>{{ displayRole() }}</span>
+            </div>
+            <h1 class="welcome-heading">Welcome, {{ displayName() }}!</h1>
+            <div class="user-subline">
+              <span class="user-email-text">{{ displayEmail() }}</span>
+              <span class="streak-badge">ACTIVE STREAK: {{ activeStreak }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metric Equalizer Soundwave / Data Points Graphic -->
+        <div class="holo-metric-waveform">
+          <div class="data-matrix-dots">
+            <span class="d-dot h-1"></span>
+            <span class="d-dot h-3"></span>
+            <span class="d-dot h-2"></span>
+            <span class="d-dot h-4"></span>
+            <span class="d-dot h-5"></span>
+            <span class="d-dot h-3"></span>
+            <span class="d-dot h-2"></span>
+            <span class="d-dot h-4"></span>
+            <span class="d-dot h-1"></span>
+          </div>
+          <div class="sine-mini-wave">
+            <svg viewBox="0 0 100 24">
+              <path
+                d="M2 12 Q 25 2, 50 12 T 98 12"
+                fill="none"
+                stroke="#00f5ff"
+                stroke-width="2"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Navigation Buttons (First Row) -->
+      <nav class="hero-nav-actions" aria-label="Quick Actions">
+        <a routerLink="/workouts" class="action-pill pill-primary">
+          <span class="pill-icon">🏋️</span>
+          <span>Workouts</span>
+        </a>
+        <a routerLink="/nutrition" class="action-pill">
+          <span class="pill-icon">☕</span>
+          <span>Nutrition</span>
+        </a>
+        <a routerLink="/progress" class="action-pill">
+          <span class="pill-icon">📊</span>
+          <span>Progress</span>
+        </a>
+        <a routerLink="/exercises" class="action-pill">
+          <span class="pill-icon">🎯</span>
+          <span>Exercises</span>
+        </a>
+        <a routerLink="/profile" class="action-pill">
+          <span class="pill-icon">👤</span>
+          <span>My Profile</span>
+        </a>
+        <a routerLink="/chat" class="action-pill">
+          <span class="pill-icon">💬</span>
+          <span>Messages</span>
+        </a>
+        <a routerLink="/trainers" class="action-pill">
+          <span class="pill-icon">👥</span>
+          <span>Find Trainer</span>
+        </a>
+      </nav>
+
+      <!-- Secondary Controls Row (Refresh & Sign Out) -->
+      <div class="hero-sub-actions">
+        <button
+          type="button"
+          (click)="onRefreshProfile()"
+          class="btn-sub-control btn-refresh"
+          title="Refresh Profile"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 4v6h-6"></path>
+            <path d="M1 20v-6h6"></path>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          <span>Refresh</span>
+        </button>
+
+        <button
+          type="button"
+          (click)="onLogout()"
+          class="btn-sub-control btn-signout"
+          title="Sign Out"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Lower Split Grid: Account Security & Role Workspace -->
+    <div class="holo-grid-split">
+      <!-- Card 1: Account Security & Profile Details -->
+      <section class="holo-card details-card">
+        <div class="card-plasma-border"></div>
+
+        <div class="card-header-bar">
+          <span class="header-section-tag">ACCOUNT SECURITY</span>
+          <div class="jwt-auth-pill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <span>JWT Authenticated</span>
+          </div>
+        </div>
+
+        <div class="title-with-visualizer">
+          <h2 class="card-title-text">Profile Details</h2>
+          <div class="bar-equalizer-graphic">
+            <span class="eq-bar eq-1"></span>
+            <span class="eq-bar eq-2"></span>
+            <span class="eq-bar eq-3"></span>
+            <span class="eq-bar eq-4"></span>
+            <span class="eq-bar eq-5"></span>
+            <span class="eq-bar eq-6"></span>
+          </div>
+        </div>
+
+        <div class="holo-meta-table">
+          <div class="meta-row">
+            <span class="row-label">User ID</span>
+            <code class="row-value code-font">{{ displayUserId() }}</code>
+          </div>
+
+          <div class="meta-row">
+            <span class="row-label">Email</span>
+            <span class="row-value email-link">{{ displayEmail() }}</span>
+          </div>
+
+          <div class="meta-row">
+            <span class="row-label">Assigned Role</span>
+            <span class="row-value role-highlight">{{ displayRole() }}</span>
+          </div>
+
+          <div class="meta-row">
+            <span class="row-label">Account Status</span>
+            <div class="status-badge-wrap">
+              <span class="status-pill-green">Active</span>
+            </div>
+          </div>
+
+          <div class="meta-row">
+            <span class="row-label">Joined</span>
+            <span class="row-value">{{ displayJoined() }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Card 2: Role Workspace / Member Fitness Dashboard -->
+      <section class="holo-card workspace-card">
+        <div class="card-plasma-border"></div>
+
+        <div class="card-header-bar">
+          <span class="header-section-tag">ROLE WORKSPACE</span>
+          <div class="workspace-header-badges">
+            <span class="goal-indicator-badge">NEXT GOAL: {{ nextGoal }}</span>
+            <span class="portal-badge">{{ displayRole() }} Portal</span>
+          </div>
+        </div>
+
+        <h2 class="card-title-text">Member Fitness Dashboard</h2>
+        <p class="workspace-lead-text">
+          Your personal fitness workspace is ready. Track workouts, log nutrition, and review your transformation metrics.
+        </p>
+
+        <!-- 4 Grid Features -->
+        <div class="features-2x2-grid">
+          <a routerLink="/workouts" class="feature-item-card">
+            <div class="feature-icon-box">
+              <span class="feat-emoji">🏋️</span>
+            </div>
+            <div class="feature-info">
+              <h3 class="feature-name">Workout Tracking</h3>
+              <span class="feature-status">Active &bull; Go to Workouts</span>
+            </div>
+          </a>
+
+          <a routerLink="/nutrition" class="feature-item-card">
+            <div class="feature-icon-box">
+              <span class="feat-emoji">🥗</span>
+            </div>
+            <div class="feature-info">
+              <h3 class="feature-name">Nutrition Plans</h3>
+              <span class="feature-status">Active &bull; Log Meals</span>
+            </div>
+          </a>
+
+          <a routerLink="/progress" class="feature-item-card">
+            <div class="feature-icon-box">
+              <span class="feat-emoji">📈</span>
+            </div>
+            <div class="feature-info">
+              <h3 class="feature-name">Progress Analytics</h3>
+              <span class="feature-status">Active &bull; View Charts</span>
+            </div>
+          </a>
+
+          <a routerLink="/workouts/history" class="feature-item-card">
+            <div class="feature-icon-box">
+              <span class="feat-emoji">📋</span>
+            </div>
+            <div class="feature-info">
+              <h3 class="feature-name">Workout History</h3>
+              <span class="feature-status">Active &bull; View Logs</span>
+            </div>
+          </a>
+        </div>
+
+        <!-- Glowing Star Flare on the card corner -->
+        <div class="holo-corner-flare" aria-hidden="true">
+          <svg viewBox="0 0 32 32">
+            <path
+              d="M16 0 C16 10 16 10 26 16 C16 16 16 22 16 32 C16 22 16 16 6 16 C16 10 16 10 16 0 Z"
+              fill="#00f5ff"
+              opacity="0.85"
+            />
+          </svg>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>

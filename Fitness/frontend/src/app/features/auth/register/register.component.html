@@ -1,0 +1,154 @@
+<div class="auth-container">
+  <div class="auth-card glass-panel">
+    <!-- Header -->
+    <div class="auth-header">
+      <div class="brand-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <line x1="19" y1="8" x2="19" y2="14"></line>
+          <line x1="22" y1="11" x2="16" y2="11"></line>
+        </svg>
+      </div>
+      <h1 class="auth-title">Create Account</h1>
+      <p class="auth-subtitle">Start your fitness journey today</p>
+    </div>
+
+    <!-- Error Alert -->
+    <div *ngIf="errorMessage()" class="alert-box" role="alert">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span>{{ errorMessage() }}</span>
+    </div>
+
+    <!-- Register Form -->
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate class="auth-form">
+      <!-- Name Field -->
+      <div class="form-group" [class.has-error]="name?.invalid && name?.touched">
+        <label for="regName" class="form-label">Full Name</label>
+        <div class="input-wrapper">
+          <input
+            id="regName"
+            type="text"
+            class="form-control"
+            placeholder="John Doe"
+            formControlName="name"
+            autocomplete="name"
+          />
+        </div>
+        <div *ngIf="name?.invalid && name?.touched" class="error-feedback">
+          <span *ngIf="name?.errors?.['required']">Full name is required.</span>
+          <span *ngIf="name?.errors?.['minlength']">Name must be at least 2 characters.</span>
+        </div>
+      </div>
+
+      <!-- Email Field -->
+      <div class="form-group" [class.has-error]="email?.invalid && email?.touched">
+        <label for="regEmail" class="form-label">Email Address</label>
+        <div class="input-wrapper">
+          <input
+            id="regEmail"
+            type="email"
+            class="form-control"
+            placeholder="john@example.com"
+            formControlName="email"
+            autocomplete="email"
+          />
+        </div>
+        <div *ngIf="email?.invalid && email?.touched" class="error-feedback">
+          <span *ngIf="email?.errors?.['required']">Email is required.</span>
+          <span *ngIf="email?.errors?.['email']">Please enter a valid email address.</span>
+        </div>
+      </div>
+
+      <!-- Role Selector -->
+      <div class="form-group">
+        <label class="form-label">Account Type / Role</label>
+        <div class="role-selector">
+          <label class="role-option" [class.selected]="role?.value === 'USER'">
+            <input type="radio" formControlName="role" value="USER" />
+            <span class="role-title">Member (User)</span>
+            <span class="role-desc">Track personal workouts & nutrition</span>
+          </label>
+          <label class="role-option" [class.selected]="role?.value === 'TRAINER'">
+            <input type="radio" formControlName="role" value="TRAINER" />
+            <span class="role-title">Fitness Trainer</span>
+            <span class="role-desc">Manage clients & design workout programs</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-group" [class.has-error]="password?.invalid && password?.touched">
+        <label for="regPassword" class="form-label">Password</label>
+        <div class="input-wrapper">
+          <input
+            id="regPassword"
+            type="password"
+            class="form-control"
+            placeholder="At least 6 characters"
+            formControlName="password"
+            autocomplete="new-password"
+          />
+        </div>
+        <div *ngIf="password?.invalid && password?.touched" class="error-feedback">
+          <span *ngIf="password?.errors?.['required']">Password is required.</span>
+          <span *ngIf="password?.errors?.['minlength']">Password must be at least 6 characters.</span>
+        </div>
+      </div>
+
+      <!-- Confirm Password Field -->
+      <div
+        class="form-group"
+        [class.has-error]="
+          (confirmPassword?.invalid || registerForm.errors?.['passwordMismatch']) &&
+          confirmPassword?.touched
+        "
+      >
+        <label for="regConfirmPassword" class="form-label">Confirm Password</label>
+        <div class="input-wrapper">
+          <input
+            id="regConfirmPassword"
+            type="password"
+            class="form-control"
+            placeholder="Repeat password"
+            formControlName="confirmPassword"
+            autocomplete="new-password"
+          />
+        </div>
+        <div
+          *ngIf="
+            (confirmPassword?.invalid || registerForm.errors?.['passwordMismatch']) &&
+            confirmPassword?.touched
+          "
+          class="error-feedback"
+        >
+          <span *ngIf="confirmPassword?.errors?.['required']">Password confirmation is required.</span>
+          <span *ngIf="registerForm.errors?.['passwordMismatch']">Passwords do not match.</span>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        id="registerSubmitBtn"
+        type="submit"
+        class="btn-submit"
+        [disabled]="isLoading() || registerForm.invalid"
+      >
+        <span *ngIf="isLoading()" class="spinner"></span>
+        <span>{{ isLoading() ? 'Creating Account...' : 'Sign Up' }}</span>
+      </button>
+    </form>
+
+    <!-- Footer -->
+    <div class="auth-footer">
+      <p>
+        Already have an account?
+        <a routerLink="/login" class="link-primary">Sign In</a>
+      </p>
+    </div>
+  </div>
+</div>

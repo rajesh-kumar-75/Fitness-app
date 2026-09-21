@@ -1,0 +1,187 @@
+<div class="app-layout">
+  <!-- Global Cosmic Observation Portal Backdrop & Atmosphere -->
+  <div class="global-cosmic-portal-layer" aria-hidden="true">
+    <div class="cosmic-bg-image"></div>
+    <div class="cosmic-portal-overlay"></div>
+    <div class="nebula-dust global-nebula-1"></div>
+    <div class="nebula-dust global-nebula-2"></div>
+    <div class="portal-curved-ring left-ring"></div>
+    <div class="portal-curved-ring right-ring"></div>
+  </div>
+
+  <!-- Top Navigation Header -->
+  <header class="app-nav">
+    <div class="nav-container">
+      <!-- Brand Logo -->
+      <a routerLink="/" class="brand">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
+            <path d="m11 10 3 3-3 3"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">FitPlatform</span>
+          <span class="brand-tag">Workout & Health</span>
+        </div>
+      </a>
+
+      <!-- Center Nav Links -->
+      <nav class="nav-links">
+        <a
+          *ngIf="isAuthenticated()"
+          routerLink="/dashboard"
+          routerLinkActive="active"
+          class="nav-link"
+        >
+          Dashboard
+        </a>
+        <a
+          *ngIf="isAuthenticated()"
+          routerLink="/workouts"
+          routerLinkActive="active"
+          class="nav-link"
+        >
+          Workouts
+        </a>
+        <a
+          *ngIf="isAuthenticated()"
+          routerLink="/nutrition"
+          routerLinkActive="active"
+          class="nav-link"
+        >
+          Nutrition
+        </a>
+        <a
+          *ngIf="isAuthenticated()"
+          routerLink="/progress"
+          routerLinkActive="active"
+          class="nav-link"
+        >
+          Progress
+        </a>
+        <a
+          *ngIf="isAuthenticated()"
+          routerLink="/exercises"
+          routerLinkActive="active"
+          class="nav-link"
+        >
+          Exercises
+        </a>
+        <a
+          *ngIf="isAuthenticated() && (userRole() === 'TRAINER' || userRole() === 'ADMIN')"
+          routerLink="/trainer"
+          routerLinkActive="active"
+          class="nav-link"
+        >
+          Trainer Studio
+        </a>
+        <a
+          *ngIf="isAuthenticated()"
+          routerLink="/trainers"
+          routerLinkActive="active"
+          class="nav-link"
+        >
+          Trainers
+        </a>
+        <a
+          *ngIf="isAuthenticated()"
+          routerLink="/chat"
+          routerLinkActive="active"
+          class="nav-link nav-link-chat"
+        >
+          <span>Chat</span>
+          <span *ngIf="unreadMessagesCount() > 0" class="nav-badge-unread">{{ unreadMessagesCount() }}</span>
+        </a>
+        <a
+          *ngIf="isAuthenticated()"
+          routerLink="/ai-coach"
+          routerLinkActive="active"
+          class="nav-link nav-link-ai"
+        >
+          <span class="ai-sparkle-icon">✨</span>
+          <span>AI Coach</span>
+          <span class="nav-badge-ai">AI</span>
+        </a>
+        <a
+          *ngIf="isAuthenticated()"
+          routerLink="/profile"
+          routerLinkActive="active"
+          class="nav-link"
+        >
+          Profile
+        </a>
+        <a
+          *ngIf="isAuthenticated() && userRole() === 'ADMIN'"
+          routerLink="/admin"
+          routerLinkActive="active"
+          class="nav-link"
+        >
+          Admin Console
+        </a>
+        <a
+          routerLink="/health"
+          routerLinkActive="active"
+          class="nav-link"
+        >
+          System Health
+        </a>
+      </nav>
+
+      <!-- Right Auth Actions -->
+      <div class="nav-actions">
+        <!-- If Authenticated -->
+        <ng-container *ngIf="isAuthenticated(); else guestActions">
+          <a routerLink="/profile" class="user-chip" title="View & Edit Profile">
+            <div class="user-avatar-mini">
+              {{ currentUser()?.name?.charAt(0) || 'U' }}
+            </div>
+            <div class="user-meta-mini">
+              <span class="user-mini-name">{{ currentUser()?.name }}</span>
+              <span class="user-mini-role" [ngClass]="'role-' + (userRole()?.toLowerCase() || 'user')">
+                {{ userRole() }}
+              </span>
+            </div>
+          </a>
+          <button (click)="onLogout()" class="btn-logout" title="Sign out of account">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Sign Out</span>
+          </button>
+        </ng-container>
+
+        <!-- If Guest -->
+        <ng-template #guestActions>
+          <a routerLink="/login" routerLinkActive="active" class="btn-nav-ghost">Sign In</a>
+          <a routerLink="/register" class="btn-nav-cta">Get Started</a>
+        </ng-template>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Routed Views -->
+  <main class="app-main">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <span class="holo-footer-brand">HOLOGRAPHIC &amp; ANTIGRAVITY INTERFACE v2.1</span>
+      <div class="footer-tech-stack">
+        <span class="f-tag">JWT Auth</span>
+        <span class="f-tag">Bcrypt</span>
+        <span class="f-tag">Angular 19</span>
+        <span class="f-tag">Express.js</span>
+        <span class="f-tag">MongoDB</span>
+      </div>
+      <span class="holo-footer-brand right">HOLOGRAPHIC &amp; ANTIGRAVITY INTERFACE v2.1</span>
+    </div>
+  </footer>
+
+  <!-- Global Floating AI Assistant Widget -->
+  <app-ai-assistant-widget></app-ai-assistant-widget>
+</div>

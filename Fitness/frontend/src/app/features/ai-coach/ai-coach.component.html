@@ -1,0 +1,199 @@
+<div class="ai-coach-page">
+  <!-- Page Header -->
+  <div class="coach-hero">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      <span>FitPlatform AI Biomechanics &amp; Health Engine</span>
+    </div>
+    <h1 class="hero-title">
+      Your Dedicated <span class="accent-text">AI Fitness Coach</span>
+    </h1>
+    <p class="hero-description">
+      Get instant workout programming, personalized macro breakdowns, yoga &amp; mobility guidance, and exercise biomechanics in English and Telugu.
+    </p>
+
+    <!-- Quick Category Pill Tabs -->
+    <div *ngIf="suggestionCategories().length > 0" class="category-tabs">
+      <button
+        *ngFor="let cat of suggestionCategories(); let idx = index"
+        (click)="activeCategoryIndex.set(idx)"
+        class="cat-tab-btn"
+        [class.active]="activeCategoryIndex() === idx"
+        type="button"
+      >
+        <span class="tab-icon">{{ cat.icon }}</span>
+        <span>{{ cat.category }}</span>
+      </button>
+    </div>
+
+    <!-- Active Category Prompt Pills -->
+    <div *ngIf="suggestionCategories().length > 0" class="prompts-ribbon">
+      <button
+        *ngFor="let prompt of suggestionCategories()[activeCategoryIndex()]?.prompts || []"
+        (click)="sendMessage(prompt)"
+        class="ribbon-prompt-btn"
+        type="button"
+      >
+        <span>⚡ {{ prompt }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Coaching Studio Layout -->
+  <div class="coach-studio-layout">
+    <!-- Left Feature Highlights Sidebar -->
+    <div class="studio-sidebar">
+      <div class="studio-card">
+        <div class="card-icon">🏋️</div>
+        <h4>Custom Workout Splits</h4>
+        <p>Dynamic 5-Day Hypertrophy, 4-Day Upper/Lower, and 3-Day Full Body strength routines customized to your goal.</p>
+        <a routerLink="/workouts" class="card-link">View Workout Programs &rarr;</a>
+      </div>
+
+      <div class="studio-card">
+        <div class="card-icon">🧘</div>
+        <h4>Yoga &amp; Flexibility</h4>
+        <p>10 premier asanas including Downward Dog, Warrior II, and Cobra Pose with posture and breathing tips.</p>
+        <a routerLink="/exercises" [queryParams]="{ muscleGroup: 'Yoga' }" class="card-link">Explore Yoga Poses &rarr;</a>
+      </div>
+
+      <div class="studio-card">
+        <div class="card-icon">🥗</div>
+        <h4>Macro &amp; Calorie Targets</h4>
+        <p>Calculate Mifflin-St Jeor BMR, TDEE, protein distribution (1.6-2.2g/kg), and daily meal blueprints.</p>
+        <a routerLink="/nutrition" class="card-link">Open Nutrition Tracker &rarr;</a>
+      </div>
+
+      <div class="studio-card te-card">
+        <div class="card-icon">🇮🇳</div>
+        <h4>తెలుగు ఫిట్‌నెస్ మార్గదర్శనం</h4>
+        <p>మీ బరువు తగ్గడం, డైట్ ప్లాన్స్, మరియు ఎక్సర్‌సైజ్ ప్రశ్నలను నేరుగా తెలుగులో అడిగి తెలుసుకోవచ్చు.</p>
+      </div>
+    </div>
+
+    <!-- Center/Right Conversation Studio -->
+    <div class="studio-chat-container">
+      <div class="chat-studio-header">
+        <div class="studio-header-info">
+          <div class="bot-icon-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"></path>
+              <rect x="4" y="8" width="16" height="12" rx="3"></rect>
+              <circle cx="9" cy="13" r="1.5" fill="currentColor"></circle>
+              <circle cx="15" cy="13" r="1.5" fill="currentColor"></circle>
+              <path d="M10 17h4"></path>
+            </svg>
+          </div>
+          <div>
+            <h3>FitBot AI Studio</h3>
+            <span class="studio-status">Active Session &bull; Real-time Guidance</span>
+          </div>
+        </div>
+        <button (click)="clearChat()" class="btn-clear-chat" title="Clear chat history" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          <span>Clear History</span>
+        </button>
+      </div>
+
+      <!-- Messages Thread -->
+      <div #messagesContainer class="studio-messages-thread">
+        <div
+          *ngFor="let msg of aiService.messages()"
+          class="chat-row"
+          [ngClass]="'sender-' + msg.sender"
+        >
+          <div class="chat-avatar" *ngIf="msg.sender === 'assistant'">
+            <span>🤖</span>
+          </div>
+
+          <div class="chat-content-wrap">
+            <div class="chat-bubble">
+              <div class="chat-text" [innerHTML]="formatMessage(msg.text)"></div>
+
+              <!-- Exercise Cards if Returned -->
+              <div *ngIf="msg.exercises && msg.exercises.length > 0" class="exercise-cards-list">
+                <div *ngFor="let ex of msg.exercises" class="ex-card">
+                  <img
+                    *ngIf="ex.thumbnailUrl || ex.imageUrl"
+                    [src]="ex.thumbnailUrl || ex.imageUrl"
+                    [alt]="ex.name"
+                    class="ex-card-img"
+                    loading="lazy"
+                  />
+                  <div class="ex-card-details">
+                    <span class="ex-name">{{ ex.name }}</span>
+                    <p class="ex-desc">{{ ex.description }}</p>
+                    <div class="ex-badges">
+                      <span class="ex-group-badge">{{ ex.muscleGroup }}</span>
+                      <span class="ex-diff-badge">{{ ex.difficulty }}</span>
+                      <span class="ex-equip">{{ ex.equipment }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Follow-up Suggestions -->
+            <div *ngIf="msg.suggestions && msg.suggestions.length > 0" class="followup-pills">
+              <button
+                *ngFor="let prompt of msg.suggestions"
+                (click)="sendMessage(prompt)"
+                class="followup-btn"
+                type="button"
+              >
+                {{ prompt }}
+              </button>
+            </div>
+
+            <span class="chat-timestamp">{{ msg.timestamp }}</span>
+          </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div *ngIf="aiService.isTyping()" class="chat-row sender-assistant">
+          <div class="chat-avatar">
+            <span>🤖</span>
+          </div>
+          <div class="chat-bubble typing-box">
+            <div class="typing-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <span class="typing-label">FitPlatform AI is analyzing biomechanics &amp; nutrition...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Studio Input Bar -->
+      <div class="studio-input-bar">
+        <form (submit)="sendMessage()" class="studio-input-form">
+          <input
+            type="text"
+            [ngModel]="inputText()"
+            (ngModelChange)="inputText.set($event)"
+            name="studioMessage"
+            placeholder="Ask about workout splits, yoga poses, macros, technique, or Telugu advice..."
+            (keydown)="onKeyDown($event)"
+            [disabled]="aiService.isTyping()"
+            autocomplete="off"
+          />
+          <button
+            type="submit"
+            class="btn-studio-send"
+            [disabled]="!inputText().trim() || aiService.isTyping()"
+          >
+            <span>Ask Coach</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,656 @@
+.trainer-directory-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+  position: relative;
+}
+
+// Anti-Gravity Floating Gym Equipment Layer
+.antigravity-equipment-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+
+  .floating-item { position: absolute; will-change: transform; }
+
+  .barbell-center {
+    top: -25px;
+    right: 5%;
+    transform: rotate(-5deg);
+    animation: zeroGBarbell 7s infinite ease-in-out;
+    opacity: 0.65;
+
+    .barbell-wrap {
+      display: flex;
+      align-items: center;
+      filter: drop-shadow(0 15px 25px rgba(0,0,0,0.8)) drop-shadow(0 0 15px rgba(0,245,255,0.25));
+
+      .bar-shaft {
+        width: 250px;
+        height: 12px;
+        background: linear-gradient(180deg, #94a3b8 0%, #cbd5e1 35%, #475569 70%, #1e293b 100%);
+        border-radius: 3px;
+      }
+
+      .plate-stack {
+        display: flex;
+        align-items: center;
+        .collar { width: 10px; height: 24px; background: #64748b; }
+        .plate {
+          background: linear-gradient(180deg, #334155 0%, #1e293b 40%, #0f172a 100%);
+          border: 1px solid #475569;
+          border-radius: 3px;
+          &.plate-large { width: 16px; height: 80px; }
+          &.plate-mid { width: 14px; height: 65px; }
+          &.plate-outer { width: 12px; height: 50px; }
+        }
+      }
+    }
+  }
+
+  .kettlebell-top-right {
+    top: 15px;
+    right: 32%;
+    opacity: 0.65;
+    animation: zeroGKettlebell 6.5s infinite ease-in-out;
+  }
+
+  .kettlebell-3d {
+    position: relative;
+    width: 50px;
+    height: 60px;
+    filter: drop-shadow(0 10px 18px rgba(0,0,0,0.8)) drop-shadow(0 0 10px rgba(184,69,237,0.25));
+
+    .kb-handle {
+      position: absolute;
+      top: 0;
+      left: 8px;
+      right: 8px;
+      height: 28px;
+      border: 5px solid #475569;
+      border-bottom: none;
+      border-radius: 16px 16px 0 0;
+    }
+
+    .kb-body {
+      position: absolute;
+      bottom: 0;
+      left: 2px;
+      width: 46px;
+      height: 44px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #475569 0%, #1e293b 55%, #090d16 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .kb-weight { font-size: 0.65rem; font-weight: 800; color: rgba(255,255,255,0.3); }
+    }
+  }
+}
+
+@keyframes zeroGBarbell {
+  0%, 100% { transform: translateY(0) rotate(-5deg); }
+  50% { transform: translateY(-12px) rotate(-3deg); }
+}
+
+@keyframes zeroGKettlebell {
+  0%, 100% { transform: translateY(0) rotate(6deg); }
+  50% { transform: translateY(-14px) rotate(-2deg); }
+}
+
+.holo-card {
+  position: relative;
+  border-radius: 1.25rem;
+  background: rgba(10, 18, 34, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 245, 255, 0.42);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.65),
+    inset 0 0 24px rgba(0, 245, 255, 0.08),
+    0 0 20px rgba(0, 245, 255, 0.16);
+  padding: 1.75rem 2rem;
+  overflow: hidden;
+
+  .card-plasma-border {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.9) 30%, rgba(184, 69, 237, 0.9) 70%, transparent);
+    filter: drop-shadow(0 0 8px #00f5ff);
+  }
+}
+
+// Header
+.directory-header {
+  margin-bottom: 2.5rem;
+  position: relative;
+  z-index: 1;
+
+  .header-badge-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .streak-badge {
+    background: rgba(0, 245, 255, 0.08);
+    color: #00f5ff;
+    border: 1px solid rgba(0, 245, 255, 0.35);
+    font-weight: 700;
+    padding: 0.2rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    box-shadow: 0 0 10px rgba(0, 245, 255, 0.2);
+  }
+
+  .goal-badge {
+    background: rgba(184, 69, 237, 0.1);
+    color: #d8b4fe;
+    border: 1px solid rgba(184, 69, 237, 0.35);
+    font-weight: 700;
+    padding: 0.2rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    box-shadow: 0 0 10px rgba(184, 69, 237, 0.2);
+  }
+
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.85rem;
+    background: rgba(99, 102, 241, 0.12);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #818cf8;
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #818cf8;
+      box-shadow: 0 0 8px #818cf8;
+    }
+  }
+
+  .page-title {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #f8fafc;
+    letter-spacing: -0.025em;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .page-subtitle {
+    color: #94a3b8;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0;
+    max-width: 680px;
+  }
+}
+
+.glass-card {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  border-radius: 20px;
+  padding: 1.5rem;
+}
+
+// Active Coach Banner
+.my-coach-banner {
+  margin-bottom: 2.5rem;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+  border: 1px solid rgba(99, 102, 241, 0.3);
+
+  .banner-badge-status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+
+    &.active {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+  }
+
+  .coach-banner-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin: 0 0 0.35rem 0;
+
+    strong {
+      color: #818cf8;
+    }
+  }
+
+  .coach-banner-sub {
+    color: #94a3b8;
+    font-size: 0.9375rem;
+    margin: 0 0 1.25rem 0;
+  }
+
+  .assigned-protocols-preview {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+
+    .protocol-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.85rem;
+      border-radius: 10px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      &.workout {
+        background: rgba(2, 132, 199, 0.15);
+        color: #38bdf8;
+        border: 1px solid rgba(2, 132, 199, 0.3);
+      }
+
+      &.diet {
+        background: rgba(5, 150, 105, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(5, 150, 105, 0.3);
+      }
+    }
+  }
+}
+
+// Trainers Grid
+.trainers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.75rem;
+}
+
+.trainer-card {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: rgba(99, 102, 241, 0.3);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .trainer-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+
+    .trainer-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #6366f1, #ec4899);
+      flex-shrink: 0;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #ffffff;
+      }
+    }
+
+    .trainer-meta {
+      flex: 1;
+
+      .trainer-name {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #f8fafc;
+        margin: 0 0 0.2rem 0;
+      }
+
+      .trainer-exp {
+        font-size: 0.8125rem;
+        color: #94a3b8;
+        margin: 0 0 0.5rem 0;
+      }
+
+      .accepting-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #94a3b8;
+
+        .status-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #64748b;
+        }
+
+        &.open {
+          color: #34d399;
+
+          .status-dot {
+            background: #10b981;
+            box-shadow: 0 0 6px #10b981;
+          }
+        }
+      }
+    }
+  }
+
+  .trainer-card-body {
+    flex: 1;
+    margin-bottom: 1.5rem;
+
+    .trainer-bio {
+      color: #cbd5e1;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      margin: 0 0 1.25rem 0;
+    }
+
+    .section-group {
+      margin-bottom: 1rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .group-title {
+        display: block;
+        font-size: 0.6875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #94a3b8;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .tags-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+
+        .tag-pill {
+          font-size: 0.75rem;
+          padding: 0.25rem 0.65rem;
+          border-radius: 8px;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+
+          &.specialty {
+            background: rgba(99, 102, 241, 0.12);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+          }
+
+          &.cert {
+            background: rgba(16, 185, 129, 0.1);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+
+            svg {
+              width: 12px;
+              height: 12px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .trainer-card-footer {
+    margin-top: auto;
+
+    .btn {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border: none;
+      transition: all 0.2s ease;
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    .btn-connect {
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: #ffffff;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #4338ca, #4f46e5);
+        box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    .btn-connected {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      cursor: default;
+    }
+  }
+}
+
+// Modal
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1.5rem;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 540px;
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    h3 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin: 0;
+    }
+
+    .btn-close {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 1.75rem;
+      cursor: pointer;
+      line-height: 1;
+
+      &:hover {
+        color: #f8fafc;
+      }
+    }
+  }
+
+  .modal-sub {
+    color: #94a3b8;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0 0 1.5rem 0;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      color: #f8fafc;
+      font-size: 0.875rem;
+      font-family: inherit;
+      resize: vertical;
+
+      &:focus {
+        outline: none;
+        border-color: #6366f1;
+      }
+    }
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+
+    .btn {
+      padding: 0.65rem 1.25rem;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+
+      &.btn-primary {
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        color: #ffffff;
+
+        &:hover:not(:disabled) {
+          box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+        }
+
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      }
+
+      &.btn-outline {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #cbd5e1;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.05);
+          color: #f8fafc;
+        }
+      }
+    }
+  }
+}
+
+.alert {
+  padding: 0.85rem 1.25rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+
+  &.alert-success {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #34d399;
+  }
+
+  &.alert-danger {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+  }
+}
+
+.loading-state {
+  text-align: center;
+  padding: 4rem 1.5rem;
+
+  p {
+    color: #94a3b8;
+    margin-top: 1rem;
+  }
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(99, 102, 241, 0.2);
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

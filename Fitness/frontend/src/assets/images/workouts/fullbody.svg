@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 380" width="600" height="380">
+  <defs>
+    <linearGradient id="bg-fullbody.svg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c1322"/>
+      <stop offset="50%" stop-color="#111c34"/>
+      <stop offset="100%" stop-color="#0a0f1d"/>
+    </linearGradient>
+    <linearGradient id="grad-fullbody.svg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <radialGradient id="glow-fullbody.svg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#6366f1" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#bg-fullbody.svg)"/>
+  <circle cx="300" cy="190" r="160" fill="url(#glow-fullbody.svg)"/>
+  <rect x="20" y="20" width="560" height="340" rx="16" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1.5"/>
+  <circle cx="300" cy="140" r="24" fill="#818cf8"/>
+           <path d="M300 170 V250 M300 195 L220 170 M300 195 L380 170 M300 250 L230 320 M300 250 L370 320" stroke="#818cf8" stroke-width="8" stroke-linecap="round"/>
+           <circle cx="220" cy="170" r="14" fill="#60a5fa"/>
+           <circle cx="380" cy="170" r="14" fill="#60a5fa"/>
+</svg>

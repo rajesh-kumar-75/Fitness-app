@@ -1,0 +1,146 @@
+<div class="history-container">
+  <!-- Header -->
+  <header class="history-header">
+    <div class="header-left">
+      <a routerLink="/progress" class="btn-back">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        Back to Analytics
+      </a>
+      <div class="header-titles">
+        <h1>Workout History</h1>
+        <p>Review all your completed workout sessions, total volume, and set performance.</p>
+      </div>
+    </div>
+
+    <a routerLink="/workouts" class="btn-workouts-cta">
+      Go to Workouts
+    </a>
+  </header>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading your training logs...</p>
+    </div>
+  } @else if (history().length === 0) {
+    <div class="empty-history glass-panel">
+      <div class="empty-icon">🏋️</div>
+      <h2>No Workout History Yet</h2>
+      <p>Start a workout from the dashboard and complete it to see your logs and volume stats here.</p>
+      <a routerLink="/workouts" class="btn-start-first">Start a Workout</a>
+    </div>
+  } @else {
+    <!-- Sessions List -->
+    <div class="sessions-list">
+      @for (session of history(); track session._id) {
+        <div class="session-card glass-panel" [class.expanded]="expandedSessionId() === session._id">
+          <!-- Session Header Row -->
+          <div class="session-summary-row" (click)="toggleExpand(session._id)">
+            <div class="session-meta-left">
+              <div class="date-badge">
+                <span class="d-day">{{ session.completedAt || session.startedAt | date:'d' }}</span>
+                <span class="d-month">{{ session.completedAt || session.startedAt | date:'MMM' }}</span>
+              </div>
+
+              <div class="session-title-wrap">
+                <h3>{{ session.workoutPlan?.title || 'Workout Session' }}</h3>
+                <span class="session-day">{{ session.dayOfWeek }} &bull; {{ session.dayName }}</span>
+              </div>
+            </div>
+
+            <div class="session-stats-right">
+              <div class="stat-bubble">
+                <span class="s-val">{{ session.durationMinutes }}m</span>
+                <span class="s-lbl">Duration</span>
+              </div>
+
+              <div class="stat-bubble">
+                <span class="s-val">{{ session.totalCompletedSets }}</span>
+                <span class="s-lbl">Sets Done</span>
+              </div>
+
+              <div class="stat-bubble highlight">
+                <span class="s-val">{{ session.totalVolume | number:'1.0-0' }} kg</span>
+                <span class="s-lbl">Total Volume</span>
+              </div>
+
+              <div class="expand-indicator">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  [class.rotated]="expandedSessionId() === session._id"
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expanded Detail: Exercises and Sets -->
+          @if (expandedSessionId() === session._id) {
+            <div class="session-details-expanded">
+              @if (session.notes) {
+                <div class="session-notes-box">
+                  <strong>Notes:</strong> {{ session.notes }}
+                </div>
+              }
+
+              <div class="exercises-breakdown">
+                @for (ex of session.exercises; track ex.name) {
+                  <div class="exercise-item-block">
+                    <div class="ex-name-row">
+                      <h4>{{ ex.name }}</h4>
+                      <span class="ex-muscle-tag">{{ ex.muscleGroup }}</span>
+                    </div>
+
+                    <div class="sets-mini-grid">
+                      @for (s of ex.sets; track s.setNumber) {
+                        <div class="set-mini-chip" [class.completed]="s.isCompleted">
+                          <span class="s-num">S{{ s.setNumber }}</span>
+                          <span class="s-load">{{ s.actualWeight }} kg × {{ s.completedReps }}</span>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Pagination Controls -->
+    @if (pagination().pages > 1) {
+      <div class="pagination-bar">
+        <button
+          type="button"
+          class="btn-page"
+          [disabled]="pagination().page === 1"
+          (click)="goToPage(pagination().page - 1)"
+        >
+          Previous
+        </button>
+
+        <span class="page-indicator">
+          Page {{ pagination().page }} of {{ pagination().pages }}
+        </span>
+
+        <button
+          type="button"
+          class="btn-page"
+          [disabled]="pagination().page === pagination().pages"
+          (click)="goToPage(pagination().page + 1)"
+        >
+          Next
+        </button>
+      </div>
+    }
+  }
+</div>
