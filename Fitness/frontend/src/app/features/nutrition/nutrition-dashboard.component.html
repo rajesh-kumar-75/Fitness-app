@@ -160,12 +160,22 @@
                 @switch (meal.mealType) {
                   @case ('Breakfast') { 🍳 }
                   @case ('Lunch') { 🥗 }
-                  @case ('Dinner') { 🥩 }
+                  @case ('Dinner') { 🍲 }
+                  @case ('Veg Foods') { 🥦 }
+                  @case ('Non-Veg Foods') { 🍗 }
                   @case ('Snacks') { 🍎 }
                 }
               </div>
               <div>
-                <h2>{{ meal.mealType }}</h2>
+                <div class="meal-title-row">
+                  <h2>{{ meal.mealType }}</h2>
+                  @if (meal.mealType === 'Veg Foods') {
+                    <span class="diet-tag veg-tag">Vegetarian / Plant-Based</span>
+                  }
+                  @if (meal.mealType === 'Non-Veg Foods') {
+                    <span class="diet-tag non-veg-tag">Protein / Meat / Seafood</span>
+                  }
+                </div>
                 <span class="meal-meta">
                   {{ meal.totalCalories }} kcal &bull; P: {{ meal.totalProtein }}g &bull; C: {{ meal.totalCarbohydrates }}g &bull; F: {{ meal.totalFat }}g
                 </span>
@@ -266,13 +276,21 @@
         <div class="modal-header">
           <div>
             <h3>Log Food to {{ activeMealType() }}</h3>
-            <p>Search from our verified food database or enter a custom meal.</p>
+            <p>Select from healthy recommended options, search verified foods, or create a custom entry.</p>
           </div>
           <button type="button" class="btn-close-modal" (click)="closeLogModal()">✕</button>
         </div>
 
         <!-- Modal Tabs -->
         <div class="modal-tabs">
+          <button
+            type="button"
+            class="tab-btn"
+            [class.active]="modalTab() === 'healthy'"
+            (click)="modalTab.set('healthy')"
+          >
+            Healthy {{ activeMealType() }} Picks
+          </button>
           <button
             type="button"
             class="tab-btn"
@@ -292,6 +310,60 @@
         </div>
 
         <div class="modal-body">
+          <!-- Healthy Picks Tab -->
+          @if (modalTab() === 'healthy') {
+            <div class="healthy-picks-container">
+              <div class="picks-header-note">
+                <span class="note-icon">✨</span>
+                <span class="note-text">
+                  Recommended healthy <strong>{{ activeMealType() }}</strong> options with balanced macros. Click <strong>+ Add</strong> to log immediately:
+                </span>
+              </div>
+
+              <div class="healthy-grid">
+                @for (opt of currentHealthyOptions(); track opt.name) {
+                  <div class="healthy-option-card">
+                    <div class="opt-left">
+                      <div class="opt-icon">{{ opt.icon }}</div>
+                      <div class="opt-details">
+                        <h4>{{ opt.name }}</h4>
+                        <span class="opt-portion">{{ opt.portionLabel || opt.servingSize + opt.servingUnit }}</span>
+                        <div class="opt-macros">
+                          <span class="macro-chip p">{{ opt.protein }}g P</span>
+                          <span class="macro-chip c">{{ opt.carbohydrates }}g C</span>
+                          <span class="macro-chip f">{{ opt.fat }}g F</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="opt-right">
+                      <div class="opt-kcal-badge">
+                        <span class="kcal-number">{{ opt.calories }}</span>
+                        <span class="kcal-unit">kcal</span>
+                      </div>
+                      <button
+                        type="button"
+                        class="btn-quick-add"
+                        [disabled]="isSubmitting()"
+                        (click)="quickLogOption(opt)"
+                        title="Quick log {{ opt.name }} to {{ activeMealType() }}"
+                      >
+                        @if (addingOptionName() === opt.name) {
+                          <span class="spinner-inline"></span> Adding...
+                        } @else {
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                          </svg>
+                          + Add
+                        }
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
           <!-- Database Tab -->
           @if (modalTab() === 'database') {
             <!-- Search & Filter -->

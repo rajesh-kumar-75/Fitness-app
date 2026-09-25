@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, FormControl } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ExerciseService } from '../../core/services/exercise.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ImageService } from '../../core/services/image.service';
@@ -21,6 +22,7 @@ import {
 export class ExerciseListComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly exerciseService = inject(ExerciseService);
+  private readonly sanitizer = inject(DomSanitizer);
   readonly authService = inject(AuthService);
   readonly imageService = inject(ImageService);
 
@@ -29,8 +31,21 @@ export class ExerciseListComponent implements OnInit {
   readonly errorMessage = signal<string | null>(null);
   readonly successMessage = signal<string | null>(null);
 
+  // Selected Exercise State Management (per requirement: selectedExercise: Exercise | null = null)
+  selectedExercise: Exercise | null = null;
+  readonly selectedExerciseSignal = signal<Exercise | null>(null);
+
+  // Dynamic Video & Motion Player State
+  sanitizedVideoEmbedUrl: SafeResourceUrl | null = null;
+  directVideoUrl: string | null = null;
+  motionMediaUrl: string | null = null;
+  isYouTubeVideo: boolean = false;
+  isVideoDirectFile: boolean = false;
+  activeMediaTab: 'video' | 'motion' = 'video';
+  isVideoMuted: boolean = true;
+  isVideoPlaying: boolean = true;
+
   // Modals state
-  readonly selectedExercise = signal<Exercise | null>(null);
   readonly isFormModalOpen = signal<boolean>(false);
   readonly editingExerciseId = signal<string | null>(null);
   readonly isSaving = signal<boolean>(false);
@@ -74,6 +89,8 @@ export class ExerciseListComponent implements OnInit {
     thumbnailUrl: [''],
     altText: [''],
     video: [''],
+    videoUrl: [''],
+    motionUrl: [''],
   });
 
   ngOnInit(): void {
@@ -118,11 +135,114 @@ export class ExerciseListComponent implements OnInit {
   }
 
   openDetailModal(exercise: Exercise): void {
-    this.selectedExercise.set(exercise);
+    this.selectedExercise = exercise;
+    this.selectedExerciseSignal.set(exercise);
+    this.prepareMediaForExercise(exercise);
+  }
+
+  selectExercise(exercise: Exercise): void {
+    this.openDetailModal(exercise);
   }
 
   closeDetailModal(): void {
-    this.selectedExercise.set(null);
+    this.selectedExercise = null;
+    this.selectedExerciseSignal.set(null);
+    this.sanitizedVideoEmbedUrl = null;
+    this.directVideoUrl = null;
+    this.motionMediaUrl = null;
+    this.isYouTubeVideo = false;
+    this.isVideoDirectFile = false;
+  }
+
+  backToList(): void {
+    this.closeDetailModal();
+  }
+
+  setActiveMediaTab(tab: 'video' | 'motion'): void {
+    this.activeMediaTab = tab;
+  }
+
+  toggleVideoPlay(videoEl: HTMLVideoElement): void {
+    if (!videoEl) return;
+    if (videoEl.paused) {
+      videoEl.play();
+      this.isVideoPlaying = true;
+    } else {
+      videoEl.pause();
+      this.isVideoPlaying = false;
+    }
+  }
+
+  toggleVideoMute(videoEl: HTMLVideoElement): void {
+    if (!videoEl) return;
+    videoEl.muted = !videoEl.muted;
+    this.isVideoMuted = videoEl.muted;
+  }
+
+  private isDirectVideoUrl(url: string | undefined): boolean {
+    if (!url) return false;
+    const clean = url.trim().toLowerCase();
+    return (
+      clean.endsWith('.mp4') ||
+      clean.endsWith('.webm') ||
+      clean.endsWith('.ogg') ||
+      clean.includes('.mp4?') ||
+      clean.includes('.webm?')
+    );
+  }
+
+  private extractYouTubeId(url: string | undefined): string | null {
+    if (!url) return null;
+    const trimmed = url.trim();
+    const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+    const match = trimmed.match(regExp);
+    return match && match[1] ? match[1] : null;
+  }
+
+  private prepareMediaForExercise(exercise: Exercise): void {
+    const rawVideo = (exercise.videoUrl || exercise.video || '').trim();
+    const rawMotion = (exercise.motionUrl || '').trim();
+
+    this.sanitizedVideoEmbedUrl = null;
+    this.directVideoUrl = null;
+    this.motionMediaUrl = null;
+    this.isYouTubeVideo = false;
+    this.isVideoDirectFile = false;
+    this.isVideoMuted = true;
+    this.isVideoPlaying = true;
+
+    // 1. Direct Video file check
+    if (this.isDirectVideoUrl(rawVideo)) {
+      this.directVideoUrl = rawVideo;
+      this.isVideoDirectFile = true;
+      this.activeMediaTab = 'video';
+    } else if (rawVideo) {
+      // 2. YouTube check
+      const ytId = this.extractYouTubeId(rawVideo);
+      if (ytId) {
+        this.isYouTubeVideo = true;
+        const embedUrl = `https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=1&modestbranding=1&rel=0`;
+        this.sanitizedVideoEmbedUrl = this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl);
+        this.activeMediaTab = 'video';
+      } else if (rawVideo.startsWith('http')) {
+        this.sanitizedVideoEmbedUrl = this.sanitizer.bypassSecurityTrustResourceUrl(rawVideo);
+        this.isYouTubeVideo = true;
+        this.activeMediaTab = 'video';
+      }
+    }
+
+    // 3. Motion Media URL
+    if (rawMotion) {
+      this.motionMediaUrl = rawMotion;
+    } else {
+      // Fallback high-res demonstration
+      this.motionMediaUrl = exercise.imageUrl || exercise.image || this.imageService.getExerciseImage(exercise, 'full');
+    }
+
+    // If no video was found but motion is available, switch default tab to motion
+    if (!this.isVideoDirectFile && !this.isYouTubeVideo && this.motionMediaUrl) {
+      this.activeMediaTab = 'motion';
+    }
   }
 
   openCreateModal(): void {
@@ -139,6 +259,8 @@ export class ExerciseListComponent implements OnInit {
       thumbnailUrl: '',
       altText: '',
       video: '',
+      videoUrl: '',
+      motionUrl: '',
     });
     this.isFormModalOpen.set(true);
   }
@@ -157,7 +279,9 @@ export class ExerciseListComponent implements OnInit {
       imageUrl: exercise.imageUrl || exercise.image || '',
       thumbnailUrl: exercise.thumbnailUrl || '',
       altText: exercise.altText || '',
-      video: exercise.video || '',
+      video: exercise.video || exercise.videoUrl || '',
+      videoUrl: exercise.videoUrl || exercise.video || '',
+      motionUrl: exercise.motionUrl || '',
     });
     this.isFormModalOpen.set(true);
   }
@@ -187,7 +311,9 @@ export class ExerciseListComponent implements OnInit {
       imageUrl: formVals.imageUrl || formVals.image || '',
       thumbnailUrl: formVals.thumbnailUrl || '',
       altText: formVals.altText || `${formVals.name} exercise demonstration`,
-      video: formVals.video || '',
+      video: formVals.videoUrl || formVals.video || '',
+      videoUrl: formVals.videoUrl || formVals.video || '',
+      motionUrl: formVals.motionUrl || '',
     };
 
     const id = this.editingExerciseId();

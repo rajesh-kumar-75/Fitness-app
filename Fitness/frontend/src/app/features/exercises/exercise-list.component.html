@@ -147,8 +147,11 @@
         <div
           class="exercise-card glass-panel"
           (click)="openDetailModal(ex)"
+          tabindex="0"
+          role="button"
+          [attr.aria-label]="'View video demonstration for ' + ex.name"
         >
-          <!-- Thumbnail with Dynamic Property Binding -->
+          <!-- Thumbnail with Dynamic Property Binding & Video Trigger Overlay -->
           <div class="card-thumb">
             <img
               [src]="ex.imageUrl || ex.thumbnailUrl || imageService.getExerciseImage(ex, 'thumb')"
@@ -163,6 +166,14 @@
               <span class="badge-difficulty" [ngClass]="'diff-' + ex.difficulty.toLowerCase()">
                 {{ ex.difficulty }}
               </span>
+            </div>
+
+            <!-- Video Play Hover Badge -->
+            <div class="card-play-overlay">
+              <div class="play-glow-ring">
+                <span class="play-triangle">▶</span>
+              </div>
+              <span class="play-text">PLAY MOTION</span>
             </div>
           </div>
 
@@ -186,8 +197,13 @@
 
           <!-- Card Footer -->
           <div class="card-footer">
-            <button class="btn-card-action" (click)="openDetailModal(ex)">
-              <span>View Details</span>
+            <button
+              type="button"
+              class="btn-card-action"
+              (click)="openDetailModal(ex); $event.stopPropagation()"
+            >
+              <span class="btn-play-bullet">▶</span>
+              <span>Watch Video &amp; Form</span>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
@@ -222,61 +238,212 @@
     </section>
   }
 
-  <!-- Exercise Detail Modal -->
-  <div *ngIf="selectedExercise()" class="modal-backdrop" (click)="closeDetailModal()">
-    <div class="modal-dialog glass-panel" (click)="$event.stopPropagation()">
-      <div class="modal-header">
+  <!-- Interactive Exercise Video & Motion Theater Modal -->
+  <div *ngIf="selectedExercise" class="modal-backdrop video-theater-backdrop" (click)="closeDetailModal()">
+    <div class="modal-dialog modal-theater glass-panel" (click)="$event.stopPropagation()">
+      <!-- Theater Modal Header -->
+      <div class="modal-header theater-header">
         <div class="modal-title-area">
           <div class="modal-tags">
-            <span class="badge-muscle" [ngClass]="'muscle-' + selectedExercise()?.muscleGroup?.toLowerCase()">
-              {{ selectedExercise()?.muscleGroup }}
+            <span class="badge-muscle" [ngClass]="'muscle-' + selectedExercise.muscleGroup.toLowerCase()">
+              {{ selectedExercise.muscleGroup }}
             </span>
-            <span class="badge-difficulty" [ngClass]="'diff-' + selectedExercise()?.difficulty?.toLowerCase()">
-              {{ selectedExercise()?.difficulty }}
+            <span class="badge-difficulty" [ngClass]="'diff-' + selectedExercise.difficulty.toLowerCase()">
+              {{ selectedExercise.difficulty }}
             </span>
-            <span class="equipment-chip">{{ selectedExercise()?.equipment }}</span>
+            <span class="equipment-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 5v14M18 5v14M6 12h12"></path>
+              </svg>
+              {{ selectedExercise.equipment }}
+            </span>
+            <span class="live-motion-badge">
+              <span class="pulsing-dot"></span>
+              <span>BIOMECHANIC MOTION</span>
+            </span>
           </div>
-          <h2 class="modal-title">{{ selectedExercise()?.name }}</h2>
+          <h2 class="modal-title">{{ selectedExercise.name }}</h2>
         </div>
-        <button class="modal-close-btn" (click)="closeDetailModal()" title="Close modal">✕</button>
+
+        <div class="header-close-group">
+          <button type="button" class="btn-back-to-list" (click)="backToList()" title="Return to exercise list">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            <span>Back to List</span>
+          </button>
+          <button type="button" class="modal-close-btn" (click)="closeDetailModal()" title="Close video player">✕</button>
+        </div>
       </div>
 
-      <div class="modal-body">
-        <!-- Media / Image with Dynamic Property Binding -->
-        <div class="detail-media">
-          <img
-            [src]="selectedExercise()?.imageUrl || imageService.getExerciseImage(selectedExercise()!, 'full')"
-            [alt]="selectedExercise()?.name || imageService.getExerciseAlt(selectedExercise()!)"
-            (error)="imageService.onImageError($event, 'exercise', selectedExercise()!.name)"
-          />
+      <!-- Theater Body (Two Columns on Desktop) -->
+      <div class="modal-body theater-body">
+        <!-- LEFT: Video Player / Motion Player Container -->
+        <div class="player-theater-column">
+          <div class="video-player-frame glow-neon-box">
+            <!-- Neon Top Ambient HUD Bar -->
+            <div class="player-hud-bar">
+              <div class="hud-left">
+                <span class="hud-indicator active"></span>
+                <span class="hud-text">
+                  {{ isVideoDirectFile ? 'MP4 MOTION STREAM' : (isYouTubeVideo ? 'HD VIDEO TUTORIAL' : 'KINEMATICS MOTION') }}
+                </span>
+              </div>
+              <div class="hud-right">
+                <span class="hud-chip">ACTIVE REPLAY</span>
+              </div>
+            </div>
+
+            <!-- Media Renderer Container -->
+            <div class="player-viewport">
+              <!-- Case A: Direct MP4 / WebM Video File -->
+              <ng-container *ngIf="isVideoDirectFile && directVideoUrl && activeMediaTab === 'video'">
+                <video
+                  #videoPlayer
+                  class="exercise-html5-video"
+                  autoplay
+                  loop
+                  muted
+                  playsinline
+                  controls
+                  [src]="directVideoUrl"
+                  [poster]="selectedExercise.imageUrl || selectedExercise.image || ''"
+                ></video>
+              </ng-container>
+
+              <!-- Case B: Embedded YouTube Video Player -->
+              <ng-container *ngIf="!isVideoDirectFile && isYouTubeVideo && sanitizedVideoEmbedUrl && activeMediaTab === 'video'">
+                <iframe
+                  class="exercise-video-iframe"
+                  [src]="sanitizedVideoEmbedUrl"
+                  title="Exercise Demonstration Video"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowfullscreen
+                ></iframe>
+              </ng-container>
+
+              <!-- Case C: Biomechanics Motion Stage (When Motion Tab is active or no video stream) -->
+              <ng-container *ngIf="(!isVideoDirectFile && !isYouTubeVideo) || activeMediaTab === 'motion'">
+                <div class="motion-loop-stage">
+                  <img
+                    class="exercise-motion-image"
+                    [src]="motionMediaUrl || selectedExercise.imageUrl || imageService.getExerciseImage(selectedExercise, 'full')"
+                    [alt]="selectedExercise.name || imageService.getExerciseAlt(selectedExercise)"
+                    (error)="imageService.onImageError($event, 'exercise', selectedExercise.name)"
+                  />
+                  <div class="motion-scanline-overlay"></div>
+                  <div class="motion-hud-tag">
+                    <span class="motion-pulse"></span>
+                    <span>Kinematic Form Reference</span>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+
+            <!-- Media Switching Tabs (If Video Available) -->
+            <div class="media-switch-bar" *ngIf="isYouTubeVideo || isVideoDirectFile">
+              <button
+                type="button"
+                class="media-tab-btn"
+                [class.active]="activeMediaTab === 'video'"
+                (click)="setActiveMediaTab('video')"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                <span>Video Player</span>
+              </button>
+              <button
+                type="button"
+                class="media-tab-btn"
+                [class.active]="activeMediaTab === 'motion'"
+                (click)="setActiveMediaTab('motion')"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                  <line x1="7" y1="2" x2="7" y2="22"></line>
+                  <line x1="17" y1="2" x2="17" y2="22"></line>
+                </svg>
+                <span>Form Demonstration</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Telemetry Specs Card -->
+          <div class="telemetry-grid">
+            <div class="telemetry-cell">
+              <span class="cell-label">Primary Muscle</span>
+              <span class="cell-val text-primary-glow">{{ selectedExercise.muscleGroup }}</span>
+            </div>
+            <div class="telemetry-cell">
+              <span class="cell-label">Difficulty</span>
+              <span class="cell-val">{{ selectedExercise.difficulty }}</span>
+            </div>
+            <div class="telemetry-cell">
+              <span class="cell-label">Apparatus</span>
+              <span class="cell-val">{{ selectedExercise.equipment }}</span>
+            </div>
+            <div class="telemetry-cell">
+              <span class="cell-label">Execution</span>
+              <span class="cell-val">{{ selectedExercise.instructions.length }} Phases</span>
+            </div>
+          </div>
         </div>
 
-        <p class="detail-description">{{ selectedExercise()?.description }}</p>
+        <!-- RIGHT: Exercise Description & Step-by-Step Instructions -->
+        <div class="details-info-column">
+          <!-- Overview Description -->
+          <div class="info-card overview-card">
+            <h3 class="info-section-title">
+              <span class="title-icon">⚡</span>
+              <span>Exercise Overview</span>
+            </h3>
+            <p class="detail-description">{{ selectedExercise.description }}</p>
+          </div>
 
-        <!-- Video Link -->
-        <div *ngIf="selectedExercise()?.video" class="video-link-box">
+          <!-- Step-by-Step Instructions -->
+          <div class="info-card instructions-card">
+            <h3 class="info-section-title">
+              <span class="title-icon">🎯</span>
+              <span>Step-by-Step Biomechanics &amp; Execution</span>
+            </h3>
+            <ol class="instructions-list-theater">
+              <li *ngFor="let step of selectedExercise.instructions; let i = index" class="instruction-item">
+                <div class="step-badge-wrap">
+                  <span class="step-num">{{ i + 1 }}</span>
+                  <div class="step-connector" *ngIf="i < selectedExercise.instructions.length - 1"></div>
+                </div>
+                <div class="step-content">
+                  <span class="step-text">{{ step }}</span>
+                </div>
+              </li>
+            </ol>
+          </div>
+
+          <!-- Video External Link Box -->
+          <div *ngIf="selectedExercise.video || selectedExercise.videoUrl" class="video-link-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <a [href]="selectedExercise.videoUrl || selectedExercise.video" target="_blank" rel="noopener noreferrer">
+              Open Video Demonstration in YouTube Studio ↗
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Theater Modal Footer with Clear "Close" and "Back to List" Buttons -->
+      <div class="modal-footer theater-footer">
+        <button type="button" class="btn-secondary" (click)="closeDetailModal()">
+          Close
+        </button>
+        <button type="button" class="btn-primary holo-btn-primary" (click)="backToList()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            <polyline points="15 18 9 12 15 6"></polyline>
           </svg>
-          <a [href]="selectedExercise()?.video" target="_blank" rel="noopener noreferrer">
-            Watch Video Demonstration on YouTube ↗
-          </a>
-        </div>
-
-        <!-- Instructions List -->
-        <div class="instructions-section">
-          <h3>Step-by-Step Instructions</h3>
-          <ol class="instructions-list">
-            <li *ngFor="let step of selectedExercise()?.instructions; let i = index">
-              <span class="step-num">{{ i + 1 }}</span>
-              <span class="step-text">{{ step }}</span>
-            </li>
-          </ol>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn-secondary" (click)="closeDetailModal()">Close</button>
+          <span>Back to List</span>
+        </button>
       </div>
     </div>
   </div>
@@ -361,15 +528,29 @@
         </div>
 
         <div class="form-grid-2">
-          <!-- Alt Text -->
+          <!-- Accessible Alt Text -->
           <div class="form-group">
             <label class="form-label">Accessible Alt Text</label>
             <input type="text" class="form-control" placeholder="e.g. Barbell Squat demonstration" formControlName="altText" />
           </div>
 
-          <!-- Video URL -->
+          <!-- Video URL (YouTube or MP4) -->
           <div class="form-group">
-            <label class="form-label">Video Demonstration URL</label>
+            <label class="form-label">Video URL (YouTube or MP4 Stream)</label>
+            <input type="url" class="form-control" placeholder="https://youtube.com/... or https://...mp4" formControlName="videoUrl" />
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <!-- Motion URL (GIF / WebP loop) -->
+          <div class="form-group">
+            <label class="form-label">Biomechanical Motion URL (GIF / WebP Loop)</label>
+            <input type="url" class="form-control" placeholder="https://.../motion.webp or .gif" formControlName="motionUrl" />
+          </div>
+
+          <!-- Legacy Video Reference -->
+          <div class="form-group">
+            <label class="form-label">Legacy Video URL Reference</label>
             <input type="url" class="form-control" placeholder="https://youtube.com/..." formControlName="video" />
           </div>
         </div>

@@ -7,7 +7,25 @@ export type FoodCategory =
   | 'Beverages'
   | 'Other';
 
-export type MealType = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks';
+export type MealType =
+  | 'Breakfast'
+  | 'Lunch'
+  | 'Dinner'
+  | 'Veg Foods'
+  | 'Non-Veg Foods'
+  | 'Snacks';
+
+export interface HealthyFoodOption {
+  name: string;
+  servingSize: number;
+  servingUnit: string;
+  calories: number;
+  protein: number;
+  carbohydrates: number;
+  fat: number;
+  icon?: string;
+  portionLabel?: string;
+}
 
 export interface Food {
   _id: string;

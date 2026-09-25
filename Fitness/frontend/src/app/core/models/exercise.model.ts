@@ -25,6 +25,8 @@ export interface Exercise {
   thumbnailUrl?: string;
   altText?: string;
   video?: string;
+  videoUrl?: string;
+  motionUrl?: string;
   createdBy?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -70,4 +72,6 @@ export interface CreateExercisePayload {
   thumbnailUrl?: string;
   altText?: string;
   video?: string;
+  videoUrl?: string;
+  motionUrl?: string;
 }

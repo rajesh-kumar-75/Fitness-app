@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];
+const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Veg Foods', 'Non-Veg Foods', 'Snacks'];
 
 const nutritionItemSchema = new mongoose.Schema({
   food: {

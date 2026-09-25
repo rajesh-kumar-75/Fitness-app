@@ -150,6 +150,8 @@ export const getDailyNutrition = async (req, res, next) => {
       Breakfast: { mealType: 'Breakfast', items: [], totalCalories: 0, totalProtein: 0, totalCarbohydrates: 0, totalFat: 0 },
       Lunch: { mealType: 'Lunch', items: [], totalCalories: 0, totalProtein: 0, totalCarbohydrates: 0, totalFat: 0 },
       Dinner: { mealType: 'Dinner', items: [], totalCalories: 0, totalProtein: 0, totalCarbohydrates: 0, totalFat: 0 },
+      'Veg Foods': { mealType: 'Veg Foods', items: [], totalCalories: 0, totalProtein: 0, totalCarbohydrates: 0, totalFat: 0 },
+      'Non-Veg Foods': { mealType: 'Non-Veg Foods', items: [], totalCalories: 0, totalProtein: 0, totalCarbohydrates: 0, totalFat: 0 },
       Snacks: { mealType: 'Snacks', items: [], totalCalories: 0, totalProtein: 0, totalCarbohydrates: 0, totalFat: 0 },
     };
 
@@ -201,8 +203,18 @@ export const logFoodItem = async (req, res, next) => {
   try {
     const { date = getTodayDateString(), mealType, foodId, foodName, servingSize, servingUnit, servings = 1, calories, protein, carbohydrates, fat } = req.body;
 
-    if (!mealType || !['Breakfast', 'Lunch', 'Dinner', 'Snacks'].includes(mealType)) {
-      throw ApiError.badRequest('Valid meal type is required (Breakfast, Lunch, Dinner, Snacks)');
+    if (
+      !mealType ||
+      ![
+        'Breakfast',
+        'Lunch',
+        'Dinner',
+        'Veg Foods',
+        'Non-Veg Foods',
+        'Snacks',
+      ].includes(mealType)
+    ) {
+      throw ApiError.badRequest('Valid meal type is required (Breakfast, Lunch, Dinner, Veg Foods, Non-Veg Foods, Snacks)');
     }
 
     if (!foodName || calories === undefined) {

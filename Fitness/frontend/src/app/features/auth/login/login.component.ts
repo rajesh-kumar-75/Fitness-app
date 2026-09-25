@@ -47,6 +47,14 @@ export class LoginComponent implements OnInit {
     this.showPassword.update((v) => !v);
   }
 
+  fillUser(): void {
+    this.fillDemoAthlete();
+  }
+
+  fillTrainer(): void {
+    this.fillDemoTrainer();
+  }
+
   fillDemoAthlete(): void {
     this.loginForm.patchValue({
       email: 'member@fitness.com',

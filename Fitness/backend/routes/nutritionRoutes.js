@@ -6,20 +6,17 @@ const {
   logFoodItem,
   removeFoodItem,
 } = require('../controllers/nutritionController');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, optionalAuth } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-// All nutrition routes require authentication
-router.use(protect);
+// Foods database endpoints (GET /foods allows optionalAuth for public search and browsing)
+router.get('/foods', optionalAuth, getFoods);
+router.post('/foods', protect, createFood);
 
-// Foods database endpoints
-router.get('/foods', getFoods);
-router.post('/foods', createFood);
-
-// Daily tracking and meal log endpoints
-router.get('/daily', getDailyNutrition);
-router.post('/log', logFoodItem);
-router.delete('/log/:logId/item/:itemId', removeFoodItem);
+// Daily tracking and meal log endpoints (User-specific, require authentication)
+router.get('/daily', protect, getDailyNutrition);
+router.post('/log', protect, logFoodItem);
+router.delete('/log/:logId/item/:itemId', protect, removeFoodItem);
 
 module.exports = router;

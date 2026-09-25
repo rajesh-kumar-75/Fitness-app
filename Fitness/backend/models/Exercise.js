@@ -90,6 +90,16 @@ const exerciseSchema = new mongoose.Schema(
       default: '',
       trim: true,
     },
+    videoUrl: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    motionUrl: {
+      type: String,
+      default: '',
+      trim: true,
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

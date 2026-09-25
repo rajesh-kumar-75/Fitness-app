@@ -213,6 +213,22 @@ const getDailyNutrition = async (req, res) => {
         totalCarbohydrates: 0,
         totalFat: 0,
       },
+      'Veg Foods': {
+        mealType: 'Veg Foods',
+        items: [],
+        totalCalories: 0,
+        totalProtein: 0,
+        totalCarbohydrates: 0,
+        totalFat: 0,
+      },
+      'Non-Veg Foods': {
+        mealType: 'Non-Veg Foods',
+        items: [],
+        totalCalories: 0,
+        totalProtein: 0,
+        totalCarbohydrates: 0,
+        totalFat: 0,
+      },
       Snacks: {
         mealType: 'Snacks',
         items: [],
@@ -297,12 +313,19 @@ const logFoodItem = async (req, res) => {
 
     if (
       !mealType ||
-      !['Breakfast', 'Lunch', 'Dinner', 'Snacks'].includes(mealType)
+      ![
+        'Breakfast',
+        'Lunch',
+        'Dinner',
+        'Veg Foods',
+        'Non-Veg Foods',
+        'Snacks',
+      ].includes(mealType)
     ) {
       return res.status(400).json({
         success: false,
         message:
-          'Valid meal type is required (Breakfast, Lunch, Dinner, Snacks)',
+          'Valid meal type is required (Breakfast, Lunch, Dinner, Veg Foods, Non-Veg Foods, Snacks)',
       });
     }
 
