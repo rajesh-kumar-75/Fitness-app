@@ -8,6 +8,7 @@
     "backend": "npm run dev --prefix Fitness/backend",
     "frontend": "npm run dev --prefix Fitness/frontend",
     "start": "npm run dev --prefix Fitness",
-    "build": "npm run build --prefix Fitness"
+    "build": "npm run build --prefix Fitness",
+    "clean": "npx --yes kill-port 5000 4200"
   }
 }
