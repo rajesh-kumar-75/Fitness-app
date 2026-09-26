@@ -1,9 +1,21 @@
+:host {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  z-index: 2;
+  background-color: #0b1329;
+}
+
 .creator-container {
   min-height: calc(100vh - 70px);
   padding: 2rem 1.5rem;
   max-width: 1100px;
   margin: 0 auto;
   color: #f1f5f9;
+  position: relative;
+  z-index: 2;
+  background-color: #0b1329;
 }
 
 .creator-header {

@@ -1,11 +1,24 @@
+:host {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  z-index: 2;
+  background-color: #0b1329;
+}
+
 .history-container {
   max-width: 1000px;
   margin: 0 auto;
+  min-height: calc(100vh - 70px);
   padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
   color: #f1f5f9;
+  position: relative;
+  z-index: 2;
+  background-color: #0b1329;
 }
 
 .history-header {
