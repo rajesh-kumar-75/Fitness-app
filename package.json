@@ -1,0 +1,13 @@
+{
+  "name": "fitness-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix Fitness",
+    "dev:all": "npm run dev:all --prefix Fitness",
+    "backend": "npm run dev --prefix Fitness/backend",
+    "frontend": "npm run dev --prefix Fitness/frontend",
+    "start": "npm run dev --prefix Fitness",
+    "build": "npm run build --prefix Fitness"
+  }
+}
