@@ -131,7 +131,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.isLoading.set(true);
     this.chatService.getConversations().subscribe({
       next: (res) => {
-        const list = res.data.conversations || [];
+        const list = res?.data?.conversations || [];
         this.conversations.set(list);
 
         // If regular USER and no conversations yet, auto-connect with assigned trainer
@@ -154,13 +154,15 @@ export class ChatComponent implements OnInit, OnDestroy {
   private autoInitUserTrainerChat(): void {
     this.trainerService.getMyTrainer().subscribe({
       next: (res) => {
-        const trainer = res.data.connection?.trainer as any;
+        const trainer = res?.data?.connection?.trainer as any;
         if (trainer?._id) {
           this.chatService.getOrCreateConversation(trainer._id).subscribe({
             next: (convRes) => {
-              const newConv = convRes.data.conversation;
-              this.conversations.set([newConv]);
-              this.selectConversation(newConv);
+              const newConv = convRes?.data?.conversation;
+              if (newConv) {
+                this.conversations.set([newConv]);
+                this.selectConversation(newConv);
+              }
               this.isLoading.set(false);
             },
             error: () => this.isLoading.set(false),

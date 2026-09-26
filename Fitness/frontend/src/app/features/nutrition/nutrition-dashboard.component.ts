@@ -451,7 +451,7 @@ export class NutritionDashboardComponent implements OnInit {
     this.loadError.set(null);
     this.nutritionService.getDailyNutrition(this.selectedDate()).subscribe({
       next: (res) => {
-        this.dailyData.set(res.data);
+        this.dailyData.set(res?.data || null);
         this.isLoading.set(false);
       },
       error: (err) => {

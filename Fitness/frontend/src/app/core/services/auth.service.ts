@@ -28,10 +28,13 @@ export class AuthService {
   readonly currentUser = signal<User | null>(this.loadStoredUser());
 
   // Computed state
-  readonly isAuthenticated = computed(() => !!this.token());
+  readonly isAuthenticated = computed(() => !!this.token() || !!this.loadStoredToken());
   readonly userRole = computed<UserRole | null>(() => {
     const role = this.currentUser()?.role;
-    if (!role) return null;
+    if (!role) {
+      // Default to USER if authenticated but profile not yet populated
+      return this.token() ? 'USER' : null;
+    }
     const upper = (role as string).toUpperCase();
     if (upper === 'TRAINER') return 'TRAINER';
     if (upper === 'ADMIN') return 'ADMIN';
@@ -41,10 +44,24 @@ export class AuthService {
   readonly isAdmin = computed(() => this.userRole() === 'ADMIN');
 
   constructor() {
-    // If token exists, refresh user profile to verify validity
-    if (this.token()) {
+    // If token exists, silently refresh user profile without kicking user out on transient errors
+    const token = this.getToken();
+    if (token) {
       this.fetchCurrentUser().subscribe({
-        error: () => this.logout(),
+        next: (res) => {
+          if (res?.data?.user) {
+            this.currentUser.set(res.data.user);
+          }
+        },
+        error: (err) => {
+          // Only log out if backend explicitly rejected the token with 401
+          if (err && (err.status === 401 || err.rawError?.status === 401)) {
+            console.warn('[AuthService] Token expired or invalid on startup validation. Logging out.');
+            this.logout();
+          } else {
+            console.warn('[AuthService] Could not refresh profile from server on startup. Retaining stored session.');
+          }
+        },
       });
     }
   }
@@ -77,8 +94,10 @@ export class AuthService {
   fetchCurrentUser(): Observable<UserProfileResponse> {
     return this.http.get<UserProfileResponse>(`${this.baseUrl}/me`).pipe(
       tap((response) => {
-        this.currentUser.set(response.data.user);
-        this.saveToStorage(USER_KEY, JSON.stringify(response.data.user));
+        if (response?.data?.user) {
+          this.currentUser.set(response.data.user);
+          this.saveToStorage(USER_KEY, JSON.stringify(response.data.user));
+        }
       })
     );
   }
@@ -88,7 +107,8 @@ export class AuthService {
    */
   logout(): void {
     // Call backend logout asynchronously (fire and forget)
-    if (this.token()) {
+    const token = this.getToken();
+    if (token) {
       this.http.post(`${this.baseUrl}/logout`, {}).pipe(catchError(() => of(null))).subscribe();
     }
 
@@ -97,10 +117,17 @@ export class AuthService {
   }
 
   /**
-   * Get raw token value for interceptors.
+   * Get raw token value for interceptors and guards.
    */
   getToken(): string | null {
-    return this.token();
+    const current = this.token();
+    if (current) return current;
+    const stored = this.loadStoredToken();
+    if (stored) {
+      this.token.set(stored);
+      return stored;
+    }
+    return null;
   }
 
   private setSession(token: string, user: User): void {
@@ -118,16 +145,29 @@ export class AuthService {
   }
 
   private loadStoredToken(): string | null {
+    if (typeof window === 'undefined') return null;
     try {
-      return localStorage.getItem(TOKEN_KEY);
+      return (
+        localStorage.getItem(TOKEN_KEY) ||
+        sessionStorage.getItem(TOKEN_KEY) ||
+        localStorage.getItem('token') ||
+        sessionStorage.getItem('token') ||
+        localStorage.getItem('authToken') ||
+        sessionStorage.getItem('authToken')
+      );
     } catch {
       return null;
     }
   }
 
   private loadStoredUser(): User | null {
+    if (typeof window === 'undefined') return null;
     try {
-      const raw = localStorage.getItem(USER_KEY);
+      const raw =
+        localStorage.getItem(USER_KEY) ||
+        sessionStorage.getItem(USER_KEY) ||
+        localStorage.getItem('user') ||
+        sessionStorage.getItem('user');
       return raw ? JSON.parse(raw) : null;
     } catch {
       return null;
@@ -135,18 +175,32 @@ export class AuthService {
   }
 
   private saveToStorage(key: string, value: string): void {
+    if (typeof window === 'undefined') return;
     try {
       localStorage.setItem(key, value);
+      sessionStorage.setItem(key, value);
     } catch {
-      // Ignore if localStorage unavailable
+      // Ignore storage errors in restricted iframe/private mode
     }
   }
 
   private removeFromStorage(key: string): void {
+    if (typeof window === 'undefined') return;
     try {
       localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
+      if (key === TOKEN_KEY) {
+        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
+        localStorage.removeItem('authToken');
+        sessionStorage.removeItem('authToken');
+      }
+      if (key === USER_KEY) {
+        localStorage.removeItem('user');
+        sessionStorage.removeItem('user');
+      }
     } catch {
-      // Ignore if localStorage unavailable
+      // Ignore storage errors
     }
   }
 }

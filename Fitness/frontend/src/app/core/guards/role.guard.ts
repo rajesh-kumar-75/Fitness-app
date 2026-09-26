@@ -12,9 +12,11 @@ export const roleGuard = (...allowedRoles: UserRole[]): CanActivateFn => {
     const authService = inject(AuthService);
     const router = inject(Router);
 
-    const userRole = authService.userRole();
+    const isAuthed = authService.isAuthenticated() || !!authService.getToken();
+    const userRole = (authService.userRole() || 'USER').toUpperCase();
+    const normalizedAllowed = allowedRoles.map((r) => r.toUpperCase());
 
-    if (authService.isAuthenticated() && userRole && allowedRoles.includes(userRole)) {
+    if (isAuthed && (normalizedAllowed.length === 0 || normalizedAllowed.includes(userRole))) {
       return true;
     }
 

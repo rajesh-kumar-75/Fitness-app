@@ -9,7 +9,8 @@ export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  if (authService.isAuthenticated()) {
+  // Check reactive signal first, with storage fallback
+  if (authService.isAuthenticated() || authService.getToken()) {
     return true;
   }
 

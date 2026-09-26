@@ -40,22 +40,26 @@ export class TrainerDirectoryComponent implements OnInit {
   loadData(): void {
     this.isLoading.set(true);
 
-    // 1. Get current user's trainer connection status
+    // 1. Get current user's trainer connection status (safe fallback if user has no trainer yet)
     this.trainerService.getMyTrainer().subscribe({
       next: (res) => {
-        this.myConnection.set(res.data.connection);
-        this.hasTrainer.set(res.data.hasTrainer);
+        this.myConnection.set(res?.data?.connection || null);
+        this.hasTrainer.set(res?.data?.hasTrainer || false);
+      },
+      error: () => {
+        this.myConnection.set(null);
+        this.hasTrainer.set(false);
       },
     });
 
     // 2. Load public trainers list
     this.trainerService.getPublicTrainers().subscribe({
       next: (res) => {
-        this.trainers.set(res.data.trainers || []);
+        this.trainers.set(res?.data?.trainers || []);
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.errorMessage.set(err.error?.message || 'Failed to load trainers');
+        this.errorMessage.set(err.message || 'Failed to load trainers');
         this.isLoading.set(false);
       },
     });

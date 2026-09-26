@@ -83,7 +83,8 @@ export class ProgressDashboardComponent implements OnInit {
     this.isLoading.set(true);
 
     this.progressService.getProgressOverview().subscribe({
-      next: (res) => this.overview.set(res.data),
+      next: (res) => this.overview.set(res?.data || null),
+      error: () => {},
     });
 
     this.loadWeightProgress();
@@ -94,7 +95,7 @@ export class ProgressDashboardComponent implements OnInit {
   loadWeightProgress(): void {
     this.progressService.getWeightProgress().subscribe({
       next: (res) => {
-        this.weightData.set(res.data);
+        this.weightData.set(res?.data || null);
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false),
@@ -104,19 +105,21 @@ export class ProgressDashboardComponent implements OnInit {
   loadStrengthProgress(exerciseName?: string): void {
     this.progressService.getStrengthProgress(exerciseName).subscribe({
       next: (res) => {
-        this.strengthData.set(res.data);
-        if (res.data.selectedExercise) {
+        this.strengthData.set(res?.data || null);
+        if (res?.data?.selectedExercise) {
           this.selectedExercise.set(res.data.selectedExercise);
         }
       },
+      error: () => {},
     });
   }
 
   loadMeasurements(): void {
     this.progressService.getMeasurements().subscribe({
       next: (res) => {
-        this.measurementsList.set(res.data.measurements || []);
+        this.measurementsList.set(res?.data?.measurements || []);
       },
+      error: () => {},
     });
   }
 
