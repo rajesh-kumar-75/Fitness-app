@@ -47,6 +47,27 @@
     </div>
   </header>
 
+  <!-- Cyber-Neon Sub-Navigation & Quick Action Bar -->
+  <div class="nutrition-actions-bar">
+    <button type="button" class="btn-scan-macro" (click)="openScannerModal('Lunch')">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+        <circle cx="12" cy="13" r="4" />
+      </svg>
+      <span>AI Macro & Label Scanner</span>
+      <span class="btn-neon-pill">Vision OCR</span>
+    </button>
+
+    <a routerLink="/nutrition/meal-prep" class="btn-meal-prep">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 11l3 3L22 4" />
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+      </svg>
+      <span>Automated Meal Prep & Grocery List</span>
+      <span class="btn-neon-pill emerald">7-Day Aggregation</span>
+    </a>
+  </div>
+
   @if (isLoading()) {
     <div class="loading-state">
       <div class="spinner"></div>
@@ -54,7 +75,7 @@
     </div>
   } @else {
     @if (dailyData(); as data) {
-      <!-- Daily Calorie & Macronutrient Summary Cards -->
+      <!-- Daily Calorie, Macronutrient & Water Tracking Summary Cards -->
     <section class="summary-grid">
       <!-- Card 1: Calorie Target -->
       <div class="summary-card glass-panel calorie-card">
@@ -148,6 +169,9 @@
           </div>
         </div>
       </div>
+
+      <!-- Card 3: Gamified Hydration & Water Visual Tracker -->
+      <app-water-tracker [date]="selectedDate()"></app-water-tracker>
     </section>
 
     <!-- 4 Meals Section -->
@@ -182,17 +206,32 @@
               </div>
             </div>
 
-            <button
-              type="button"
-              class="btn-log-food"
-              (click)="openLogModal(meal.mealType)"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-              Add Food
-            </button>
+            <div class="meal-actions-group">
+              <button
+                type="button"
+                class="btn-scan-camera"
+                (click)="openScannerModal(meal.mealType)"
+                title="Scan meal photo or food label with AI Vision"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+                <span>Scan</span>
+              </button>
+
+              <button
+                type="button"
+                class="btn-log-food"
+                (click)="openLogModal(meal.mealType)"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add Food
+              </button>
+            </div>
           </div>
 
           <!-- Items list -->
@@ -503,6 +542,250 @@
                 </button>
               </div>
             </form>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Macro Image & Label Scanner Modal / Drawer -->
+  @if (isScannerOpen()) {
+    <div class="modal-backdrop" (click)="closeScannerModal()">
+      <div class="modal-dialog scanner-dialog glass-panel" (click)="$event.stopPropagation()">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <div class="scanner-icon-badge">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
+              </svg>
+            </div>
+            <div>
+              <h3>AI Macro &amp; Label Scanner</h3>
+              <p>Scan a food photo or nutrition label to extract calories &amp; macros</p>
+            </div>
+          </div>
+          <button type="button" class="btn-close" (click)="closeScannerModal()" title="Close">&times;</button>
+        </div>
+
+        <div class="modal-body scanner-body">
+          @if (!scannedPreview() && !isScanning()) {
+            <!-- Upload / Camera Dropzone -->
+            <div
+              class="scanner-dropzone"
+              [class.drag-over]="isDragOver()"
+              (dragover)="onScanDragOver($event)"
+              (dragleave)="onScanDragLeave($event)"
+              (drop)="onScanDrop($event)"
+            >
+              <div class="dropzone-content">
+                <div class="scan-anim-icon">
+                  <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#00f2fe" stroke-width="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="4 4" />
+                    <line x1="8" y1="12" x2="16" y2="12" />
+                    <circle cx="12" cy="12" r="2" fill="#00f2fe" />
+                  </svg>
+                </div>
+                <h4>Drag &amp; Drop meal photo or nutrition facts label</h4>
+                <p>Supports JPG, PNG, WebP up to 10MB</p>
+
+                <div class="scan-buttons-group">
+                  <!-- File Gallery Selector -->
+                  <label class="btn-scan-action">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="3" width="18" height="18" rx="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                    <span>Browse File</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      (change)="onScanFileSelected($event)"
+                      style="display: none;"
+                    />
+                  </label>
+
+                  <!-- Mobile Camera Capture Button -->
+                  <label class="btn-scan-action camera-btn">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                      <circle cx="12" cy="13" r="4" />
+                    </svg>
+                    <span>Snap Photo</span>
+                    <input
+                      type="file"
+                      accept="image/*;capture=camera"
+                      (change)="onScanFileSelected($event)"
+                      style="display: none;"
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Scanning in Progress Loader -->
+          @if (isScanning()) {
+            <div class="scanning-loader-panel">
+              <div class="scanner-laser-line"></div>
+              @if (scannedImageUrl()) {
+                <img [src]="scannedImageUrl()" alt="Scanning Preview" class="scanning-preview-thumb" />
+              }
+              <div class="cyber-spinner-large"></div>
+              <h4>Analyzing with Vision AI...</h4>
+              <p>Recognizing meal composition, calculating calories, and extracting macros</p>
+            </div>
+          }
+
+          <!-- Error Alert -->
+          @if (scanError()) {
+            <div class="scan-error-alert">
+              <span>⚠️ {{ scanError() }}</span>
+              <button type="button" class="btn-retry" (click)="openScannerModal(scanMealType())">Try Another Image</button>
+            </div>
+          }
+
+          <!-- Editable Preview Card -->
+          @if (scannedPreview() && !isScanning()) {
+            <div class="scanned-preview-card">
+              <div class="preview-header">
+                <div class="preview-meta">
+                  <span class="preview-tag">Extracted Meal</span>
+                  <span class="confidence-badge">
+                    ⚡ {{ scanConfidence() }}% Confidence
+                  </span>
+                </div>
+                <button type="button" class="btn-rescan" (click)="openScannerModal(scanMealType())">
+                  ↺ Scan Another
+                </button>
+              </div>
+
+              <div class="preview-grid">
+                <!-- Image Thumbnail & Meal Type -->
+                @if (scannedImageUrl()) {
+                  <div class="thumbnail-wrapper">
+                    <img [src]="scannedImageUrl()" alt="Scanned Food" class="food-thumbnail" />
+                  </div>
+                }
+
+                <div class="preview-fields">
+                  <!-- Food Name -->
+                  <div class="field-row full">
+                    <label>Food / Dish Name</label>
+                    <input
+                      type="text"
+                      [ngModel]="scanFoodName()"
+                      (ngModelChange)="scanFoodName.set($event)"
+                      class="preview-input"
+                      placeholder="e.g. Grilled Salmon Salad"
+                    />
+                  </div>
+
+                  <!-- Meal Type Target -->
+                  <div class="field-row">
+                    <label>Target Meal</label>
+                    <select
+                      [ngModel]="scanMealType()"
+                      (ngModelChange)="scanMealType.set($event)"
+                      class="preview-select"
+                    >
+                      <option value="Breakfast">Breakfast</option>
+                      <option value="Lunch">Lunch</option>
+                      <option value="Dinner">Dinner</option>
+                      <option value="Veg Foods">Veg Foods</option>
+                      <option value="Non-Veg Foods">Non-Veg Foods</option>
+                      <option value="Snacks">Snacks</option>
+                    </select>
+                  </div>
+
+                  <!-- Servings -->
+                  <div class="field-row">
+                    <label>Servings</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="0.5"
+                      [ngModel]="scanServings()"
+                      (ngModelChange)="scanServings.set($event)"
+                      class="preview-input"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Macros Row (Editable) -->
+              <div class="macros-tweak-grid">
+                <div class="macro-tweak-box calories">
+                  <span class="tweak-label">Calories</span>
+                  <div class="tweak-input-wrap">
+                    <input
+                      type="number"
+                      [ngModel]="scanCalories()"
+                      (ngModelChange)="scanCalories.set($event)"
+                      class="tweak-input"
+                    />
+                    <span class="tweak-unit">kcal</span>
+                  </div>
+                </div>
+
+                <div class="macro-tweak-box protein">
+                  <span class="tweak-label">Protein</span>
+                  <div class="tweak-input-wrap">
+                    <input
+                      type="number"
+                      [ngModel]="scanProtein()"
+                      (ngModelChange)="scanProtein.set($event)"
+                      class="tweak-input"
+                    />
+                    <span class="tweak-unit">g</span>
+                  </div>
+                </div>
+
+                <div class="macro-tweak-box carbs">
+                  <span class="tweak-label">Carbs</span>
+                  <div class="tweak-input-wrap">
+                    <input
+                      type="number"
+                      [ngModel]="scanCarbs()"
+                      (ngModelChange)="scanCarbs.set($event)"
+                      class="tweak-input"
+                    />
+                    <span class="tweak-unit">g</span>
+                  </div>
+                </div>
+
+                <div class="macro-tweak-box fats">
+                  <span class="tweak-label">Fats</span>
+                  <div class="tweak-input-wrap">
+                    <input
+                      type="number"
+                      [ngModel]="scanFats()"
+                      (ngModelChange)="scanFats.set($event)"
+                      class="tweak-input"
+                    />
+                    <span class="tweak-unit">g</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Confirmation -->
+              <div class="preview-actions">
+                <button type="button" class="btn-ghost" (click)="closeScannerModal()">Discard</button>
+                <button
+                  type="button"
+                  class="btn-log-scanned"
+                  (click)="logScannedMeal()"
+                  [disabled]="isSubmitting()"
+                >
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  <span>{{ isSubmitting() ? 'Logging Meal...' : 'Confirm & Log Meal' }}</span>
+                </button>
+              </div>
+            </div>
           }
         </div>
       </div>

@@ -1,0 +1,151 @@
+<div class="water-tracker-card" [class.goal-achieved]="isGoalAchieved()">
+  <!-- Header / Badge -->
+  <div class="tracker-header">
+    <div class="title-wrap">
+      <div class="icon-ring">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+        </svg>
+      </div>
+      <div>
+        <h3 class="tracker-title">Hydration Tracker</h3>
+        <p class="tracker-subtitle">Daily Liquid Fuel</p>
+      </div>
+    </div>
+
+    <!-- Active Streak Badge -->
+    <div class="streak-badge" [class.active-streak]="waterData().streak > 0">
+      <span class="streak-flame">🔥</span>
+      <span class="streak-text">{{ waterData().streak }} DAY STREAK</span>
+    </div>
+  </div>
+
+  <!-- Radial Liquid Tank Visual -->
+  <div class="gauge-container" [class.splash-active]="justHydrated()">
+    <svg class="radial-svg" viewBox="0 0 180 180">
+      <defs>
+        <!-- Liquid Glow Gradient -->
+        <linearGradient id="neonWaterGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#0052d4" />
+          <stop offset="50%" stop-color="#4364f7" />
+          <stop offset="100%" stop-color="#00f2fe" />
+        </linearGradient>
+
+        <!-- Achieved Emerald Gradient -->
+        <linearGradient id="neonAchievedGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#059669" />
+          <stop offset="60%" stop-color="#10b981" />
+          <stop offset="100%" stop-color="#34d399" />
+        </linearGradient>
+
+        <filter id="neonWaterGlow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="3.5" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+      </defs>
+
+      <!-- Track Background Circle -->
+      <circle
+        class="gauge-track"
+        cx="90"
+        cy="90"
+        [attr.r]="radius"
+      />
+
+      <!-- Progress Fill Circle -->
+      <circle
+        class="gauge-progress"
+        cx="90"
+        cy="90"
+        [attr.r]="radius"
+        [attr.stroke-dasharray]="circumference"
+        [attr.stroke-dashoffset]="strokeDashoffset()"
+        [attr.stroke]="isGoalAchieved() ? 'url(#neonAchievedGrad)' : 'url(#neonWaterGrad)'"
+      />
+    </svg>
+
+    <!-- Center Content inside Gauge -->
+    <div class="gauge-center-content">
+      <div class="liquid-bubble-icon" [class.bounce]="justHydrated()">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+          <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+        </svg>
+      </div>
+      <div class="current-intake">
+        <span class="intake-val">{{ waterData().waterIntakeMl }}</span>
+        <span class="intake-unit">ml</span>
+      </div>
+      <div class="target-label">of {{ waterData().waterGoalMl }} ml</div>
+      <div class="pct-pill" [class.achieved-pill]="isGoalAchieved()">
+        {{ displayPercentage() }}%
+      </div>
+    </div>
+  </div>
+
+  <!-- Status / Celebration Banner -->
+  @if (isGoalAchieved()) {
+    <div class="achievement-banner">
+      <span class="banner-icon">⚡</span>
+      <span class="banner-text">Hydration Target Reached! Outstanding job!</span>
+    </div>
+  } @else {
+    <div class="status-summary">
+      <span>Remaining: <strong>{{ waterData().waterGoalMl - waterData().waterIntakeMl }} ml</strong></span>
+    </div>
+  }
+
+  <!-- Quick-Tap Action Controls -->
+  <div class="quick-controls">
+    <button
+      type="button"
+      class="quick-btn"
+      (click)="addWater(250)"
+      [disabled]="isUpdating()"
+      title="Add standard 250ml glass"
+    >
+      <span class="btn-icon">💧</span>
+      <span class="btn-amount">+250ml</span>
+      <span class="btn-sub">Glass</span>
+    </button>
+
+    <button
+      type="button"
+      class="quick-btn"
+      (click)="addWater(500)"
+      [disabled]="isUpdating()"
+      title="Add 500ml bottle"
+    >
+      <span class="btn-icon">🍶</span>
+      <span class="btn-amount">+500ml</span>
+      <span class="btn-sub">Bottle</span>
+    </button>
+
+    <button
+      type="button"
+      class="quick-btn"
+      (click)="addWater(750)"
+      [disabled]="isUpdating()"
+      title="Add 750ml shaker"
+    >
+      <span class="btn-icon">🥤</span>
+      <span class="btn-amount">+750ml</span>
+      <span class="btn-sub">Shaker</span>
+    </button>
+
+    <button
+      type="button"
+      class="reset-btn"
+      (click)="resetWater()"
+      [disabled]="isUpdating() || waterData().waterIntakeMl === 0"
+      title="Reset today's water"
+    >
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
+        <path d="M21 3v5h-5" />
+        <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
+        <path d="M3 21v-5h5" />
+      </svg>
+      <span>Reset</span>
+    </button>
+  </div>
+</div>

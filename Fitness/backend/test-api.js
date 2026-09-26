@@ -41,6 +41,32 @@ const request = (method, path, body = null, token = null) => {
   });
 };
 
+async function ensureServerRunning() {
+  try {
+    const res = await request('GET', '/api/health');
+    if (res.status === 200) {
+      return;
+    }
+  } catch (err) {
+    console.log('[Test Setup] Initializing in-process backend server...');
+    require('./server');
+
+    for (let i = 0; i < 80; i++) {
+      await new Promise((r) => setTimeout(r, 500));
+      try {
+        const res = await request('GET', '/api/health');
+        if (res.status === 200) {
+          console.log('[Test Setup] Backend server is ready.');
+          return;
+        }
+      } catch (e) {
+        // Server still initializing
+      }
+    }
+    throw new Error('Backend server failed to start within 40 seconds.');
+  }
+}
+
 async function runTests() {
   console.log('--- Starting API Verification Suite ---');
 
@@ -256,5 +282,14 @@ async function runTests() {
   console.log('--- All API Tests Finished Successfully! ---');
 }
 
-runTests().catch(console.error);
+(async () => {
+  try {
+    await ensureServerRunning();
+    await runTests();
+    process.exit(0);
+  } catch (err) {
+    console.error('Test Suite Failed:', err);
+    process.exit(1);
+  }
+})();
 

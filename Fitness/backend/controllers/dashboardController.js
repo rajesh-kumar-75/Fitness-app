@@ -5,6 +5,7 @@ const Attendance = require('../models/Attendance');
 const Membership = require('../models/Membership');
 const Payment = require('../models/Payment');
 const User = require('../models/User');
+const DailyMetrics = require('../models/DailyMetrics');
 
 /**
  * @desc    Get admin dashboard metrics
@@ -201,8 +202,98 @@ const getMemberDashboard = async (req, res) => {
   }
 };
 
+// Helper to format today's date as YYYY-MM-DD
+const getTodayDateString = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+/**
+ * @desc    Get current user daily steps
+ * @route   GET /api/dashboard/steps
+ * @access  Private
+ */
+const getDailySteps = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const date = req.query.date || getTodayDateString();
+
+    let metrics = await DailyMetrics.findOne({ user: userId, date });
+    let steps = metrics ? metrics.steps || 0 : 0;
+    let stepGoal = metrics ? metrics.stepGoal || 10000 : 10000;
+
+    // Fallback to user model if metrics not yet created today
+    if (!metrics && req.user && req.user.steps) {
+      steps = req.user.steps;
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        date,
+        steps,
+        stepGoal,
+        remainingSteps: Math.max(0, stepGoal - steps),
+        stepPercentage: stepGoal > 0 ? Math.min(100, Math.round((steps / stepGoal) * 100)) : 0,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Error fetching step count',
+    });
+  }
+};
+
+/**
+ * @desc    Update daily steps for current user
+ * @route   PATCH /api/dashboard/steps or PUT /api/dashboard/steps
+ * @access  Private
+ */
+const updateDailySteps = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { steps = 0, stepGoal = 10000, date = getTodayDateString() } = req.body;
+
+    const clampedSteps = Math.min(50000, Math.max(0, Number(steps) || 0));
+    const targetGoal = Math.max(1000, Number(stepGoal) || 10000);
+
+    const metrics = await DailyMetrics.findOneAndUpdate(
+      { user: userId, date },
+      { $set: { steps: clampedSteps, stepGoal: targetGoal } },
+      { new: true, upsert: true }
+    );
+
+    // Also sync to User document for convenience
+    await User.findByIdAndUpdate(userId, { $set: { steps: clampedSteps } });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Step count updated successfully',
+      data: {
+        date: metrics.date,
+        steps: metrics.steps,
+        stepGoal: metrics.stepGoal,
+        remainingSteps: Math.max(0, metrics.stepGoal - metrics.steps),
+        stepPercentage: metrics.stepGoal > 0 ? Math.min(100, Math.round((metrics.steps / metrics.stepGoal) * 100)) : 0,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Error updating step count',
+    });
+  }
+};
+
 module.exports = {
   getAdminDashboard,
   getTrainerDashboard,
   getMemberDashboard,
+  getDailySteps,
+  updateDailySteps,
 };
+

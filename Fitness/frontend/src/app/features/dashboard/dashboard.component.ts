@@ -36,15 +36,19 @@ interface PlasmaArc {
   maxLife: number;
 }
 
+import { WaterTrackerComponent } from '../nutrition/components/water-tracker/water-tracker.component';
+import { DashboardService } from '../../core/services/dashboard.service';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, WaterTrackerComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly authService = inject(AuthService);
+  private readonly dashboardService = inject(DashboardService);
 
   @ViewChild('plasmaCanvas', { static: false })
   canvasRef!: ElementRef<HTMLCanvasElement>;
@@ -52,6 +56,25 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly user = this.authService.currentUser;
   readonly isTrainer = this.authService.isTrainer;
   readonly isAdmin = this.authService.isAdmin;
+
+  // Step Counter State (Default Goal: 10,000 steps, max: 50,000)
+  readonly stepGoal = signal<number>(10000);
+  readonly currentSteps = signal<number>(0);
+  readonly isUpdatingSteps = signal<boolean>(false);
+
+  readonly stepPercentage = computed(() => {
+    const goal = this.stepGoal();
+    if (goal <= 0) return 0;
+    return Math.min(100, Math.round((this.currentSteps() / goal) * 100));
+  });
+
+  readonly remainingSteps = computed(() => {
+    return Math.max(0, this.stepGoal() - this.currentSteps());
+  });
+
+  readonly isStepGoalAchieved = computed(() => {
+    return this.currentSteps() >= this.stepGoal();
+  });
 
   // Display user details matching image_5.png with live fallbacks
   readonly displayName = computed(() => this.user()?.name || 'Adugula Rajesh Kumar');
@@ -81,6 +104,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (typeof window !== 'undefined') {
       window.addEventListener('mousemove', this.onMouseMove);
     }
+    this.loadSteps();
   }
 
   ngAfterViewInit(): void {
@@ -309,6 +333,50 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     points.push({ x: x2, y: y2 });
     return points;
+  }
+
+  loadSteps(): void {
+    this.dashboardService.getDailySteps().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.currentSteps.set(res.data.steps || 0);
+          this.stepGoal.set(res.data.stepGoal || 10000);
+        }
+      },
+      error: (err) => {
+        console.warn('Could not load step count from backend:', err);
+      },
+    });
+  }
+
+  addSteps(amount: number): void {
+    const nextVal = Math.min(50000, this.currentSteps() + amount);
+    this.currentSteps.set(nextVal);
+    this.syncSteps(nextVal);
+  }
+
+  resetSteps(): void {
+    if (this.currentSteps() === 0) return;
+    if (!confirm("Are you sure you want to reset today's step count to 0?")) return;
+    this.currentSteps.set(0);
+    this.syncSteps(0);
+  }
+
+  private syncSteps(steps: number): void {
+    this.isUpdatingSteps.set(true);
+    this.dashboardService.updateDailySteps(steps, this.stepGoal()).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.currentSteps.set(res.data.steps);
+          this.stepGoal.set(res.data.stepGoal);
+        }
+        this.isUpdatingSteps.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to sync steps with backend:', err);
+        this.isUpdatingSteps.set(false);
+      },
+    });
   }
 
   onRefreshProfile(): void {

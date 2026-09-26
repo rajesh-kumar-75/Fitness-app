@@ -10,6 +10,7 @@ import { WorkoutTrackerComponent } from './features/workouts/workout-tracker.com
 import { WorkoutPlanCreatorComponent } from './features/workouts/workout-plan-creator.component';
 import { WorkoutHistoryComponent } from './features/workouts/workout-history.component';
 import { NutritionDashboardComponent } from './features/nutrition/nutrition-dashboard.component';
+import { MealPrepChecklistComponent } from './features/nutrition/meal-prep-checklist/meal-prep-checklist.component';
 import { ProgressDashboardComponent } from './features/progress/progress-dashboard.component';
 import { TrainerDashboardComponent } from './features/trainer/trainer-dashboard.component';
 import { TrainerClientDetailComponent } from './features/trainer/trainer-client-detail.component';
@@ -64,6 +65,12 @@ export const routes: Routes = [
     component: NutritionDashboardComponent,
     canActivate: [authGuard],
     title: 'FitPlatform - Nutrition & Food Tracker',
+  },
+  {
+    path: 'nutrition/meal-prep',
+    component: MealPrepChecklistComponent,
+    canActivate: [authGuard],
+    title: 'FitPlatform - Automated Meal Prep & Grocery Checklist',
   },
   {
     path: 'progress',

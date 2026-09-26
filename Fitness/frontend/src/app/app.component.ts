@@ -14,6 +14,7 @@ import { AiAssistantWidgetComponent } from './components/ai-assistant-widget/ai-
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
+  readonly title = 'frontend';
   private readonly router = inject(Router);
   readonly authService = inject(AuthService);
   readonly chatService = inject(ChatService);

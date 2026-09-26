@@ -115,3 +115,66 @@ export interface LogFoodPayload {
   carbohydrates?: number;
   fat?: number;
 }
+
+export interface ScannedFoodResult {
+  foodName: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fats: number;
+  servingSize: number;
+  servingUnit: string;
+  confidenceScore: number;
+}
+
+export interface ScanResponse {
+  success: boolean;
+  message?: string;
+  data: ScannedFoodResult;
+}
+
+export interface WaterLogEntry {
+  amountMl: number;
+  timestamp: string;
+}
+
+export interface WaterTrackerData {
+  date: string;
+  waterIntakeMl: number;
+  waterGoalMl: number;
+  percentage: number;
+  streak: number;
+  logs: WaterLogEntry[];
+}
+
+export interface WaterTrackerResponse {
+  success: boolean;
+  message?: string;
+  data: WaterTrackerData;
+}
+
+export type GroceryCategory = 'Proteins' | 'Produce' | 'Pantry/Grains' | 'Dairy' | 'Other';
+
+export interface GroceryItem {
+  id: string;
+  name: string;
+  category: GroceryCategory;
+  quantity: number;
+  unit: string;
+  isChecked: boolean;
+  isCustom?: boolean;
+}
+
+export interface GroceryListResponse {
+  success: boolean;
+  message?: string;
+  data: {
+    weekStartDate: string;
+    items: GroceryItem[];
+    grouped: Record<GroceryCategory, GroceryItem[]>;
+    totalCount: number;
+    checkedCount: number;
+    progressPercentage: number;
+  };
+}
+

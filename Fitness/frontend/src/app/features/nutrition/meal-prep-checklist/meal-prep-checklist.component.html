@@ -1,0 +1,261 @@
+<div class="meal-prep-container">
+  <!-- Top Navigation & Header -->
+  <header class="page-header">
+    <div class="header-left">
+      <button type="button" class="back-link" (click)="goBack()">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12" />
+          <polyline points="12 19 5 12 12 5" />
+        </svg>
+        <span>Back to Nutrition</span>
+      </button>
+      <div class="title-meta">
+        <h1 class="page-title">Automated Meal Prep & Grocery Checklist</h1>
+        <p class="page-desc">Aggregated 7-day ingredients from your active diet plan</p>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="week-pill">
+        <span class="pill-dot"></span>
+        <span>Week of {{ listData()?.weekStartDate || 'Active Cycle' }}</span>
+      </div>
+      @if (isSaving()) {
+        <span class="sync-indicator">Syncing...</span>
+      }
+    </div>
+  </header>
+
+  <!-- Progress & Overview Widget -->
+  <div class="overview-card">
+    <div class="overview-stats">
+      <div class="stat-block">
+        <span class="stat-label">Progress</span>
+        <span class="stat-value">{{ progressPercentage() }}%</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-block">
+        <span class="stat-label">Purchased</span>
+        <span class="stat-value highlight">{{ completedCount() }} <small>/ {{ totalItemsCount() }} items</small></span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-block">
+        <span class="stat-label">Remaining to Buy</span>
+        <span class="stat-value warning">{{ totalItemsCount() - completedCount() }} items</span>
+      </div>
+    </div>
+
+    <!-- Glowing Progress Bar -->
+    <div class="progress-bar-track">
+      <div
+        class="progress-bar-fill"
+        [style.width.%]="progressPercentage()"
+      ></div>
+    </div>
+  </div>
+
+  <!-- Add Item & Filters Toolbar -->
+  <div class="toolbar-card">
+    <!-- Quick Add Input Bar -->
+    <form class="quick-add-form" (ngSubmit)="addCustomItem()">
+      <div class="input-wrapper">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+        <input
+          type="text"
+          placeholder="Add custom grocery item (e.g. Grass-fed Butter, Chia Seeds)..."
+          [ngModel]="customName()"
+          (ngModelChange)="customName.set($event)"
+          name="customName"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="form-selects">
+        <select
+          [ngModel]="customCategory()"
+          (ngModelChange)="customCategory.set($event)"
+          name="customCategory"
+          class="cat-select"
+        >
+          @for (cat of categories; track cat) {
+            <option [value]="cat">{{ cat }}</option>
+          }
+        </select>
+
+        <div class="qty-inputs">
+          <input
+            type="number"
+            min="1"
+            [ngModel]="customQuantity()"
+            (ngModelChange)="customQuantity.set($event)"
+            name="customQuantity"
+            class="qty-input"
+            placeholder="Qty"
+          />
+          <input
+            type="text"
+            [ngModel]="customUnit()"
+            (ngModelChange)="customUnit.set($event)"
+            name="customUnit"
+            class="unit-input"
+            placeholder="g / items"
+          />
+        </div>
+
+        <button type="submit" class="add-btn" [disabled]="!customName().trim()">
+          <span>Add Item</span>
+        </button>
+      </div>
+    </form>
+
+    <!-- Category Filter Chips -->
+    <div class="filter-controls">
+      <div class="category-chips">
+        <button
+          type="button"
+          class="chip"
+          [class.active]="selectedCategoryFilter() === 'All'"
+          (click)="selectedCategoryFilter.set('All')"
+        >
+          All Categories
+        </button>
+        @for (cat of categories; track cat) {
+          <button
+            type="button"
+            class="chip chip-{{ cat.toLowerCase().replace('/', '-') }}"
+            [class.active]="selectedCategoryFilter() === cat"
+            (click)="selectedCategoryFilter.set(cat)"
+          >
+            {{ cat }}
+          </button>
+        }
+      </div>
+
+      <!-- Status Tabs & Reset -->
+      <div class="status-actions">
+        <div class="pill-tabs">
+          <button
+            type="button"
+            class="tab-btn"
+            [class.active]="currentFilterTab() === 'all'"
+            (click)="currentFilterTab.set('all')"
+          >
+            All
+          </button>
+          <button
+            type="button"
+            class="tab-btn"
+            [class.active]="currentFilterTab() === 'pending'"
+            (click)="currentFilterTab.set('pending')"
+          >
+            To Buy
+          </button>
+          <button
+            type="button"
+            class="tab-btn"
+            [class.active]="currentFilterTab() === 'completed'"
+            (click)="currentFilterTab.set('completed')"
+          >
+            Done
+          </button>
+        </div>
+
+        @if (completedCount() > 0) {
+          <button type="button" class="reset-checks-btn" (click)="resetAllChecked()" title="Reset all checkboxes">
+            Reset Checks
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="cyber-spinner"></div>
+      <p>Aggregating weekly meal plan ingredients...</p>
+    </div>
+  } @else {
+    <!-- Categorized Grocery Sections -->
+    <div class="grocery-grid">
+      @for (cat of categories; track cat) {
+        @if (groupedDisplay()[cat] && groupedDisplay()[cat].length > 0) {
+          <div class="category-card cat-{{ cat.toLowerCase().replace('/', '-') }}">
+            <!-- Category Header -->
+            <div class="cat-header">
+              <div class="cat-title-wrap">
+                <span class="cat-badge-dot"></span>
+                <h2 class="cat-title">{{ cat }}</h2>
+              </div>
+              <span class="cat-count">
+                {{ groupedDisplay()[cat].length }} items
+              </span>
+            </div>
+
+            <!-- Item List -->
+            <div class="item-list">
+              @for (item of groupedDisplay()[cat]; track item.id) {
+                <div
+                  class="grocery-row"
+                  [class.checked]="item.isChecked"
+                  (click)="toggleItem(item)"
+                >
+                  <!-- Custom Cyber Checkbox -->
+                  <div class="checkbox-box" [class.is-checked]="item.isChecked">
+                    @if (item.isChecked) {
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    }
+                  </div>
+
+                  <!-- Item Info -->
+                  <div class="item-info">
+                    <span class="item-name" [class.strikethrough]="item.isChecked">
+                      {{ item.name }}
+                    </span>
+                    @if (item.isCustom) {
+                      <span class="custom-tag">Custom</span>
+                    }
+                  </div>
+
+                  <!-- Quantity Badge -->
+                  <div class="item-qty">
+                    <span class="qty-num">{{ item.quantity }}</span>
+                    <span class="qty-unit">{{ item.unit }}</span>
+                  </div>
+
+                  <!-- Delete Custom Item Option -->
+                  @if (item.isCustom) {
+                    <button
+                      type="button"
+                      class="delete-btn"
+                      (click)="removeItem(item.id, $event)"
+                      title="Remove item"
+                    >
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+
+      @if (filteredItems().length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon">🛒</div>
+          <h3>No items found in this filter</h3>
+          <p>Try switching categories or add a custom item using the bar above.</p>
+        </div>
+      }
+    </div>
+  }
+</div>

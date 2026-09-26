@@ -151,20 +151,22 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   // Connect to Database
   const conn = await connectDB();
-  if (conn) {
-    // Seed database if collections are empty
-    await seedDatabase();
-    await seedFoodsIfEmpty();
-    await seedTrainersIfEmpty();
-    await seedExercisesIfEmpty();
-    await seedDefaultChatIfEmpty();
-    await seedWorkoutHistoryIfEmpty();
-  }
 
   const server = http.createServer(app);
 
   // Attach Socket.IO to HTTP server
   initSocket(server);
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`⚠️ Port ${PORT} is already in use by another running instance of FitPlatform backend.`);
+      console.log(`💡 Tip: Run 'npm run clean' to release ports 5000 and 4200 automatically.`);
+      process.exit(1);
+    } else {
+      console.error(`[Server Error]: ${err.message}`);
+      process.exit(1);
+    }
+  });
 
   server.listen(PORT, () => {
     console.log(`====================================================`);
@@ -174,6 +176,21 @@ const startServer = async () => {
     console.log(`🏥 Health Check: http://localhost:${PORT}/api/health`);
     console.log(`====================================================`);
   });
+
+  if (conn) {
+    // Run seeders in background without delaying server startup
+    (async () => {
+      try {
+        await seedDatabase();
+        await seedFoodsIfEmpty();
+        await seedTrainersIfEmpty();
+        await seedDefaultChatIfEmpty();
+        await seedWorkoutHistoryIfEmpty();
+      } catch (err) {
+        console.error('[Seeder Warning]:', err.message);
+      }
+    })();
+  }
 
   // Handle unhandled promise rejections
   process.on('unhandledRejection', (err) => {

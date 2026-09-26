@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "clean": "npm run clean --prefix Fitness",
     "dev": "npm run dev --prefix Fitness",
     "dev:all": "npm run dev:all --prefix Fitness",
-    "backend": "npm run dev --prefix Fitness/backend",
-    "frontend": "npm run dev --prefix Fitness/frontend",
-    "start": "npm run dev --prefix Fitness",
-    "build": "npm run build --prefix Fitness",
-    "clean": "npx --yes kill-port 5000 4200"
+    "backend": "npm run backend --prefix Fitness",
+    "frontend": "npm run frontend --prefix Fitness",
+    "start": "npm run start --prefix Fitness",
+    "build": "npm run build --prefix Fitness"
   }
 }

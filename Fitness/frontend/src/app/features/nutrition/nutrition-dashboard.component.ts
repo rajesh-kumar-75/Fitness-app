@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { NutritionService } from '../../core/services/nutrition.service';
 import {
   DailyNutritionResponse,
@@ -9,13 +10,15 @@ import {
   MealType,
   NutritionItem,
   HealthyFoodOption,
+  ScannedFoodResult,
 } from '../../core/models/nutrition.model';
 import { DonutChartComponent, DonutSegment } from '../../shared/components/donut-chart/donut-chart.component';
+import { WaterTrackerComponent } from './components/water-tracker/water-tracker.component';
 
 @Component({
   selector: 'app-nutrition-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, DonutChartComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, DonutChartComponent, WaterTrackerComponent],
   templateUrl: './nutrition-dashboard.component.html',
   styleUrl: './nutrition-dashboard.component.scss',
 })
@@ -627,6 +630,147 @@ export class NutritionDashboardComponent implements OnInit {
         this.loadDailyNutrition();
       },
     });
+  }
+
+  // Macro Vision Scanner State
+  readonly isScannerOpen = signal<boolean>(false);
+  readonly isScanning = signal<boolean>(false);
+  readonly scanError = signal<string | null>(null);
+  readonly isDragOver = signal<boolean>(false);
+  readonly scannedPreview = signal<ScannedFoodResult | null>(null);
+  readonly scanMealType = signal<MealType>('Lunch');
+  readonly scannedImageUrl = signal<string | null>(null);
+
+  // Editable Preview Fields
+  readonly scanFoodName = signal<string>('');
+  readonly scanCalories = signal<number>(0);
+  readonly scanProtein = signal<number>(0);
+  readonly scanCarbs = signal<number>(0);
+  readonly scanFats = signal<number>(0);
+  readonly scanServingSize = signal<number>(100);
+  readonly scanServingUnit = signal<string>('g');
+  readonly scanServings = signal<number>(1);
+  readonly scanConfidence = signal<number>(0);
+
+  openScannerModal(mealType: MealType = 'Lunch'): void {
+    this.scanMealType.set(mealType);
+    this.scannedPreview.set(null);
+    this.scanError.set(null);
+    this.isScanning.set(false);
+    this.isDragOver.set(false);
+    this.scannedImageUrl.set(null);
+    this.isScannerOpen.set(true);
+  }
+
+  closeScannerModal(): void {
+    this.isScannerOpen.set(false);
+    this.scannedPreview.set(null);
+    this.scannedImageUrl.set(null);
+    this.scanError.set(null);
+  }
+
+  onScanFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input && input.files && input.files[0]) {
+      this.processScanFile(input.files[0]);
+    }
+  }
+
+  onScanDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver.set(true);
+  }
+
+  onScanDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver.set(false);
+  }
+
+  onScanDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver.set(false);
+    if (event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0]) {
+      this.processScanFile(event.dataTransfer.files[0]);
+    }
+  }
+
+  private processScanFile(file: File): void {
+    if (!file.type.startsWith('image/')) {
+      this.scanError.set('Please provide a valid image file (JPG, PNG, WebP).');
+      return;
+    }
+
+    this.scanError.set(null);
+    this.isScanning.set(true);
+
+    try {
+      this.scannedImageUrl.set(URL.createObjectURL(file));
+    } catch {
+      // Ignored if unsupported
+    }
+
+    this.nutritionService.scanFoodImage(file).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          const d = res.data;
+          this.scannedPreview.set(d);
+          this.scanFoodName.set(d.foodName);
+          this.scanCalories.set(d.calories);
+          this.scanProtein.set(d.protein);
+          this.scanCarbs.set(d.carbs);
+          this.scanFats.set(d.fats);
+          this.scanServingSize.set(d.servingSize || 100);
+          this.scanServingUnit.set(d.servingUnit || 'g');
+          this.scanServings.set(1);
+          this.scanConfidence.set(Math.round((d.confidenceScore || 0.9) * 100));
+        } else {
+          this.scanError.set('Could not extract macros. You can manually enter values.');
+        }
+        this.isScanning.set(false);
+      },
+      error: (err) => {
+        console.error('Scan failed:', err);
+        this.scanError.set(err.error?.message || 'Scan failed. Please verify the image or try again.');
+        this.isScanning.set(false);
+      },
+    });
+  }
+
+  logScannedMeal(): void {
+    const name = this.scanFoodName().trim();
+    if (!name) {
+      alert('Please enter a food name');
+      return;
+    }
+
+    this.isSubmitting.set(true);
+    this.nutritionService
+      .logFood({
+        date: this.selectedDate(),
+        mealType: this.scanMealType(),
+        foodName: name,
+        servingSize: Number(this.scanServingSize()) || 100,
+        servingUnit: this.scanServingUnit() || 'g',
+        servings: Number(this.scanServings()) || 1,
+        calories: Number(this.scanCalories()) || 0,
+        protein: Number(this.scanProtein()) || 0,
+        carbohydrates: Number(this.scanCarbs()) || 0,
+        fat: Number(this.scanFats()) || 0,
+      })
+      .subscribe({
+        next: () => {
+          this.isSubmitting.set(false);
+          this.closeScannerModal();
+          this.loadDailyNutrition();
+        },
+        error: (err) => {
+          console.error('Log scanned food failed:', err);
+          this.isSubmitting.set(false);
+        },
+      });
   }
 
   private getTodayString(): string {

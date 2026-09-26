@@ -63,6 +63,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: 'General Fitness',
     },
+    steps: {
+      type: Number,
+      default: 0,
+    },
     activityLevel: {
       type: String,
       default: 'Moderately Active',
